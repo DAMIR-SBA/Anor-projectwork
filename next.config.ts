@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
   // Classic dynamic rendering model: nearly every page depends on the session,
   // cart and locale cookies, so Cache Components would add little here.
   poweredByHeader: false,
+  // Fonts read at runtime by the PDF receipt route must ship with the serverless bundle.
+  outputFileTracingIncludes: { "/api/orders/[id]/receipt": ["./assets/fonts/**"], "/api/b2b/invoices/[id]": ["./assets/fonts/**"] },
   serverExternalPackages: ["@node-rs/argon2", "pg-boss", "exceljs", "pdf-lib", "nodemailer", "web-push"],
   images: {
     remotePatterns: [

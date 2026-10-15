@@ -1,0 +1,3 @@
+DejaVu fonts — Bitstream Vera Fonts Copyright (c) 2003 Bitstream, Inc. / Arev Fonts Copyright (c) 2006 Tavmjong Bah.
+Free license (Bitstream Vera / Public Domain changes). Used to render Cyrillic and Uzbek Latin text in PDF receipts.
+https://dejavu-fonts.github.io/License.html

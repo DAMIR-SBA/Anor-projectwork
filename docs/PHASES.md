@@ -49,3 +49,23 @@ Each phase lists what was built and what is mocked / degraded when no provider i
 - Product imagery is generated SVG art (`/media/demo/*.svg`); real uploads arrive with the seller cabinet.
 - Image search without `GEMINI_API_KEY` uses filename keywords.
 - Product videos point to a public CC0 sample clip.
+
+## Phase 3 — Checkout, payments, orders, pickup points, wallet
+**Built**
+- Checkout: pickup point (map + list picker), courier with 2-hour slots, express (Tashkent + FBO only); saved addresses with Leaflet map pin; gift orders (hidden price, greeting, recipient); live re-quoting; bonus slider (≤ 30%), wallet balance, saved cards, Nasiya plan picker when a limit exists.
+- One checkout → one `OrderGroup` split into per-shop orders; prices recomputed server-side; stock reserved atomically per warehouse (conditional decrements, buyer's region first); coupon usage limits enforced atomically; commission and logistics fee per line; cashback by tier/Plus.
+- `PaymentProvider` interface with mock Click, Payme, Uzcard, Humo, Visa/MC (hosted test page with 3-DS style code `000000`, tokenized card saving, signed server callback endpoint), COD, wallet, installment (contract + repayment schedule created at checkout).
+- Order state machine (pure + tested later) with role rules; shipments (FBO/FBS/DBS, 24 h FBS handover SLA), pickup point storage (5 days, reminders, auto-return), 4-digit code / QR handover, cancellation with stock release and proportional refunds (bonus → bonus, wallet → wallet, rest → card), cashback paid on delivery, loyalty tier recompute, referral rewards with fraud limits, achievements.
+- Fiscal receipts via a `TaxProvider` mock (VAT 12 % included), PDF receipt (pdf-lib + DejaVu, QR) and public verification page.
+- Account: orders list with tabs, order detail with timeline, tracking, pickup code + QR, receipt, cancel, return request with photos; returns list; addresses; notifications (in-app + channel preferences).
+- Anor Hamyon: top-up, transactions, saved cards, bonus history with expiry, service payments (mobile, internet, utilities, QR), wallet-to-wallet transfers, gift cards (buy + redeem).
+- Courier app `/courier`: route list + map, take jobs, confirm by code, failed attempts, COD cash notice.
+- Infrastructure: realtime bus (in-process + Postgres LISTEN/NOTIFY), notification service (in-app, email, SMS, Telegram, Web Push), job registry with inline / pg-boss drivers, `npm run worker`, `/api/cron/[job]` for Vercel Cron, upload API with type/size/magic-byte checks and virus-scan hook, local / Supabase storage.
+- Jobs: unpaid checkout expiry, PVZ reminders/returns, FBS SLA penalties, bonus expiry, price-drop/back-in-stock alerts, scheduled price changes, webhook delivery with retries.
+
+**Mocked / degraded**
+- All card rails are mock gateways (no real money); refunds are simulated.
+- Fiscal operator (OFD) is mocked; receipt QR points to our own verification page.
+- Service payment providers (Ucell, Uztelecom, utilities…) are mock billers debiting the wallet.
+- Map tiles default to public OpenStreetMap tiles (set `NEXT_PUBLIC_MAP_TILE_URL` for production).
+- In DEMO_MODE buyers see a "Demo: next step" button to advance their own orders.
