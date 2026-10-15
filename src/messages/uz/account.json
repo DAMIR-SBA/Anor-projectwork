@@ -1,0 +1,26 @@
+{
+  "account": {
+    "title": "Shaxsiy kabinet",
+    "hello": "Salom, {name}!",
+    "nav": {
+      "overview": "Umumiy",
+      "orders": "Buyurtmalar",
+      "returns": "Qaytarishlar",
+      "addresses": "Manzillar",
+      "notifications": "Bildirishnomalar",
+      "wallet": "Anor Hamyon",
+      "bonus": "Bonuslar",
+      "rewards": "Mukofotlar",
+      "nasiya": "Nasiya",
+      "plus": "ANOR Plus",
+      "reviews": "Sharhlarim",
+      "alerts": "Narx va mavjudlik xabarlari",
+      "business": "Biznes akkaunt",
+      "profile": "Profil",
+      "security": "Xavfsizlik",
+      "privacy": "Maxfiylik va ma’lumotlar",
+      "giftCards": "Sovg‘a kartalari",
+      "tradeIn": "Trade-in arizalari"
+    }
+  }
+}

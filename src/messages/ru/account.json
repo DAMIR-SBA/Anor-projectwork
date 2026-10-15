@@ -1,0 +1,26 @@
+{
+  "account": {
+    "title": "Личный кабинет",
+    "hello": "Здравствуйте, {name}!",
+    "nav": {
+      "overview": "Обзор",
+      "orders": "Заказы",
+      "returns": "Возвраты",
+      "addresses": "Адреса",
+      "notifications": "Уведомления",
+      "wallet": "Anor Hamyon",
+      "bonus": "Бонусы",
+      "rewards": "Награды",
+      "nasiya": "Насия",
+      "plus": "ANOR Plus",
+      "reviews": "Мои отзывы",
+      "alerts": "Уведомления о цене и наличии",
+      "business": "Бизнес-аккаунт",
+      "profile": "Профиль",
+      "security": "Безопасность",
+      "privacy": "Конфиденциальность и данные",
+      "giftCards": "Подарочные карты",
+      "tradeIn": "Заявки trade-in"
+    }
+  }
+}
