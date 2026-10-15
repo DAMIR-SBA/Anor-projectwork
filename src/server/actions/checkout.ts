@@ -11,6 +11,7 @@ import { placeOrder, quoteCheckout } from "@/server/services/checkout";
 import { transitionOrder, arriveAtPickupPoint } from "@/server/services/orders";
 import { completePayment, startPayment } from "@/server/payments/service";
 import { createReturn } from "@/server/services/returns";
+import { isOwnStorageUrl } from "@/server/storage";
 import { REGIONS } from "@/lib/delivery";
 
 const zCheckout = z.object({
@@ -89,7 +90,7 @@ export const demoAdvanceOrderAction = action({ schema: z.object({ orderId: z.str
 export const requestReturnAction = action(
   { rateLimit: { key: "return", limit: 10, window: 3600 }, schema: z.object({ orderItemId: z.string(), quantity: zInt(1, 99), reason: z.enum(["defect", "wrong", "size", "notAsDescribed", "changedMind"]), description: z.string().max(1000).optional(), photos: z.array(z.string().max(500)).max(6).default([]), refundMethod: z.enum(["CARD", "WALLET"]) }) },
   async (input, ctx) => {
-    const photos = input.photos.filter((u) => u.startsWith("/uploads/") || u.includes(".supabase.co/"));
+    const photos = input.photos.filter(isOwnStorageUrl);
     await createReturn(ctx.user.id, { ...input, photos });
     revalidatePath("/[locale]/account/returns", "page");
   },

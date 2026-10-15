@@ -87,3 +87,11 @@ export async function scanFile(buf: Buffer, mime: string): Promise<"CLEAN" | "IN
     return "SKIPPED";
   }
 }
+
+/** True for URLs produced by putFile (rejects foreign hosts and path tricks in user-submitted media lists). */
+export function isOwnStorageUrl(url: string): boolean {
+  if (url.includes("..") || url.length > 500) return false;
+  if (/^\/uploads\/[a-z]+\/\d{4}-\d{2}\/[A-Za-z0-9_-]+\.[a-z0-9]+$/.test(url)) return true;
+  const e = env();
+  return !!e.STORAGE_SUPABASE_URL && url.startsWith(`${e.STORAGE_SUPABASE_URL}/storage/v1/object/public/${e.STORAGE_SUPABASE_BUCKET}/`);
+}

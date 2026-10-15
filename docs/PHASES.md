@@ -69,3 +69,22 @@ Each phase lists what was built and what is mocked / degraded when no provider i
 - Service payment providers (Ucell, Uztelecom, utilities…) are mock billers debiting the wallet.
 - Map tiles default to public OpenStreetMap tiles (set `NEXT_PUBLIC_MAP_TILE_URL` for production).
 - In DEMO_MODE buyers see a "Demo: next step" button to advance their own orders.
+
+## Phase 4 — Reviews (buyer, seller, moderation)
+**Built**
+- Reviews only from delivered orders (one per product per order), "Verified purchase" badge, 1–5 stars (accessible radio-group picker), pros / cons / comment, up to 6 photos + 1 video (uploads restricted to our own storage URLs), anonymous option, edit window of 14 days, a few words required for ratings ≤ 3.
+- Product page: rating breakdown bars that act as filters, "What buyers say" summary, buyer photo strip with lightbox, filters (rating, with photo/video, variant) and sorts (helpful, new, high, low) loaded through a server action, "load more", helpful / not-helpful votes (optimistic, server-authoritative counts), reports with reasons, seller replies, the viewer's own review pinned first (including while in moderation), on-demand translation uz ↔ ru (cached on the review), Uzbek Latin text transliterated in the Cyrillic UI.
+- Q&A: questions from signed-in users; answers from the seller (badge) or from buyers who received the product; contacts masked; risky text held for moderation.
+- Shop ratings (delivery speed, packaging, communication) per delivered order; shop rating = 70 % product reviews + 30 % shop ratings; seller response time tracked from replies.
+- Rule-based moderation (`lib/review-moderation.ts`, unit-tested): profanity stems (uz Latin/Cyrillic, ru), phones / links / handles / emails, spam heuristics, duplicate text, 5★ from accounts younger than 7 days, bursts of fresh-account 5★ on one product (raises a `FAKE_REVIEW` fraud flag). Flagged content goes to the queue instead of publishing; 3 independent user reports pull a review back into moderation.
+- "What buyers say": recurring whole clauses from pros/cons plus non-overlapping two-word topics, computed per review language; Gemini summary (uz + ru) when `GEMINI_API_KEY` is set. Rebuilt by the `reviews.summary` job after every change and nightly.
+- Photo/video review bonus (5 000 / 10 000 bonus) after approval, capped at 10 per 30 days; review mission progress.
+- Account: `/account/reviews` (awaiting review, shops to rate, written reviews with status / reject reason / bonus / seller reply), new and edit forms; shop rating on the delivered order page.
+- Seller cabinet shell `/seller` (sidebar, badges): reviews inbox (unanswered / negative / removal requests / all, reply with automatic contact masking, removal requests with reasons) and questions inbox; KPIs (average rating, reply rate, response time).
+- Admin `/admin/moderation/reviews`: flagged (sorted by risk score), reported, seller removal requests, pending Q&A, pending shop ratings, decision history; bulk select with approve / reject (reason required) / hide / strip contacts / ban reviewer / dismiss reports / grant or deny removal; every decision logged in the review's moderation history and the audit log; nav badge counts. Analytics page: weekly average rating and review volume (two single-axis charts with table views), most-reported products, seller reply rate and response time.
+- Seed: 24 reviewer accounts, ~240 reviews with delivered orders, votes, photos, seller replies, shop ratings and Q&A, plus moderation cases (phone number, link, insult, fresh-account 5★ burst, user reports, a seller removal request, a pending question). The demo buyer has delivered orders waiting for a review and one editable review.
+
+**Mocked / degraded**
+- Review translation and the AI moderation / summary layer need `GEMINI_API_KEY`; without it the "Translate" button is hidden and summaries are rule-based.
+- Seller cabinet sections other than reviews and questions are placeholders until Phase 6.
+- Review videos are stored as uploaded (no transcoding / duration check beyond the 50 MB upload limit).

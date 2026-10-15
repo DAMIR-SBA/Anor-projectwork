@@ -1,6 +1,7 @@
 import "server-only";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
+import { db } from "@/server/db";
 import { getCurrentUser, getStaffSession, getUserSession, type CurrentUser, type StaffContext } from "./session";
 import type { Permission } from "@/lib/rbac";
 
@@ -27,4 +28,11 @@ export async function requireStaff(permission?: Permission): Promise<StaffContex
 export function safeNext(next: unknown, fallback = "/"): string {
   if (typeof next !== "string" || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return fallback;
   return next;
+}
+
+/** Seller cabinet guard: signed-in user plus the shops they own (empty list → "open a shop" screen). */
+export async function requireSeller(next = "/seller") {
+  const user = await requireUser(next);
+  const shops = await db.shop.findMany({ where: { ownerId: user.id }, select: { id: true, slug: true, name: true, status: true, logoUrl: true, rating: true }, orderBy: { createdAt: "asc" } });
+  return { user, shops };
 }

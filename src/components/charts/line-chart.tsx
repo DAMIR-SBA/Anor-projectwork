@@ -25,8 +25,10 @@ function niceTicks(min: number, max: number, count = 4): number[] {
   const mag = 10 ** Math.floor(Math.log10(step0));
   const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= step0) ?? step0;
   const start = Math.floor(min / step) * step;
-  const ticks = [];
-  for (let v = start; v <= max + step * 0.5; v += step) ticks.push(Math.round(v));
+  // Keep enough decimals for fractional steps (e.g. ratings 4.2–4.8) without float noise.
+  const dec = Math.max(0, 1 - Math.floor(Math.log10(step)));
+  const ticks: number[] = [];
+  for (let i = 0; start + i * step <= max + step * 0.5; i++) ticks.push(Number((start + i * step).toFixed(dec)));
   return ticks;
 }
 

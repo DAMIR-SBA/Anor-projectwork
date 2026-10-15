@@ -2,7 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
-import { Check, FileText, Gift, MapPin, MessageCircle, Star, Truck } from "lucide-react";
+import { Check, FileText, Gift, MapPin, MessageCircle, Star, Store, Truck } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { requireUser } from "@/server/auth/guards";
 import { db } from "@/server/db";
@@ -10,6 +10,7 @@ import { env } from "@/server/env";
 import { Card, PageHeader } from "@/components/ui/display";
 import { OrderStatusBadge } from "@/components/orders/status-badge";
 import { OrderActions } from "@/components/orders/order-actions";
+import { ShopReviewForm } from "@/components/reviews/shop-review-form";
 import { formatUZS } from "@/lib/money";
 import { TIMELINE, canRequestReturn, canTransition } from "@/lib/order-status";
 import { cn } from "@/lib/cn";
@@ -19,10 +20,11 @@ export default async function OrderPage({ params }: { params: Promise<{ locale: 
   setRequestLocale(locale);
   const user = await requireUser(`/account/orders/${id}`);
   const t = await getTranslations("orders");
+  const tr = await getTranslations("reviews.shop");
   const format = await getFormatter();
   const order = await db.order.findFirst({
     where: { id, userId: user.id },
-    include: { items: { include: { product: { select: { slug: true } } } }, events: { orderBy: { createdAt: "asc" } }, shop: true, pickupPoint: true, shipments: true, receipt: true, reviews: { select: { productId: true } }, group: { include: { payments: true } } },
+    include: { items: { include: { product: { select: { slug: true } } } }, events: { orderBy: { createdAt: "asc" } }, shop: true, pickupPoint: true, shipments: true, receipt: true, reviews: { select: { productId: true } }, shopReview: { select: { id: true } }, group: { include: { payments: true } } },
   });
   if (!order) notFound();
   const fmt = (v: number) => formatUZS(v, locale);
@@ -185,6 +187,14 @@ export default async function OrderPage({ params }: { params: Promise<{ locale: 
               </a>
             )}
           </Card>
+          {order.status === "DELIVERED" && (
+            <Card className="p-5">
+              <h2 className="mb-3 flex items-center gap-2 font-bold">
+                <Store className="h-4 w-4 text-primary" /> {tr("title")}
+              </h2>
+              <ShopReviewForm orderId={order.id} done={!!order.shopReview} />
+            </Card>
+          )}
           <Link href={`/chat/new?shop=${order.shopId}&order=${order.id}`} className="flex h-11 items-center justify-center gap-2 rounded-[12px] bg-surface font-bold shadow-[var(--shadow-soft)]">
             <MessageCircle className="h-4 w-4" /> {t("writeSeller")}
           </Link>
