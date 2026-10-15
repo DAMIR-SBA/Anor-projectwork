@@ -14,7 +14,7 @@ const ITEMS = [
   { href: "/seller/products", key: "products", icon: Package, ready: false },
   { href: "/seller/reviews", key: "reviews", icon: MessageSquareQuote, ready: true },
   { href: "/seller/questions", key: "questions", icon: MessageCircleQuestion, ready: true },
-  { href: "/seller/chats", key: "chats", icon: MessagesSquare, ready: false },
+  { href: "/seller/chats", key: "chats", icon: MessagesSquare, ready: true },
   { href: "/seller/finance", key: "finance", icon: Wallet, ready: false },
   { href: "/seller/analytics", key: "analytics", icon: BarChart3, ready: false },
   { href: "/seller/promotions", key: "promotions", icon: TicketPercent, ready: false },

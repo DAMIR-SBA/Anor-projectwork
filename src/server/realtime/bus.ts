@@ -7,8 +7,23 @@ export type RealtimeEvent = { type: string; data: unknown; at: number };
 
 // Process-local fan-out + Postgres LISTEN/NOTIFY so events reach SSE clients connected
 // to any instance. Channels: "user:<id>", "conv:<id>", "staff:support", "broadcast".
-const globalBus = globalThis as unknown as { __anorBus?: EventEmitter; __anorPg?: Promise<Client | null>; __anorInstance?: string };
+const globalBus = globalThis as unknown as { __anorBus?: EventEmitter; __anorPg?: Promise<Client | null>; __anorInstance?: string; __anorRecent?: Map<string, RealtimeEvent[]> };
 const bus = (globalBus.__anorBus ??= new EventEmitter());
+// Short per-channel history for the polling fallback (clients that cannot keep an SSE stream open).
+const history = (globalBus.__anorRecent ??= new Map<string, RealtimeEvent[]>());
+const HISTORY_MS = 5 * 60_000;
+
+function record(channel: string, event: RealtimeEvent) {
+  const list = history.get(channel) ?? [];
+  list.push(event);
+  while (list.length > 200 || (list.length && list[0].at < Date.now() - HISTORY_MS)) list.shift();
+  history.set(channel, list);
+}
+
+/** Events on these channels newer than `since` (ms), oldest first. */
+export function recent(channels: string[], since: number): RealtimeEvent[] {
+  return channels.flatMap((ch) => (history.get(ch) ?? []).filter((e) => e.at > since)).sort((a, b) => a.at - b.at);
+}
 bus.setMaxListeners(10_000);
 const INSTANCE = (globalBus.__anorInstance ??= Math.random().toString(36).slice(2));
 const PG_CHANNEL = "anor_realtime";
@@ -25,7 +40,10 @@ function listener(): Promise<Client | null> {
         if (!msg.payload) return;
         try {
           const { origin, channel, event } = JSON.parse(msg.payload) as { origin: string; channel: string; event: RealtimeEvent };
-          if (origin !== INSTANCE) bus.emit(channel, event);
+          if (origin !== INSTANCE) {
+            record(channel, event);
+            bus.emit(channel, event);
+          }
         } catch {
           /* ignore malformed */
         }
@@ -45,6 +63,7 @@ function listener(): Promise<Client | null> {
 
 export async function publish(channel: string, type: string, data: unknown) {
   const event: RealtimeEvent = { type, data, at: Date.now() };
+  record(channel, event);
   bus.emit(channel, event);
   const client = await listener();
   if (!client) return;

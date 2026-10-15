@@ -88,3 +88,23 @@ Each phase lists what was built and what is mocked / degraded when no provider i
 - Review translation and the AI moderation / summary layer need `GEMINI_API_KEY`; without it the "Translate" button is hidden and summaries are rule-based.
 - Seller cabinet sections other than reviews and questions are placeholders until Phase 6.
 - Review videos are stored as uploaded (no transcoding / duration check beyond the 50 MB upload limit).
+
+## Phase 5 — Chat, support inbox, broadcasts
+**Built**
+- Realtime: `/api/realtime` Server-Sent Events stream per user (staff variant with the support desk channel), heartbeat + presence (`lastSeenAt`), Postgres LISTEN/NOTIFY fan-out across instances, and a polling fallback (`/api/realtime/poll`, 5-minute event history) that the client switches to automatically after repeated SSE failures or when `REALTIME_DRIVER=poll`. Live chat badge in the header and seller sidebar.
+- Telegram-style messenger (`/chat`, `/chat/[id]`, seller `/seller/chats`): chat list with avatars, last message, unread badges, pinned/muted chats, online dots and search (participants + message text); bubbles with day separators, timestamps, reply-to quotes, edit (48 h) and delete own messages, emoji picker, typing indicator, online / last seen, sent → delivered → read ticks, history paging, "new messages" jump button, mobile single-pane layout.
+- Attachments: images (grid + lightbox), files (type/size/magic-byte checks and scan hook via the upload API, chat folder only), voice notes recorded in the browser with a live waveform and a seekable player; product and order cards posted when a chat is opened from a product or order.
+- Conversation types: buyer ↔ support (always-available "ANOR Yordam" chat, a new ticket per issue), buyer ↔ seller (one thread per buyer and shop), seller ↔ support.
+- Privacy and safety (`lib/chat.ts`, unit-tested): phones, links, @handles and emails masked in buyer ↔ seller chats, profanity starred out, repeated-message spam flagged, report message, block user, per-chat mute, chat ban by moderators. Offline recipients get one push/Telegram notification per unread streak.
+- First-line bot: suggests matching help-center articles before an agent replies (rule-based keywords).
+- Support desk `/admin/support`: queues (open / mine / unassigned / waiting / resolved / all), full-text search, priority filter, 15-minute first-reply SLA timers, assign / take / transfer, status and priority, tags, internal notes invisible to the customer, canned replies with `/shortcut` (`/admin/support/canned`), customer card (orders, spend, returns, tier, Plus, shops, fraud flags, previous tickets). SUPER_ADMIN can answer any support conversation. Jobs: SLA escalation every 5 minutes, auto-resolve after 3 days waiting for the customer.
+- Moderation `/admin/chats`: reports, flagged and recent buyer ↔ seller chats as metadata only; reading a chat requires a written reason, is recorded in the audit log and lasts 30 minutes; moderators can delete messages, resolve reports and ban users from chat.
+- Broadcasts `/admin/broadcasts`: segments (all, buyers, sellers, Plus) with live recipient counts, in-app / push / email / Telegram channels, batched delivery job, history.
+- Help center `/help` (search, sections, articles in uz/ru with Cyrillic transliteration) and an admin article editor.
+- Seed: 11 help articles, canned replies, six tickets in every state (incl. a seller ticket and an SLA breach), buyer ↔ seller chats with a product card, a masked contact and a reported message, a past broadcast.
+
+**Mocked / degraded**
+- The first-line bot is keyword-based; an AI chatbot arrives with the assistant in Phase 8.
+- Telegram bridge (bot messages into the same inbox) is Phase 8; push and Telegram notifications need VAPID keys / a bot token.
+- Virus scanning uses the existing hook (EICAR signature check) — plug in ClamAV or a cloud scanner for production.
+- Presence is approximate (SSE heartbeat every 25 s, considered online for 75 s).

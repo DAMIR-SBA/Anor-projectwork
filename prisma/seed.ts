@@ -14,6 +14,8 @@ async function main() {
     await seedStories();
     const { seedReviews } = await import("./seed/reviews");
     await seedReviews(people);
+    const { seedSupport } = await import("./seed/support");
+    await seedSupport(people);
   }
   console.log("Done.");
 }

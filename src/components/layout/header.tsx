@@ -7,6 +7,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { SearchBox } from "./search-box";
 import { AccountMenu } from "./account-menu";
 import { CatalogButton } from "./catalog-menu";
+import { LiveBadge } from "@/components/providers/realtime";
 import type { CategoryNode } from "@/server/services/categories";
 
 type HeaderProps = {
@@ -16,14 +17,14 @@ type HeaderProps = {
   topLinks: Array<{ href: string; label: string; accent?: boolean }>;
 };
 
-function IconLink({ href, label, count, children }: { href: string; label: string; count?: number; children: React.ReactNode }) {
+const BADGE = "absolute -right-2 -top-1.5 min-w-[18px] rounded-full bg-primary px-1 text-center text-[10px] font-bold leading-[18px] text-white";
+
+function IconLink({ href, label, count, live, children }: { href: string; label: string; count?: number; live?: "chat"; children: React.ReactNode }) {
   return (
     <Link href={href} className="relative hidden flex-col items-center gap-0.5 rounded-[12px] px-2.5 py-1.5 text-[11px] font-semibold text-muted hover:bg-surface-3 hover:text-fg md:flex" aria-label={label}>
       <span className="relative">
         {children}
-        {!!count && count > 0 && (
-          <span className="absolute -right-2 -top-1.5 min-w-[18px] rounded-full bg-primary px-1 text-center text-[10px] font-bold leading-[18px] text-white">{count > 99 ? "99+" : count}</span>
-        )}
+        {live ? <LiveBadge initial={count ?? 0} kind={live} className={BADGE} /> : !!count && count > 0 && <span className={BADGE}>{count > 99 ? "99+" : count}</span>}
       </span>
       {label}
     </Link>
@@ -66,7 +67,7 @@ export async function Header({ user, counts, categories, topLinks }: HeaderProps
           <IconLink href="/account/orders" label={t("orders")}>
             <Package className="h-6 w-6" />
           </IconLink>
-          <IconLink href="/chat" label={t("chat")} count={counts.unread}>
+          <IconLink href="/chat" label={t("chat")} count={counts.unread} live="chat">
             <MessageCircle className="h-6 w-6" />
           </IconLink>
           <IconLink href="/wishlist" label={t("favorites")} count={counts.wishlist}>

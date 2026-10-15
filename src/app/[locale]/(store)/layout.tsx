@@ -6,6 +6,8 @@ import { getHeaderData } from "@/server/services/header-data";
 import { ShopStateProvider } from "@/components/providers/shop-state";
 import { getCurrentUser } from "@/server/auth/session";
 import { db } from "@/server/db";
+import { env } from "@/server/env";
+import { RealtimeProvider } from "@/components/providers/realtime";
 
 export default async function StoreLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -25,16 +27,18 @@ export default async function StoreLayout({ children, params }: { children: Reac
     { href: "/help", label: t("help") },
   ];
   return (
-    <ShopStateProvider likedIds={liked.map((l) => l.productId)} signedIn={!!user}>
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white">
-        {tc("skipToContent")}
-      </a>
-      <Header user={data.user} counts={data.counts} categories={data.categories} topLinks={topLinks} />
-      <main id="main" className="min-h-[60vh]">
-        {children}
-      </main>
-      <Footer />
-      <MobileNav cartCount={data.counts.cart} wishlistCount={data.counts.wishlist} />
-    </ShopStateProvider>
+    <RealtimeProvider enabled={!!user} driver={env().REALTIME_DRIVER}>
+      <ShopStateProvider likedIds={liked.map((l) => l.productId)} signedIn={!!user}>
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white">
+          {tc("skipToContent")}
+        </a>
+        <Header user={data.user} counts={data.counts} categories={data.categories} topLinks={topLinks} />
+        <main id="main" className="min-h-[60vh]">
+          {children}
+        </main>
+        <Footer />
+        <MobileNav cartCount={data.counts.cart} wishlistCount={data.counts.wishlist} />
+      </ShopStateProvider>
+    </RealtimeProvider>
   );
 }
