@@ -950,6 +950,8 @@ model Product {
   oldPrice       Int?
   /// Lowest price over the last 90 days (cached nightly and on change).
   lowest90       Int?
+  /// Cached (oldPrice - price) / oldPrice * 100 for "biggest discount" sorting.
+  discountPct    Int              @default(0)
   rating         Float            @default(0)
   reviewCount    Int              @default(0)
   /// { "1": n, ..., "5": n }
@@ -999,6 +1001,8 @@ model Product {
   @@index([status, price])
   @@index([status, soldCount])
   @@index([status, createdAt])
+  @@index([status, discountPct])
+  @@index([status, rating])
 }
 
 model Variant {

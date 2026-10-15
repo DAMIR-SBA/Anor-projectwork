@@ -33,3 +33,19 @@ Each phase lists what was built and what is mocked / degraded when no provider i
 - SMS: console driver logs codes; in DEMO_MODE the code is also shown in a toast. Eskiz driver is implemented but untested without credentials.
 - Google / Telegram: without credentials, DEMO_MODE signs in deterministic test accounts.
 - Email: console driver (Resend and SMTP/Mailpit implemented).
+
+## Phase 2 — Catalog, search, product page, cart, wishlist
+**Built**
+- Seed: 51 categories (11 roots incl. crafts), 4 shops (official electronics store, fashion, artisan workshop, halal food), 9 brands, 54 products with uz/ru content, UZS prices, variants, per-warehouse stock (platform FCs for FBO, seller warehouses for FBS/DBS), 90-day price history, installment plans, 12 pickup points, coupons, promotions (multi-buy, bundle, buy-together), banners, deal of the day, a live flash sale and scheduled seasonal campaigns (Navro‘z, Mustaqillik, 11.11, Qora juma), seller + artisan stories.
+- Home: hero carousel (swipe/autoplay/reduced-motion aware), perks, stories viewer, category grid, deal of the day with countdown, flash sale, popular, Plus strip, new arrivals, Made in Uzbekistan, personalized recommendations (view-history category affinity) and recently viewed.
+- Catalog `/c/[slug]`: subcategory chips, URL-driven filters (price, brand facets with counts, rating, delivery today/tomorrow, in stock, halal, Made in UZ, used), 6 sorts, infinite scroll over `/api/v1/products`, mobile filter sheet, breadcrumbs + BreadcrumbList JSON-LD.
+- Search: Postgres FTS + pg_trgm word-similarity per word (typo tolerant, Latin/Cyrillic/Russian), "did you mean", autocomplete API with products/categories/brands, search history (local) and trending queries (logged after response), voice search (Web Speech API), image search (Gemini vision or filename fallback).
+- Product page: gallery with hover zoom, swipe, fullscreen lightbox and video; variant picker linked to photos; price/old price/discount; "lowest in 90 days" badge; price history chart (crosshair tooltip, keyboard, table view; palette validated in light/dark); Nasiya calculator (3/6/9/12 months); delivery ETAs by fulfillment model (Tashkent same-day cutoff 14:00); seller card; specs; size guide; wholesale tiers; share; compare; price-drop and back-in-stock alerts; pre-order; similar and "customers also bought" (order co-occurrence); recently viewed; Product JSON-LD.
+- Cart: guest cart (httpOnly cookie) merged on login, optimistic quantity/select/remove, grouped by shop, unavailable items, promo codes with precise error reasons, promotions, wholesale pricing for business buyers, cashback preview, monthly installment, move to wishlist, group carts (share link; members add, owner checks out).
+- Wishlist with optimistic hearts and shareable public link; compare up to 4 products (spec diff highlighting); brand, shop, deals, campaign landing (block-based) and Made in Uzbekistan pages.
+- Pure, testable engines: `lib/pricing.ts` (coupons, promotions, allocation, bonus cap, cashback, commission, logistics fee), `lib/installment.ts`, `lib/delivery.ts`.
+
+**Mocked / degraded**
+- Product imagery is generated SVG art (`/media/demo/*.svg`); real uploads arrive with the seller cabinet.
+- Image search without `GEMINI_API_KEY` uses filename keywords.
+- Product videos point to a public CC0 sample clip.

@@ -8,8 +8,10 @@ async function main() {
   const demo = process.env.DEMO_MODE === "true" || process.env.SEED_DEMO === "1";
   if (demo) {
     const people = await seedDemoPeople();
-    const { seedCatalog } = await import("./seed/catalog").catch(() => ({ seedCatalog: null }));
-    if (seedCatalog) await seedCatalog(people);
+    const { seedCatalog } = await import("./seed/catalog");
+    await seedCatalog(people);
+    const { seedStories } = await import("./seed/content");
+    await seedStories();
   }
   console.log("Done.");
 }

@@ -3,6 +3,9 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { getHeaderData } from "@/server/services/header-data";
+import { ShopStateProvider } from "@/components/providers/shop-state";
+import { getCurrentUser } from "@/server/auth/session";
+import { db } from "@/server/db";
 
 export default async function StoreLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -10,6 +13,8 @@ export default async function StoreLayout({ children, params }: { children: Reac
   const t = await getTranslations("nav");
   const tc = await getTranslations("common");
   const data = await getHeaderData();
+  const user = await getCurrentUser();
+  const liked = user ? await db.wishlistItem.findMany({ where: { wishlist: { userId: user.id } }, select: { productId: true }, take: 1000 }) : [];
   const topLinks = [
     { href: "/deals", label: t("deals"), accent: true },
     { href: "/made-in-uzbekistan", label: t("madeInUz") },
@@ -20,7 +25,7 @@ export default async function StoreLayout({ children, params }: { children: Reac
     { href: "/help", label: t("help") },
   ];
   return (
-    <>
+    <ShopStateProvider likedIds={liked.map((l) => l.productId)} signedIn={!!user}>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white">
         {tc("skipToContent")}
       </a>
@@ -30,6 +35,6 @@ export default async function StoreLayout({ children, params }: { children: Reac
       </main>
       <Footer />
       <MobileNav cartCount={data.counts.cart} wishlistCount={data.counts.wishlist} />
-    </>
+    </ShopStateProvider>
   );
 }

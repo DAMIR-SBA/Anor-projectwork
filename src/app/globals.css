@@ -15,6 +15,10 @@
   --brand-ink: #c8102e;
   --overlay: rgb(26 26 31 / 0.55);
   --shadow-color: 26 26 31;
+  /* Chart tokens (validated with the dataviz palette checker). */
+  --chart-1: #c8102e;
+  --chart-2: #2f6fde;
+  --chart-grid: #ececf0;
   color-scheme: light;
 }
 
@@ -28,6 +32,9 @@
   --brand-ink: #ff5a74;
   --overlay: rgb(0 0 0 / 0.65);
   --shadow-color: 0 0 0;
+  --chart-1: #e8344f;
+  --chart-2: #5b8ff0;
+  --chart-grid: #26262e;
   color-scheme: dark;
 }
 
