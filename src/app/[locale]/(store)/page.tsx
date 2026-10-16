@@ -12,6 +12,8 @@ import { CategoryIcon } from "@/components/catalog/category-icon";
 import { Countdown } from "@/components/ui/interactive";
 import { loc, locText } from "@/lib/localized";
 import { HOME_LAYOUTS } from "@/lib/flags";
+import { holidayOn } from "@/lib/holidays";
+import { tashkentDayKey } from "@/lib/dates";
 import { flagsFor, trackExposures } from "@/server/services/flags";
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
@@ -33,7 +35,20 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     { icon: MapPin, text: t("perks.pickup") },
   ];
 
+  const holiday = holidayOn(tashkentDayKey());
   const blocks: Record<string, React.ReactNode> = {
+    season: d.season && (
+      <Link href={`/campaign/${d.season.slug}`} className="flex flex-wrap items-center justify-between gap-3 rounded-[20px] p-5 text-white md:p-6" style={{ background: `linear-gradient(120deg, ${d.season.themeColor}, #1A1A1F)` }}>
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wide text-white/80">{t("seasonal")}</p>
+          <p className="text-2xl font-extrabold">{loc(d.season, "name", locale)}</p>
+          {loc(d.season, "description", locale) && <p className="mt-1 max-w-xl text-sm text-white/85">{loc(d.season, "description", locale)}</p>}
+        </div>
+        <span className="flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-sm font-bold">
+          {t("endsIn")} <Countdown to={d.season.endsAt.toISOString()} className="text-accent" />
+        </span>
+      </Link>
+    ),
     categories: (
       <section>
         <SectionTitle title={t("categories")} href="/catalog" more={t("seeAll")} />
@@ -123,6 +138,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   return (
     <div className="container-page space-y-4 py-4 md:space-y-6 md:py-6">
+      {holiday && (
+        <p className="rounded-[16px] bg-gradient-to-r from-accent/25 via-primary-50 to-accent/25 px-4 py-2.5 text-center font-bold dark:from-accent/15 dark:via-primary/15 dark:to-accent/15">
+          {holiday.emoji} {t(`holidays.${holiday.key}`)}
+        </p>
+      )}
       <HeroCarousel
         slides={d.banners.map((b) => ({ id: b.id, title: loc(b, "title", locale), subtitle: loc(b, "subtitle", locale) || null, href: b.href, image: b.imageUrl, bg: b.bgColor }))}
         labels={{ prev: tc("prev"), next: tc("next") }}

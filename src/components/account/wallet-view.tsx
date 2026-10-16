@@ -43,7 +43,7 @@ export function WalletView({ balance, txs, cards, bonusBalance, bonuses }: { bal
 
   return (
     <div className="space-y-5">
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-primary to-primary-dark p-6 text-white shadow-[var(--shadow-lift)]">
           <AnorLogo tone="white" height={26} />
           <p className="mt-6 text-sm text-white/75">{t("balance")}</p>
@@ -94,7 +94,7 @@ export function WalletView({ balance, txs, cards, bonusBalance, bonuses }: { bal
         />
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="card p-5">
           <h2 className="mb-3 font-bold">{t("history")}</h2>
           {txs.length === 0 ? (

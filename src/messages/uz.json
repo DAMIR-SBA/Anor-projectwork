@@ -1937,6 +1937,16 @@
     "sBest": "Eng yaxshi reytinglisi"
   },
   "home": {
+    "seasonal": "Mavsumiy aksiya",
+    "holidays": {
+      "newYear": "Yangi yil muborak! Yangi yilda barcha orzularingiz ushalsin.",
+      "womensDay": "8-mart — Xalqaro xotin-qizlar kuni muborak bo‘lsin!",
+      "navruz": "Navro‘z muborak! Bahor bayrami xonadoningizga fayz va baraka olib kelsin.",
+      "memory": "9-may — Xotira va qadrlash kuni. Ularni yodda tutamiz.",
+      "independence": "Mustaqillik kuni muborak! Vatanimiz tinch, osmonimiz musaffo bo‘lsin.",
+      "teachers": "O‘qituvchi va murabbiylar kuni muborak!",
+      "constitution": "O‘zbekiston Respublikasi Konstitutsiyasi kuni muborak!"
+    },
     "categories": "Kategoriyalar",
     "dealOfDay": "Kun taklifi",
     "endsIn": "Tugashiga:",

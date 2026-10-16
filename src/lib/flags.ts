@@ -16,9 +16,9 @@ export const KNOWN_FLAGS: Record<string, { variants?: string[] }> = {
 
 /** Homepage block order per `home.layout` variant. */
 export const HOME_LAYOUTS: Record<string, string[]> = {
-  classic: ["categories", "deal", "flash", "popular", "strip", "fresh", "madeInUz", "recommended", "recent"],
-  deals_first: ["deal", "flash", "categories", "popular", "strip", "fresh", "madeInUz", "recommended", "recent"],
-  personal_first: ["recommended", "categories", "deal", "flash", "popular", "strip", "fresh", "madeInUz", "recent"],
+  classic: ["categories", "season", "deal", "flash", "popular", "strip", "fresh", "madeInUz", "recommended", "recent"],
+  deals_first: ["season", "deal", "flash", "categories", "popular", "strip", "fresh", "madeInUz", "recommended", "recent"],
+  personal_first: ["recommended", "categories", "season", "deal", "flash", "popular", "strip", "fresh", "madeInUz", "recent"],
 };
 
 /** FNV-1a 32-bit → 0..9999. Stable across runtimes (no crypto needed). */

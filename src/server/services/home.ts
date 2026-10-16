@@ -21,7 +21,7 @@ export async function getHomeData(locale: string) {
   const aid = await anonId();
   const [plans, early] = await Promise.all([getPlans(), earlyCampaignIds()]);
   const now = new Date();
-  const [banners, strip, categories, deal, flash, popular, fresh, madeInUz, recIds, recentIds, stories] = await Promise.all([
+  const [banners, strip, categories, deal, flash, popular, fresh, madeInUz, recIds, recentIds, stories, season] = await Promise.all([
     db.banner.findMany({ where: { placement: "HOME_HERO", isActive: true, OR: [{ startsAt: null }, { startsAt: { lte: now } }], AND: [{ OR: [{ endsAt: null }, { endsAt: { gt: now } }] }] }, orderBy: { sort: "asc" } }),
     db.banner.findFirst({ where: { placement: "HOME_STRIP", isActive: true }, orderBy: { sort: "asc" } }),
     db.category.findMany({ where: { parentId: null, isActive: true }, orderBy: { sort: "asc" } }),
@@ -33,6 +33,8 @@ export async function getHomeData(locale: string) {
     recommendedIds(user?.id ?? null, aid, 10),
     recentlyViewedIds(user?.id ?? null, aid, undefined, 10),
     db.story.findMany({ where: { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }, include: { shop: { select: { name: true, slug: true, logoUrl: true } } }, orderBy: { createdAt: "desc" }, take: 12 }),
+    // Seasonal campaign running now (Navro‘z, Mustaqillik, 11.11, Hayit…): a festive block on the home page.
+    db.campaign.findFirst({ where: { type: "SEASONAL", ...liveCampaignWhere(early) }, orderBy: { endsAt: "asc" }, select: { slug: true, nameUz: true, nameRu: true, descriptionUz: true, descriptionRu: true, themeColor: true, endsAt: true, startsAt: true, season: true } }),
   ]);
   const [recommended, recent] = await Promise.all([cardsByIds(recIds, locale), cardsByIds(recentIds, locale)]);
   return {
@@ -47,5 +49,6 @@ export async function getHomeData(locale: string) {
     recommended,
     recent,
     stories,
+    season,
   };
 }
