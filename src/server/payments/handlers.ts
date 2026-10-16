@@ -30,3 +30,8 @@ onPaymentPaid("GIFT_CARD", async (p) => {
   });
   await notify({ userId: p.userId, type: "giftcard.ready", title: "Sovg‘a kartasi tayyor", body: card.code, href: "/account/gift-cards" });
 });
+
+onPaymentPaid("INSTALLMENT", async (p) => {
+  const { settleCardRepayment } = await import("@/server/services/nasiya");
+  await settleCardRepayment(p);
+});

@@ -1,5 +1,6 @@
 import "server-only";
 import { agingBucket } from "@/lib/admin";
+import { DEFAULT_NASIYA, type NasiyaSettings } from "@/lib/nasiya";
 import { db } from "@/server/db";
 import { AppError } from "@/server/action";
 import { audit } from "@/server/audit";
@@ -94,8 +95,7 @@ export async function adjustWallet(userId: string, staff: Staff, amount: number,
 
 // ── Nasiya settings ──────────────────────────────────────────────────────
 
-export type NasiyaSettings = { defaultLimit: number; maxLimit: number; minMonthlyIncome: number; minAgeYears: number; maxActiveContracts: number; incomeMultiplier: number };
-export const DEFAULT_NASIYA: NasiyaSettings = { defaultLimit: 3_000_000, maxLimit: 30_000_000, minMonthlyIncome: 1_500_000, minAgeYears: 21, maxActiveContracts: 3, incomeMultiplier: 3 };
+export type { NasiyaSettings } from "@/lib/nasiya";
 
 export async function nasiyaSettings(): Promise<NasiyaSettings> {
   const row = await db.setting.findUnique({ where: { key: "nasiya" } });

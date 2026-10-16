@@ -138,9 +138,9 @@ export function SettingsForm({ initial }: { initial: PlatformSettings }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const a = s.announcement;
-  const setA = (patch: Partial<typeof a>) => setS({ ...s, announcement: { ...a, ...patch } });
-  const setP = (patch: Partial<PlatformSettings["ordersPaused"]>) => setS({ ...s, ordersPaused: { ...s.ordersPaused, ...patch } });
-  const setSup = (patch: Partial<PlatformSettings["support"]>) => setS({ ...s, support: { ...s.support, ...patch } });
+  const setA = (patch: Partial<typeof a>) => setS((prev) => ({ ...prev, announcement: { ...prev.announcement, ...patch } }));
+  const setP = (patch: Partial<PlatformSettings["ordersPaused"]>) => setS((prev) => ({ ...prev, ordersPaused: { ...prev.ordersPaused, ...patch } }));
+  const setSup = (patch: Partial<PlatformSettings["support"]>) => setS((prev) => ({ ...prev, support: { ...prev.support, ...patch } }));
 
   return (
     <form
@@ -218,7 +218,7 @@ export function SettingsForm({ initial }: { initial: PlatformSettings }) {
 
       <section className="card space-y-3 p-5">
         <h2 className="font-bold">{t("sellers")}</h2>
-        <Switch label={t("sellerSignupOpen")} checked={s.sellerSignupOpen} onChange={(e) => setS({ ...s, sellerSignupOpen: e.target.checked })} />
+        <Switch label={t("sellerSignupOpen")} checked={s.sellerSignupOpen} onChange={(e) => setS((prev) => ({ ...prev, sellerSignupOpen: e.target.checked }))} />
         <p className="text-sm text-muted">{t("sellerSignupHint")}</p>
       </section>
 

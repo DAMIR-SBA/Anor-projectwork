@@ -31,6 +31,7 @@ export type CheckoutInput = {
   installmentMonths?: number | null;
   bonus: number;
   useWallet: boolean;
+  acceptContract?: boolean;
 };
 
 type Line = CartLine & {
@@ -201,6 +202,10 @@ export async function placeOrder(user: CurrentUser, input: CheckoutInput, locale
     installmentPlan = q.plans.find((p) => p.months === input.installmentMonths) ?? null;
     if (!installmentPlan) throw new AppError("nasiyaNotEligible");
     if (user.nasiyaLimit - user.nasiyaUsed < external) throw new AppError("nasiyaLimit");
+    if (!input.acceptContract) throw new AppError("contractRequired");
+    const [open, settings] = await Promise.all([db.installmentContract.count({ where: { userId: user.id, status: { in: ["ACTIVE", "OVERDUE"] } } }), (await import("./admin/finance")).nasiyaSettings()]);
+    if (open >= settings.maxActiveContracts) throw new AppError("nasiyaContracts", { max: settings.maxActiveContracts });
+    if (await db.installmentContract.count({ where: { userId: user.id, status: "OVERDUE" } })) throw new AppError("nasiyaOverdue");
   }
 
   const onlineMethod = ["CLICK", "PAYME", "UZCARD", "HUMO", "CARD"].includes(input.paymentMethod) && external > 0;

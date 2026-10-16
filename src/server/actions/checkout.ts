@@ -36,6 +36,8 @@ const zCheckout = z.object({
   installmentMonths: z.number().int().nullish(),
   bonus: zInt(0).default(0),
   useWallet: z.boolean().default(false),
+  /** Buyer ticked "I have read the Nasiya contract" in the preview. */
+  acceptContract: z.boolean().default(false),
 });
 
 export const quoteCheckoutAction = action({ schema: zCheckout.pick({ cartId: true, deliveryMethod: true, addressId: true, pickupPointId: true, bonus: true }) }, async (input, ctx) => {

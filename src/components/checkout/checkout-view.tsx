@@ -12,7 +12,7 @@ import { useToast } from "@/components/ui/toast";
 import { placeOrderAction, quoteCheckoutAction } from "@/server/actions/checkout";
 import { formatUZS, groupDigits } from "@/lib/money";
 import { deliverySlots } from "@/lib/delivery";
-import { quote, type Plan } from "@/lib/installment";
+import { buildSchedule, quote, type Plan } from "@/lib/installment";
 import { fmtDay } from "@/lib/format-date";
 import { cn } from "@/lib/cn";
 import { PvzExplorer, type Pvz } from "./pvz-explorer";
@@ -68,6 +68,9 @@ export function CheckoutView(props: Props) {
   const [months, setMonths] = useState<number | null>(props.initial.plans.at(-1)?.months ?? null);
   const [bonus, setBonus] = useState(0);
   const [useWallet, setUseWallet] = useState(false);
+  const [accepted, setAccepted] = useState(false);
+  /** Contract preview opened at this instant (schedule dates count from signing). */
+  const [contractAt, setContractAt] = useState<Date | null>(null);
   const [data, setData] = useState(props.initial);
   const [quoting, startQuote] = useTransition();
   const [placing, startPlace] = useTransition();
@@ -115,6 +118,7 @@ export function CheckoutView(props: Props) {
         installmentMonths: payment === "INSTALLMENT" ? months : null,
         bonus,
         useWallet: useWallet || payment === "WALLET",
+        acceptContract: payment === "INSTALLMENT" && accepted,
       });
       if (!r.ok) return void toast.error(r.error);
       const d = r.data as { groupId: string; redirectUrl: string | null };
@@ -278,6 +282,14 @@ export function CheckoutView(props: Props) {
                   })}
                 </div>
               )}
+              {payment === "INSTALLMENT" && plan && (
+                <div className="mt-3 space-y-2 text-sm">
+                  <button type="button" className="font-semibold text-primary underline" onClick={() => setContractAt(new Date())}>
+                    {t("contractView")}
+                  </button>
+                  <Checkbox checked={accepted} onChange={(e) => setAccepted(e.target.checked)} label={t("contractAccept")} />
+                </div>
+              )}
             </div>
           ) : (
             <Link href="/nasiya" className="block rounded-[14px] border border-dashed border-border p-3 text-sm text-muted">
@@ -329,12 +341,71 @@ export function CheckoutView(props: Props) {
           </div>
           {payment === "INSTALLMENT" && plan && <p className="text-right text-sm font-semibold text-[#7a5600] dark:text-accent">{t("installmentText", { months: plan.months, amount: fmt(quote(toPay, plan).monthly) })}</p>}
           {totals.cashback > 0 && <p className="text-sm text-success">{t("cashback", { amount: groupDigits(totals.cashback) })}</p>}
-          <Button size="lg" className="w-full" loading={placing} disabled={quoting || (method === "PICKUP" ? !pvz : !addressId)} onClick={place}>
+          <Button size="lg" className="w-full" loading={placing} disabled={quoting || (method === "PICKUP" ? !pvz : !addressId) || (payment === "INSTALLMENT" && !accepted)} onClick={place}>
             {["CLICK", "PAYME", "UZCARD", "HUMO", "CARD"].includes(payment) && toPay > 0 ? t("placeOrderPay", { amount: fmt(toPay) }) : t("placeOrder")}
           </Button>
           <p className="text-center text-xs text-muted">{t("agree")}</p>
         </div>
       </aside>
+
+      {contractAt && plan && (
+        <Dialog
+          open
+          onClose={() => setContractAt(null)}
+          title={t("contractTitle")}
+          footer={
+            <Button
+              onClick={() => {
+                setAccepted(true);
+                setContractAt(null);
+              }}
+            >
+              {t("contractAgree")}
+            </Button>
+          }
+        >
+          {(() => {
+            const q = quote(toPay, plan);
+            return (
+              <div className="space-y-3 text-sm">
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-1">
+                  <dt className="text-muted">{t("contractPrincipal")}</dt>
+                  <dd className="tabular text-right font-semibold">{fmt(q.principal)}</dd>
+                  <dt className="text-muted">{t("contractMarkup", { pct: Math.round(plan.markupPercent * 100) })}</dt>
+                  <dd className="tabular text-right font-semibold">{fmt(q.markup)}</dd>
+                  <dt className="text-muted">{t("contractTotal")}</dt>
+                  <dd className="tabular text-right font-bold">{fmt(q.total)}</dd>
+                  <dt className="text-muted">{t("contractMonths")}</dt>
+                  <dd className="tabular text-right font-semibold">{q.months}</dd>
+                </dl>
+                <table className="w-full text-[13px]">
+                  <thead>
+                    <tr className="text-left text-xs text-muted">
+                      <th className="py-1 font-semibold">#</th>
+                      <th className="py-1 font-semibold">{t("contractDue")}</th>
+                      <th className="py-1 text-right font-semibold">{t("contractAmount")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {buildSchedule(q, contractAt).map((r) => (
+                      <tr key={r.index} className="border-t border-border">
+                        <td className="py-1 tabular">{r.index}</td>
+                        <td className="py-1">{fmtDay(r.dueDate.toISOString(), locale)}</td>
+                        <td className="py-1 text-right tabular">{fmt(r.amount)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <ul className="list-disc space-y-1 pl-5 text-muted">
+                  <li>{t("contractTerm1")}</li>
+                  <li>{t("contractTerm2")}</li>
+                  <li>{t("contractTerm3")}</li>
+                </ul>
+              </div>
+            );
+          })()}
+        </Dialog>
+      )}
 
       <Dialog open={pvzOpen} onClose={() => setPvzOpen(false)} title={t("choosePickup")} className="w-[min(960px,calc(100vw-24px))]">
         <PvzExplorer

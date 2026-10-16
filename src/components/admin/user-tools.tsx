@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FormError, Input } from "@/components/ui/form";
 import { useToast } from "@/components/ui/toast";
 import { adjustWalletAction, saveNasiyaAction } from "@/server/actions/admin-risk";
+import { decideApplicationAction } from "@/server/actions/nasiya";
 
 /** Credit (+) or debit (−) the buyer's Anor Hamyon with a mandatory reason. */
 export function WalletAdjust({ userId }: { userId: string }) {
@@ -134,5 +135,37 @@ export function NasiyaForm({ settings, plans }: { settings: Nasiya; plans: Plan[
         {t("save")}
       </Button>
     </form>
+  );
+}
+
+/** Manual decision on a borderline Nasiya application: approve with a limit, or reject. */
+export function ApplicationDecision({ id, suggested }: { id: string; suggested: number }) {
+  const t = useTranslations("adminNasiya");
+  const router = useRouter();
+  const toast = useToast();
+  const [limit, setLimit] = useState(String(suggested));
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const decide = (approve: boolean) =>
+    start(async () => {
+      setError(null);
+      const res = await decideApplicationAction({ id, approve, limit: Number(limit.replace(/\D/g, "")) || 0 });
+      if (!res.ok) return setError(res.error);
+      toast.success(approve ? t("approved") : t("rejected"));
+      router.refresh();
+    });
+  return (
+    <div className="flex flex-wrap items-end gap-2">
+      <Field label={t("limit")} htmlFor={`lim-${id}`} className="w-40">
+        <Input id={`lim-${id}`} inputMode="numeric" value={limit} onChange={(e) => setLimit(e.target.value.replace(/[^\d ]/g, ""))} />
+      </Field>
+      <Button size="sm" variant="success" loading={pending} onClick={() => decide(true)}>
+        {t("approve")}
+      </Button>
+      <Button size="sm" variant="ghost" className="text-danger" disabled={pending} onClick={() => decide(false)}>
+        {t("reject")}
+      </Button>
+      <FormError message={error} />
+    </div>
   );
 }

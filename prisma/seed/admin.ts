@@ -315,6 +315,9 @@ async function nasiyaPortfolio(people: DemoAccounts) {
     const contract = await prisma.installmentContract.create({
       data: { number: `NS-${signedAt.toISOString().slice(2, 7).replace("-", "")}-${String(1001 + i)}`, userId: c.user.id, groupId: group.id, planId: p.id, principal: l.price, markup, total, months: c.months, status: c.status, signedAt, closedAt: c.status === "PAID" ? ago(c.signedDaysAgo - c.months * 30) : null },
     });
+    // Limit from the approved application; outstanding principal counts as used.
+    const paidShare = Math.round((l.price * Math.min(c.paidCount, c.months)) / c.months);
+    await prisma.user.update({ where: { id: c.user.id }, data: { nasiyaLimit: 12_000_000 + i * 3_000_000, nasiyaUsed: c.status === "PAID" ? 0 : { increment: l.price - paidShare } } });
     await prisma.repaymentSchedule.createMany({
       data: Array.from({ length: c.months }, (_, k) => {
         const amount = k === c.months - 1 ? total - monthly * (c.months - 1) : monthly;
