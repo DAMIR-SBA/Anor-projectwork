@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { getLocale } from "next-intl/server";
 import { db } from "@/server/db";
 import { env } from "@/server/env";
@@ -16,6 +17,8 @@ import { cookies } from "next/headers";
 import { unsign } from "@/server/security/crypto";
 import { AD_COOKIE, attributeOrders } from "@/server/services/ads";
 import { REGIONS } from "@/lib/delivery";
+import { assertOrdersOpen } from "@/server/services/platform";
+import { attributeFlagOrder, visitorId } from "@/server/services/flags";
 
 const zCheckout = z.object({
   cartId: z.string().nullish(),
@@ -41,10 +44,17 @@ export const quoteCheckoutAction = action({ schema: zCheckout.pick({ cartId: tru
 });
 
 export const placeOrderAction = action({ schema: zCheckout, rateLimit: { key: "checkout", limit: 10, window: 300 } }, async (input, ctx) => {
+  await assertOrdersOpen();
   const r = await placeOrder(ctx.user, input, await getLocale());
   // Last-click ad attribution (signed cookie set by /api/ads/click).
   const adCookie = unsign((await cookies()).get(AD_COOKIE)?.value);
   if (adCookie) await attributeOrders(r.groupId, JSON.parse(adCookie)).catch(() => {});
+  // A/B: credit the order to the experiments this visitor saw.
+  const visitor = await visitorId();
+  after(async () => {
+    const g = await db.orderGroup.findUnique({ where: { id: r.groupId }, select: { total: true } });
+    if (g) await attributeFlagOrder(visitor, g.total);
+  });
   revalidatePath("/[locale]", "layout");
   return { ok: true, data: r };
 });

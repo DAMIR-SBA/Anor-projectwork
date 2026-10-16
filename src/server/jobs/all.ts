@@ -4,3 +4,4 @@ import "./definitions/orders";
 import "./definitions/reviews";
 import "./definitions/support";
 import "./definitions/seller";
+import "./definitions/admin";

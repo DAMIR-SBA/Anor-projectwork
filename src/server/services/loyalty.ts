@@ -3,9 +3,24 @@ import { db } from "@/server/db";
 import { notify } from "@/server/notify";
 import { bonusEarn } from "./wallet";
 import type { LoyaltyTier } from "@/generated/prisma/enums";
+import { DEFAULT_CASHBACK, type CashbackRates } from "@/lib/pricing";
 
-export type LoyaltySettings = { silverFrom: number; goldFrom: number; referralReward: number; refereeReward: number; referralMonthlyCap: number };
-export const DEFAULT_LOYALTY: LoyaltySettings = { silverFrom: 5_000_000, goldFrom: 20_000_000, referralReward: 20_000, refereeReward: 10_000, referralMonthlyCap: 10 };
+export type LoyaltySettings = {
+  silverFrom: number;
+  goldFrom: number;
+  referralReward: number;
+  refereeReward: number;
+  referralMonthlyCap: number;
+  /** Cashback rates as fractions (0.01 = 1%). */
+  baseCashback: number;
+  silverCashback: number;
+  goldCashback: number;
+  plusCashback: number;
+  bonusTtlDays: number;
+};
+export const DEFAULT_LOYALTY: LoyaltySettings = { silverFrom: 5_000_000, goldFrom: 20_000_000, referralReward: 20_000, refereeReward: 10_000, referralMonthlyCap: 10, baseCashback: DEFAULT_CASHBACK.base, silverCashback: DEFAULT_CASHBACK.silver, goldCashback: DEFAULT_CASHBACK.gold, plusCashback: DEFAULT_CASHBACK.plus, bonusTtlDays: 180 };
+
+export const cashbackRates = (s: LoyaltySettings): CashbackRates => ({ base: s.baseCashback, silver: s.silverCashback, gold: s.goldCashback, plus: s.plusCashback });
 
 export async function loyaltySettings(): Promise<LoyaltySettings> {
   const row = await db.setting.findUnique({ where: { key: "loyalty" } });
@@ -96,4 +111,30 @@ export async function checkAchievements(userId: string) {
     }
   }
   return earned;
+}
+
+// ── Admin ────────────────────────────────────────────────────────────────
+
+export async function saveLoyaltySettings(staffId: string, s: LoyaltySettings) {
+  if (s.goldFrom <= s.silverFrom) throw new Error("goldFrom must exceed silverFrom");
+  await db.setting.upsert({ where: { key: "loyalty" }, create: { key: "loyalty", value: s, updatedById: staffId }, update: { value: s, updatedById: staffId } });
+}
+
+/** Tier distribution, outstanding bonus liability and referral outcomes (last 30 days). */
+export async function loyaltyStats() {
+  const since = new Date(Date.now() - 30 * 86_400_000);
+  const [tiers, bonus, referrals, cashback, expiring] = await Promise.all([
+    db.user.groupBy({ by: ["loyaltyTier"], where: { deletedAt: null }, _count: { _all: true } }),
+    db.user.aggregate({ _sum: { bonusBalance: true } }),
+    db.referralReward.groupBy({ by: ["status"], where: { createdAt: { gte: since } }, _count: { _all: true }, _sum: { points: true } }),
+    db.bonusPoints.aggregate({ _sum: { amount: true }, where: { reason: "CASHBACK", createdAt: { gte: since } } }),
+    db.bonusPoints.aggregate({ _sum: { remaining: true }, where: { remaining: { gt: 0 }, expiresAt: { gte: new Date(), lt: new Date(Date.now() + 30 * 86_400_000) } } }),
+  ]);
+  return {
+    tiers: Object.fromEntries(tiers.map((t) => [t.loyaltyTier, t._count._all])) as Record<string, number>,
+    bonusOutstanding: bonus._sum.bonusBalance ?? 0,
+    referrals: Object.fromEntries(referrals.map((r) => [r.status, { count: r._count._all, points: r._sum.points ?? 0 }])) as Record<string, { count: number; points: number }>,
+    cashback30: cashback._sum.amount ?? 0,
+    expiring30: expiring._sum.remaining ?? 0,
+  };
 }

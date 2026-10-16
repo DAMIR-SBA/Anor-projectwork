@@ -6,6 +6,9 @@ import { quoteCheckout } from "@/server/services/checkout";
 import { AppError } from "@/server/action";
 import { CheckoutView } from "@/components/checkout/checkout-view";
 import { PageHeader } from "@/components/ui/display";
+import { FormError } from "@/components/ui/form";
+import { platformSettings } from "@/server/services/platform";
+import { pickText } from "@/lib/platform";
 
 export const metadata = { robots: { index: false } };
 
@@ -22,15 +25,22 @@ export default async function CheckoutPage({ params, searchParams }: { params: P
     if (err instanceof AppError) redirect({ href: "/cart", locale });
     throw err;
   }
-  const [addresses, points, cards, wallet] = await Promise.all([
+  const [addresses, points, cards, wallet, platform] = await Promise.all([
     db.address.findMany({ where: { userId: user.id }, orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }] }),
     db.pickupPoint.findMany({ where: { isActive: true }, orderBy: [{ city: "asc" }, { name: "asc" }] }),
     db.savedCard.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" } }),
     db.wallet.findUnique({ where: { userId: user.id } }),
+    platformSettings(),
   ]);
+  const paused = platform.ordersPaused.enabled ? pickText(platform.ordersPaused.messageUz, platform.ordersPaused.messageRu, locale) || t("paused") : null;
   return (
     <div className="container-page py-5">
       <PageHeader title={t("title")} />
+      {paused && (
+        <div className="mb-4">
+          <FormError message={paused} />
+        </div>
+      )}
       <CheckoutView
         cartId={cartId}
         lines={q!.lines.map((l) => ({ variantId: l.variantId, title: l.title, variantTitle: l.variantTitle, image: l.image, quantity: l.quantity, unitPrice: l.unitPrice }))}

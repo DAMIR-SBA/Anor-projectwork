@@ -2,6 +2,7 @@ import "server-only";
 import { db, type Tx } from "@/server/db";
 import { AppError } from "@/server/action";
 import { randomDigits } from "@/server/security/crypto";
+import { cashbackRates, loyaltySettings } from "./loyalty";
 import { computeCart, effectiveCommissionRate, commissionFor, logisticsFee, allocate, cashbackRate, type CartLine, type Coupon, type Promotion } from "@/lib/pricing";
 import { estimateDelivery, regionZone, type Method } from "@/lib/delivery";
 import { quote, buildSchedule, isPlanEligible } from "@/lib/installment";
@@ -209,7 +210,7 @@ export async function placeOrder(user: CurrentUser, input: CheckoutInput, locale
   const shopSubtotals = q.groups.map((g) => g.lines.reduce((s, l) => s + (lineTotals.get(l.variantId)?.lineTotal ?? 0), 0));
   const deliveryShares = allocate(totals.deliveryFee, shopSubtotals);
   const bonusShares = allocate(totals.bonusApplied, shopSubtotals);
-  const rate = cashbackRate(user.loyaltyTier, user.isPlus);
+  const rate = cashbackRate(user.loyaltyTier, user.isPlus, cashbackRates(await loyaltySettings()));
 
   const group = await db.$transaction(
     async (tx) => {

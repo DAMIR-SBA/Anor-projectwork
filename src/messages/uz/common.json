@@ -85,7 +85,8 @@
     "rateLimited": "Juda ko‘p urinish. Birozdan so‘ng qayta urinib ko‘ring.",
     "forbidden": "Bu amal uchun ruxsat yo‘q",
     "unauthorized": "Avval tizimga kiring",
-    "invalidInput": "Ma’lumotlarni tekshiring"
+    "invalidInput": "Ma’lumotlarni tekshiring",
+    "ordersPaused": "Yangi buyurtmalar vaqtincha qabul qilinmayapti."
   },
   "nav": {
     "catalog": "Katalog",

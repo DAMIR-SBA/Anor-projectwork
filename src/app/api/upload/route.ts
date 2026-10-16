@@ -4,7 +4,7 @@ import { isSameOrigin } from "@/server/security/request";
 import { rateLimit, LIMITS } from "@/server/security/rate-limit";
 import { putFile, scanFile, sniffMatches, validateUpload, type UploadKind } from "@/server/storage";
 
-const FOLDERS = ["reviews", "chat", "returns", "products", "shops", "documents", "avatars", "tradein", "evidence"] as const;
+const FOLDERS = ["reviews", "chat", "returns", "products", "shops", "documents", "avatars", "tradein", "evidence", "banners"] as const;
 
 /** POST multipart (file, kind, folder) → { url, name, size, type, scan }. Auth + CSRF + rate limit + type/size/magic checks. */
 export async function POST(req: NextRequest) {

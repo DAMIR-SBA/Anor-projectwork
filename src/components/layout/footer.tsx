@@ -1,11 +1,15 @@
 import { getTranslations } from "next-intl/server";
-import { Send, Headset } from "lucide-react";
+import { Send, Headset, Phone, Mail } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { AnorLogo } from "@/components/brand/AnorLogo";
+import { platformSettings } from "@/server/services/platform";
+import { telegramUrl } from "@/lib/platform";
 
 export async function Footer() {
   const t = await getTranslations("footer");
   const tb = await getTranslations("brand");
+  const { support } = await platformSettings();
+  const tg = telegramUrl(support.telegram);
   const cols = [
     {
       title: t("buyers"),
@@ -46,9 +50,21 @@ export async function Footer() {
           <Link href="/help" className="inline-flex items-center gap-2 text-sm font-semibold">
             <Headset className="h-4 w-4 text-primary" /> {t("support")}
           </Link>
-          <a href="https://t.me/" className="flex items-center gap-2 text-sm font-semibold" rel="noopener noreferrer">
-            <Send className="h-4 w-4 text-[#2AABEE]" /> {t("app")}
-          </a>
+          {support.phone && (
+            <a href={`tel:${support.phone.replace(/[^\d+]/g, "")}`} className="flex items-center gap-2 text-sm font-semibold tabular">
+              <Phone className="h-4 w-4 text-primary" /> {support.phone}
+            </a>
+          )}
+          {support.email && (
+            <a href={`mailto:${support.email}`} className="flex items-center gap-2 text-sm font-semibold">
+              <Mail className="h-4 w-4 text-primary" /> {support.email}
+            </a>
+          )}
+          {tg && (
+            <a href={tg} className="flex items-center gap-2 text-sm font-semibold" rel="noopener noreferrer" target="_blank">
+              <Send className="h-4 w-4 text-[#2AABEE]" /> {t("app")}
+            </a>
+          )}
         </div>
         {cols.map((c) => (
           <nav key={c.title} aria-label={c.title}>

@@ -18,6 +18,8 @@ async function main() {
     await seedSupport(people);
     const { seedSellerCabinet } = await import("./seed/seller");
     await seedSellerCabinet(people);
+    const { seedAdmin } = await import("./seed/admin");
+    await seedAdmin(people);
   }
   console.log("Done.");
 }

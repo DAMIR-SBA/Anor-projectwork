@@ -23,8 +23,11 @@ export const BONUS_TTL_DAYS = 180;
 
 export async function bonusEarn(tx: Tx, userId: string, amount: number, reason: BonusReason, opts: { refId?: string; note?: string; ttlDays?: number } = {}) {
   if (amount <= 0) return;
+  // Lifetime comes from admin › loyalty unless the caller sets it.
+  const setting = opts.ttlDays ? null : await tx.setting.findUnique({ where: { key: "loyalty" } });
+  const ttl = opts.ttlDays ?? Number((setting?.value as { bonusTtlDays?: number } | null)?.bonusTtlDays) ?? BONUS_TTL_DAYS;
   await tx.bonusPoints.create({
-    data: { userId, amount, remaining: amount, reason, refId: opts.refId, note: opts.note, expiresAt: new Date(Date.now() + (opts.ttlDays ?? BONUS_TTL_DAYS) * 86_400_000) },
+    data: { userId, amount, remaining: amount, reason, refId: opts.refId, note: opts.note, expiresAt: new Date(Date.now() + (ttl || BONUS_TTL_DAYS) * 86_400_000) },
   });
   await tx.user.update({ where: { id: userId }, data: { bonusBalance: { increment: amount } } });
 }

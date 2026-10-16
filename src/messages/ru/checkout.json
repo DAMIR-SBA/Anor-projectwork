@@ -54,7 +54,8 @@
     "payNow": "Перейти к оплате",
     "toOrders": "Мои заказы",
     "continueShopping": "Продолжить покупки",
-    "cashback": "+{amount} бонусов после доставки"
+    "cashback": "+{amount} бонусов после доставки",
+    "paused": "Приём новых заказов временно приостановлен. Ваша корзина сохранится."
   },
   "pay": {
     "title": "Оплата",
@@ -79,7 +80,12 @@
     "emptyText": "Для первого заказа используйте промокод ANOR10",
     "number": "Заказ №{number}",
     "from": "Заказ от {date}",
-    "tabs": { "all": "Все", "active": "Активные", "delivered": "Доставленные", "cancelled": "Отменённые" },
+    "tabs": {
+      "all": "Все",
+      "active": "Активные",
+      "delivered": "Доставленные",
+      "cancelled": "Отменённые"
+    },
     "status": {
       "PENDING_PAYMENT": "Ожидает оплаты",
       "PLACED": "Оформлен",
@@ -101,7 +107,17 @@
     "storageUntil": "Хранится до {date}",
     "tracking": "Трек-номер: {code}",
     "payment": "Оплата",
-    "paymentMethod": { "CLICK": "Click", "PAYME": "Payme", "UZCARD": "Uzcard", "HUMO": "Humo", "CARD": "Visa / Mastercard", "COD": "При получении", "INSTALLMENT": "Насия", "WALLET": "Anor Hamyon", "BANK_TRANSFER": "Банковский перевод" },
+    "paymentMethod": {
+      "CLICK": "Click",
+      "PAYME": "Payme",
+      "UZCARD": "Uzcard",
+      "HUMO": "Humo",
+      "CARD": "Visa / Mastercard",
+      "COD": "При получении",
+      "INSTALLMENT": "Насия",
+      "WALLET": "Anor Hamyon",
+      "BANK_TRANSFER": "Банковский перевод"
+    },
     "receipt": "Фискальный чек (PDF)",
     "cancel": "Отменить заказ",
     "cancelConfirm": "Отменить заказ? Оплаченная сумма будет возвращена.",
@@ -127,7 +143,13 @@
     "item": "Товар",
     "quantity": "Количество",
     "reason": "Причина",
-    "reasons": { "defect": "Брак или повреждение", "wrong": "Пришёл другой товар", "size": "Не подошёл размер", "notAsDescribed": "Не соответствует описанию", "changedMind": "Передумал(а)" },
+    "reasons": {
+      "defect": "Брак или повреждение",
+      "wrong": "Пришёл другой товар",
+      "size": "Не подошёл размер",
+      "notAsDescribed": "Не соответствует описанию",
+      "changedMind": "Передумал(а)"
+    },
     "description": "Подробности",
     "photos": "Фото",
     "refundTo": "Вернуть деньги",
@@ -135,7 +157,14 @@
     "refundWallet": "В Anor Hamyon (быстрее)",
     "submit": "Отправить заявку",
     "submitted": "Заявка отправлена. Продавец рассмотрит её в течение 48 часов.",
-    "status": { "REQUESTED": "На рассмотрении", "APPROVED": "Одобрена", "REJECTED": "Отклонена", "RECEIVED": "Товар получен", "REFUNDED": "Деньги возвращены", "DISPUTED": "Спор на рассмотрении" },
+    "status": {
+      "REQUESTED": "На рассмотрении",
+      "APPROVED": "Одобрена",
+      "REJECTED": "Отклонена",
+      "RECEIVED": "Товар получен",
+      "REFUNDED": "Деньги возвращены",
+      "DISPUTED": "Спор на рассмотрении"
+    },
     "window": "Вернуть можно в течение 14 дней"
   },
   "addresses": {
@@ -172,7 +201,15 @@
     "select": "Выбрать",
     "selected": "Выбран",
     "distance": "{km} км",
-    "days": { "mon": "Пн", "tue": "Вт", "wed": "Ср", "thu": "Чт", "fri": "Пт", "sat": "Сб", "sun": "Вс" }
+    "days": {
+      "mon": "Пн",
+      "tue": "Вт",
+      "wed": "Ср",
+      "thu": "Чт",
+      "fri": "Пт",
+      "sat": "Сб",
+      "sun": "Вс"
+    }
   },
   "wallet": {
     "title": "Anor Hamyon",
@@ -182,9 +219,25 @@
     "topupVia": "Способ оплаты",
     "history": "История операций",
     "empty": "Операций нет",
-    "types": { "TOPUP": "Пополнение", "PAYMENT": "Покупка", "REFUND": "Возврат", "CASHBACK": "Кешбэк", "TRANSFER_IN": "Входящий перевод", "TRANSFER_OUT": "Перевод", "SERVICE_PAYMENT": "Оплата услуг", "GIFT_CARD": "Подарочная карта", "ADJUSTMENT": "Корректировка" },
+    "types": {
+      "TOPUP": "Пополнение",
+      "PAYMENT": "Покупка",
+      "REFUND": "Возврат",
+      "CASHBACK": "Кешбэк",
+      "TRANSFER_IN": "Входящий перевод",
+      "TRANSFER_OUT": "Перевод",
+      "SERVICE_PAYMENT": "Оплата услуг",
+      "GIFT_CARD": "Подарочная карта",
+      "ADJUSTMENT": "Корректировка"
+    },
     "services": "Оплата услуг",
-    "serviceTypes": { "MOBILE": "Мобильная связь", "INTERNET": "Интернет", "UTILITIES": "Коммунальные", "TRANSFER": "Перевод другу", "QR": "Оплата по QR" },
+    "serviceTypes": {
+      "MOBILE": "Мобильная связь",
+      "INTERNET": "Интернет",
+      "UTILITIES": "Коммунальные",
+      "TRANSFER": "Перевод другу",
+      "QR": "Оплата по QR"
+    },
     "provider": "Провайдер",
     "account": "Счёт / номер",
     "transferTo": "Получатель (логин или телефон)",
@@ -200,7 +253,18 @@
     "bonusBalance": "{amount} бонусов",
     "bonusHint": "1 бонус = 1 сум. Можно оплатить до 30% заказа. Бонусы действуют 180 дней.",
     "bonusHistory": "История бонусов",
-    "bonusReasons": { "CASHBACK": "Кешбэк", "REVIEW": "Отзыв", "CHECKIN": "Ежедневный вход", "REFERRAL": "Приглашение", "SPIN": "Колесо", "MISSION": "Задание", "ACHIEVEMENT": "Достижение", "REDEEM": "Списание", "EXPIRE": "Сгорание", "ADJUSTMENT": "Возврат" },
+    "bonusReasons": {
+      "CASHBACK": "Кешбэк",
+      "REVIEW": "Отзыв",
+      "CHECKIN": "Ежедневный вход",
+      "REFERRAL": "Приглашение",
+      "SPIN": "Колесо",
+      "MISSION": "Задание",
+      "ACHIEVEMENT": "Достижение",
+      "REDEEM": "Списание",
+      "EXPIRE": "Сгорание",
+      "ADJUSTMENT": "Возврат"
+    },
     "expires": "до {date}",
     "redeemGift": "Активировать подарочную карту",
     "giftCode": "Код карты",
@@ -241,6 +305,11 @@
     "empty": "Уведомлений нет",
     "markAll": "Отметить все как прочитанные",
     "settings": "Настройки",
-    "channels": { "email": "Email", "sms": "SMS", "telegram": "Telegram", "push": "Push" }
+    "channels": {
+      "email": "Email",
+      "sms": "SMS",
+      "telegram": "Telegram",
+      "push": "Push"
+    }
   }
 }

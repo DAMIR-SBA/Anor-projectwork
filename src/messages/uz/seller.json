@@ -479,7 +479,9 @@
       "text": "Odatda 1–2 ish kuni. Natija haqida SMS va Telegram orqali xabar beramiz.",
       "demoApprove": "Demo: tasdiqlash",
       "approved": "Do‘kon tasdiqlandi! Sotuvchi kabinetiga o‘ting."
-    }
+    },
+    "closedTitle": "Sotuvchilarni qabul qilish vaqtincha to‘xtatilgan",
+    "closedText": "Yangi arizalar hozircha qabul qilinmayapti. Birozdan so‘ng qaytib keling."
   },
   "sellerOrders": {
     "title": "Buyurtmalar",

@@ -18,7 +18,8 @@
     "chooseAccessCodeHint": "Kamida 6 ta belgi. Paroldan farq qilsin va hech kimga bermang.",
     "confirmAccessCode": "Kirish kodini takrorlang",
     "join": "Qo‘shilish",
-    "checkCode": "Kodni tekshirish"
+    "checkCode": "Kodni tekshirish",
+    "demoResetDone": "Demo ma’lumotlar tiklandi. Qaytadan kiring."
   },
   "admin": {
     "title": "ANOR Admin",

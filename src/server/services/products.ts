@@ -16,7 +16,7 @@ export async function syncProductPrice(productId: string) {
 }
 
 export async function syncStock(variantId: string) {
-  const agg = await db.warehouseStock.aggregate({ _sum: { quantity: true }, where: { variantId } });
+  const agg = await db.warehouseStock.aggregate({ _sum: { quantity: true }, where: { variantId, warehouse: { isActive: true } } });
   await db.variant.update({ where: { id: variantId }, data: { stock: agg._sum.quantity ?? 0 } });
 }
 

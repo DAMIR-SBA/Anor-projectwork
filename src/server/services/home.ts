@@ -1,7 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { db } from "@/server/db";
-import { cardsByIds, cardInclude, getPlans, recentlyViewedIds, recommendedIds, toCard } from "./catalog";
+import { LIVE_SHOP, cardsByIds, cardInclude, getPlans, recentlyViewedIds, recommendedIds, toCard } from "./catalog";
 import { getCurrentUser } from "@/server/auth/session";
 
 export async function anonId(): Promise<string | null> {
@@ -28,9 +28,9 @@ export async function getHomeData(locale: string) {
     db.category.findMany({ where: { parentId: null, isActive: true }, orderBy: { sort: "asc" } }),
     campaignCards("DEAL_OF_DAY", locale),
     campaignCards("FLASH_SALE", locale),
-    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null }, include: cardInclude(), orderBy: { soldCount: "desc" }, take: 10 }),
-    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null }, include: cardInclude(), orderBy: { publishedAt: "desc" }, take: 10 }),
-    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, madeInUz: true }, include: cardInclude(), orderBy: [{ rating: "desc" }, { soldCount: "desc" }], take: 10 }),
+    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude(), orderBy: { soldCount: "desc" }, take: 10 }),
+    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude(), orderBy: { publishedAt: "desc" }, take: 10 }),
+    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP, madeInUz: true }, include: cardInclude(), orderBy: [{ rating: "desc" }, { soldCount: "desc" }], take: 10 }),
     recommendedIds(user?.id ?? null, aid, 10),
     recentlyViewedIds(user?.id ?? null, aid, undefined, 10),
     db.story.findMany({ where: { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }, include: { shop: { select: { name: true, slug: true, logoUrl: true } } }, orderBy: { createdAt: "desc" }, take: 12 }),

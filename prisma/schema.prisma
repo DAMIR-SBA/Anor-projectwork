@@ -2657,6 +2657,23 @@ model FeatureFlag {
   /// A/B variants: [{ key: "A", weight: 50 }, { key: "B", weight: 50 }]
   variants       Json?
   updatedAt      DateTime @updatedAt
+
+  exposures FlagExposure[]
+}
+
+/// One row per visitor per A/B flag: the variant they first saw, and what they bought after.
+model FlagExposure {
+  flagKey   String
+  visitorId String
+  variant   String
+  orders    Int      @default(0)
+  revenue   Int      @default(0)
+  createdAt DateTime @default(now())
+
+  flag FeatureFlag @relation(fields: [flagKey], references: [key], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([flagKey, visitorId])
+  @@index([flagKey, variant])
 }
 
 model FraudFlag {

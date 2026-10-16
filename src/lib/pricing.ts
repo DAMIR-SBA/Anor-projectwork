@@ -122,8 +122,12 @@ export const BASE_CASHBACK = 0.01;
 export const TIER_CASHBACK = { STANDARD: 0, SILVER: 0.01, GOLD: 0.02 } as const;
 export const PLUS_CASHBACK = 0.02;
 
-export function cashbackRate(tier: keyof typeof TIER_CASHBACK, isPlus: boolean): number {
-  return BASE_CASHBACK + TIER_CASHBACK[tier] + (isPlus ? PLUS_CASHBACK : 0);
+export type CashbackRates = { base: number; silver: number; gold: number; plus: number };
+export const DEFAULT_CASHBACK: CashbackRates = { base: BASE_CASHBACK, silver: TIER_CASHBACK.SILVER, gold: TIER_CASHBACK.GOLD, plus: PLUS_CASHBACK };
+
+/** Cashback = base + loyalty tier bonus + Plus bonus (rates configurable in admin › loyalty). */
+export function cashbackRate(tier: keyof typeof TIER_CASHBACK, isPlus: boolean, r: CashbackRates = DEFAULT_CASHBACK): number {
+  return r.base + (tier === "GOLD" ? r.gold : tier === "SILVER" ? r.silver : 0) + (isPlus ? r.plus : 0);
 }
 
 export function computeCart(input: {

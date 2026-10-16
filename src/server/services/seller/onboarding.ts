@@ -5,6 +5,7 @@ import { audit } from "@/server/audit";
 import { encrypt, decrypt, randomToken } from "@/server/security/crypto";
 import { isOwnStorageUrl } from "@/server/storage";
 import { REGIONS } from "@/lib/delivery";
+import { assertSellerSignupOpen } from "@/server/services/platform";
 import { maskAccount, requiredDocuments, slugify, validateBankAccount, validateMfo, validateTaxId, type LegalType } from "@/lib/seller";
 
 /** The shop being set up: the newest one that is not approved yet. */
@@ -47,6 +48,8 @@ async function ensureDraft(userId: string) {
     if (existing.status === "PENDING") throw new AppError("onboardingLocked");
     return existing;
   }
+  // Closing sign-ups stops new shops only; applications already started can finish.
+  await assertSellerSignupOpen();
   const slug = `draft-${randomToken(6).toLowerCase().replace(/[^a-z0-9]/g, "")}`;
   return db.shop.create({ data: { ownerId: userId, slug, name: slug, status: "DRAFT" }, include: { documents: true, warehouses: true } });
 }

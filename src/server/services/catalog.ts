@@ -73,7 +73,7 @@ export function toCard(p: CardProduct, locale: string, plans: Plan[]): ProductCa
 
 export async function cardsByIds(ids: string[], locale: string): Promise<ProductCardData[]> {
   if (!ids.length) return [];
-  const [rows, plans] = await Promise.all([db.product.findMany({ where: { id: { in: ids }, status: "ACTIVE", deletedAt: null }, include: cardInclude() }), getPlans()]);
+  const [rows, plans] = await Promise.all([db.product.findMany({ where: { id: { in: ids }, status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude() }), getPlans()]);
   const byId = new Map(rows.map((r) => [r.id, r]));
   return ids.flatMap((id) => (byId.has(id) ? [toCard(byId.get(id)!, locale, plans)] : []));
 }
@@ -121,6 +121,9 @@ export type Filters = {
   page?: number;
   pageSize?: number;
 };
+
+/** Storefront visibility: only products of approved (not suspended) shops. */
+export const LIVE_SHOP = { status: "APPROVED" } as const;
 
 const ORDER: Record<Sort, Prisma.ProductOrderByWithRelationInput[]> = {
   // Restricted shops (low fulfillment score) rank below everyone else in the default order.
@@ -170,7 +173,7 @@ export async function suggestCorrection(raw: string): Promise<string | null> {
 }
 
 export async function buildWhere(f: Filters): Promise<{ where: Prisma.ProductWhereInput; searchIds: string[] | null }> {
-  const where: Prisma.ProductWhereInput = { status: "ACTIVE", deletedAt: null };
+  const where: Prisma.ProductWhereInput = { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP };
   const and: Prisma.ProductWhereInput[] = [];
   if (f.category) {
     const ids = await categorySubtree(f.category);
@@ -242,7 +245,7 @@ export async function facets(f: Filters) {
 
 export async function getProduct(slug: string) {
   return db.product.findFirst({
-    where: { slug, deletedAt: null, status: { in: ["ACTIVE", "ARCHIVED"] } },
+    where: { slug, deletedAt: null, status: { in: ["ACTIVE", "ARCHIVED"] }, shop: LIVE_SHOP },
     include: {
       media: { orderBy: { sort: "asc" } },
       variants: { orderBy: [{ isDefault: "desc" }, { price: "asc" }], include: { stocks: { include: { warehouse: { select: { type: true, region: true } } } } } },
@@ -266,7 +269,7 @@ export async function priceHistory(variantId: string) {
 
 export async function similarProducts(p: { id: string; categoryId: string; price: number }, locale: string, take = 12) {
   const rows = await db.product.findMany({
-    where: { categoryId: p.categoryId, id: { not: p.id }, status: "ACTIVE", deletedAt: null, price: { gte: Math.round(p.price * 0.4), lte: Math.round(p.price * 2.2) } },
+    where: { categoryId: p.categoryId, id: { not: p.id }, status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP, price: { gte: Math.round(p.price * 0.4), lte: Math.round(p.price * 2.2) } },
     include: cardInclude(),
     orderBy: [{ soldCount: "desc" }],
     take,
@@ -275,7 +278,7 @@ export async function similarProducts(p: { id: string; categoryId: string; price
   if (rows.length < 4) {
     const parent = await db.category.findUnique({ where: { id: p.categoryId }, select: { parentId: true } });
     if (parent?.parentId) {
-      const more = await db.product.findMany({ where: { category: { parentId: parent.parentId }, id: { notIn: [p.id, ...rows.map((r) => r.id)] }, status: "ACTIVE", deletedAt: null }, include: cardInclude(), orderBy: { soldCount: "desc" }, take: take - rows.length });
+      const more = await db.product.findMany({ where: { category: { parentId: parent.parentId }, id: { notIn: [p.id, ...rows.map((r) => r.id)] }, status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude(), orderBy: { soldCount: "desc" }, take: take - rows.length });
       rows.push(...more);
     }
   }
@@ -329,11 +332,11 @@ export async function recommendedIds(userId: string | null, anonId: string | nul
   const topCats = [...weights.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([c]) => c);
   const seen = new Set(viewed.map((v) => v.product.id));
   const pool = topCats.length
-    ? await db.product.findMany({ where: { categoryId: { in: topCats }, status: "ACTIVE", deletedAt: null }, orderBy: [{ rating: "desc" }, { soldCount: "desc" }], select: { id: true }, take: take * 2 })
+    ? await db.product.findMany({ where: { categoryId: { in: topCats }, status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, orderBy: [{ rating: "desc" }, { soldCount: "desc" }], select: { id: true }, take: take * 2 })
     : [];
   const ids = pool.map((p) => p.id).filter((id) => !seen.has(id));
   if (ids.length < take) {
-    const best = await db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, id: { notIn: ids } }, orderBy: [{ soldCount: "desc" }], select: { id: true }, take: take - ids.length });
+    const best = await db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP, id: { notIn: ids } }, orderBy: [{ soldCount: "desc" }], select: { id: true }, take: take - ids.length });
     ids.push(...best.map((b) => b.id));
   }
   return ids.slice(0, take);

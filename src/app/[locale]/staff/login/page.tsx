@@ -5,7 +5,7 @@ import { FormSuccess } from "@/components/ui/form";
 import { getStaffSession } from "@/server/auth/session";
 import { env } from "@/server/env";
 
-export default async function StaffLoginPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ welcome?: string }> }) {
+export default async function StaffLoginPage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ welcome?: string; reset?: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   if (await getStaffSession()) redirect({ href: "/admin", locale });
@@ -18,6 +18,7 @@ export default async function StaffLoginPage({ params, searchParams }: { params:
         <p className="mt-1 text-sm text-muted">{t("loginSubtitle")}</p>
       </div>
       {sp.welcome && <FormSuccess message={t("welcome")} />}
+      {sp.reset && <FormSuccess message={t("demoResetDone")} />}
       <StaffLoginForm />
       {env().DEMO_MODE && <DemoStaffButtons />}
     </div>

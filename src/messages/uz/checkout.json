@@ -54,7 +54,8 @@
     "payNow": "To‘lovga o‘tish",
     "toOrders": "Buyurtmalarim",
     "continueShopping": "Xaridni davom ettirish",
-    "cashback": "Yetkazilgandan so‘ng +{amount} bonus"
+    "cashback": "Yetkazilgandan so‘ng +{amount} bonus",
+    "paused": "Yangi buyurtmalar vaqtincha qabul qilinmayapti. Savatingiz saqlanadi."
   },
   "pay": {
     "title": "To‘lov",
@@ -79,7 +80,12 @@
     "emptyText": "Birinchi buyurtmangiz uchun ANOR10 promo-kodidan foydalaning",
     "number": "Buyurtma №{number}",
     "from": "{date} dagi buyurtma",
-    "tabs": { "all": "Hammasi", "active": "Faol", "delivered": "Yetkazilgan", "cancelled": "Bekor qilingan" },
+    "tabs": {
+      "all": "Hammasi",
+      "active": "Faol",
+      "delivered": "Yetkazilgan",
+      "cancelled": "Bekor qilingan"
+    },
     "status": {
       "PENDING_PAYMENT": "To‘lov kutilmoqda",
       "PLACED": "Qabul qilindi",
@@ -101,7 +107,17 @@
     "storageUntil": "{date} gacha saqlanadi",
     "tracking": "Trek raqami: {code}",
     "payment": "To‘lov",
-    "paymentMethod": { "CLICK": "Click", "PAYME": "Payme", "UZCARD": "Uzcard", "HUMO": "Humo", "CARD": "Visa / Mastercard", "COD": "Qabul qilganda", "INSTALLMENT": "Nasiya", "WALLET": "Anor Hamyon", "BANK_TRANSFER": "Bank o‘tkazmasi" },
+    "paymentMethod": {
+      "CLICK": "Click",
+      "PAYME": "Payme",
+      "UZCARD": "Uzcard",
+      "HUMO": "Humo",
+      "CARD": "Visa / Mastercard",
+      "COD": "Qabul qilganda",
+      "INSTALLMENT": "Nasiya",
+      "WALLET": "Anor Hamyon",
+      "BANK_TRANSFER": "Bank o‘tkazmasi"
+    },
     "receipt": "Fiskal chek (PDF)",
     "cancel": "Buyurtmani bekor qilish",
     "cancelConfirm": "Buyurtmani bekor qilasizmi? To‘langan summa qaytariladi.",
@@ -127,7 +143,13 @@
     "item": "Mahsulot",
     "quantity": "Soni",
     "reason": "Sabab",
-    "reasons": { "defect": "Nuqson yoki buzilgan", "wrong": "Boshqa mahsulot keldi", "size": "O‘lcham mos kelmadi", "notAsDescribed": "Tavsifga mos emas", "changedMind": "Fikrimdan qaytdim" },
+    "reasons": {
+      "defect": "Nuqson yoki buzilgan",
+      "wrong": "Boshqa mahsulot keldi",
+      "size": "O‘lcham mos kelmadi",
+      "notAsDescribed": "Tavsifga mos emas",
+      "changedMind": "Fikrimdan qaytdim"
+    },
     "description": "Tafsilotlar",
     "photos": "Rasmlar",
     "refundTo": "Pulni qaytarish",
@@ -135,7 +157,14 @@
     "refundWallet": "Anor Hamyon’ga (tezroq)",
     "submit": "Ariza yuborish",
     "submitted": "Ariza yuborildi. Sotuvchi 48 soat ichida ko‘rib chiqadi.",
-    "status": { "REQUESTED": "Ko‘rib chiqilmoqda", "APPROVED": "Tasdiqlandi", "REJECTED": "Rad etildi", "RECEIVED": "Mahsulot qabul qilindi", "REFUNDED": "Pul qaytarildi", "DISPUTED": "Nizo ko‘rib chiqilmoqda" },
+    "status": {
+      "REQUESTED": "Ko‘rib chiqilmoqda",
+      "APPROVED": "Tasdiqlandi",
+      "REJECTED": "Rad etildi",
+      "RECEIVED": "Mahsulot qabul qilindi",
+      "REFUNDED": "Pul qaytarildi",
+      "DISPUTED": "Nizo ko‘rib chiqilmoqda"
+    },
     "window": "Qaytarish 14 kun ichida mumkin"
   },
   "addresses": {
@@ -172,7 +201,15 @@
     "select": "Tanlash",
     "selected": "Tanlangan",
     "distance": "{km} km",
-    "days": { "mon": "Du", "tue": "Se", "wed": "Ch", "thu": "Pa", "fri": "Ju", "sat": "Sh", "sun": "Ya" }
+    "days": {
+      "mon": "Du",
+      "tue": "Se",
+      "wed": "Ch",
+      "thu": "Pa",
+      "fri": "Ju",
+      "sat": "Sh",
+      "sun": "Ya"
+    }
   },
   "wallet": {
     "title": "Anor Hamyon",
@@ -182,9 +219,25 @@
     "topupVia": "To‘lov usuli",
     "history": "Operatsiyalar tarixi",
     "empty": "Operatsiyalar yo‘q",
-    "types": { "TOPUP": "To‘ldirish", "PAYMENT": "Xarid", "REFUND": "Qaytarish", "CASHBACK": "Keshbek", "TRANSFER_IN": "Kiruvchi o‘tkazma", "TRANSFER_OUT": "O‘tkazma", "SERVICE_PAYMENT": "Xizmat to‘lovi", "GIFT_CARD": "Sovg‘a kartasi", "ADJUSTMENT": "Tuzatish" },
+    "types": {
+      "TOPUP": "To‘ldirish",
+      "PAYMENT": "Xarid",
+      "REFUND": "Qaytarish",
+      "CASHBACK": "Keshbek",
+      "TRANSFER_IN": "Kiruvchi o‘tkazma",
+      "TRANSFER_OUT": "O‘tkazma",
+      "SERVICE_PAYMENT": "Xizmat to‘lovi",
+      "GIFT_CARD": "Sovg‘a kartasi",
+      "ADJUSTMENT": "Tuzatish"
+    },
     "services": "Xizmatlar uchun to‘lov",
-    "serviceTypes": { "MOBILE": "Mobil aloqa", "INTERNET": "Internet", "UTILITIES": "Kommunal", "TRANSFER": "Do‘stga o‘tkazma", "QR": "QR orqali to‘lov" },
+    "serviceTypes": {
+      "MOBILE": "Mobil aloqa",
+      "INTERNET": "Internet",
+      "UTILITIES": "Kommunal",
+      "TRANSFER": "Do‘stga o‘tkazma",
+      "QR": "QR orqali to‘lov"
+    },
     "provider": "Provayder",
     "account": "Hisob / raqam",
     "transferTo": "Qabul qiluvchi (login yoki telefon)",
@@ -200,7 +253,18 @@
     "bonusBalance": "{amount} bonus",
     "bonusHint": "1 bonus = 1 so‘m. Buyurtmaning 30% gacha to‘lash mumkin. Bonuslar 180 kun amal qiladi.",
     "bonusHistory": "Bonuslar tarixi",
-    "bonusReasons": { "CASHBACK": "Keshbek", "REVIEW": "Sharh", "CHECKIN": "Kunlik kirish", "REFERRAL": "Taklif", "SPIN": "G‘ildirak", "MISSION": "Topshiriq", "ACHIEVEMENT": "Yutuq", "REDEEM": "Sarflandi", "EXPIRE": "Muddati o‘tdi", "ADJUSTMENT": "Qaytarildi" },
+    "bonusReasons": {
+      "CASHBACK": "Keshbek",
+      "REVIEW": "Sharh",
+      "CHECKIN": "Kunlik kirish",
+      "REFERRAL": "Taklif",
+      "SPIN": "G‘ildirak",
+      "MISSION": "Topshiriq",
+      "ACHIEVEMENT": "Yutuq",
+      "REDEEM": "Sarflandi",
+      "EXPIRE": "Muddati o‘tdi",
+      "ADJUSTMENT": "Qaytarildi"
+    },
     "expires": "{date} gacha",
     "redeemGift": "Sovg‘a kartasini faollashtirish",
     "giftCode": "Karta kodi",
@@ -241,6 +305,11 @@
     "empty": "Bildirishnomalar yo‘q",
     "markAll": "Hammasini o‘qilgan deb belgilash",
     "settings": "Sozlamalar",
-    "channels": { "email": "Email", "sms": "SMS", "telegram": "Telegram", "push": "Push" }
+    "channels": {
+      "email": "Email",
+      "sms": "SMS",
+      "telegram": "Telegram",
+      "push": "Push"
+    }
   }
 }

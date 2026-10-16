@@ -307,3 +307,18 @@ const PROHIBITED = /(qurol|оружи|narkot|наркот|spays|спайс|repli
 export function productNeedsReview(text: string): boolean {
   return PROHIBITED.test(text);
 }
+
+/** Matched restricted terms (shown to moderators). */
+export function prohibitedTerms(text: string): string[] {
+  return [...new Set([...text.matchAll(new RegExp(PROHIBITED.source, "gi"))].map((m) => m[0].toLowerCase()))];
+}
+
+/**
+ * "Old price" claims that were never the real price: the crossed-out price is more than 20% above
+ * every price the item actually had in the last 90 days.
+ */
+export function inflatedOldPrice(oldPrice: number | null | undefined, history: number[], current: number): boolean {
+  if (!oldPrice || oldPrice <= current) return false;
+  const maxSeen = Math.max(current, ...history);
+  return oldPrice > maxSeen * 1.2;
+}
