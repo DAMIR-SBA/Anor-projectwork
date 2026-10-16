@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { db } from "@/server/db";
 import { getCurrentUser } from "@/server/auth/session";
 import { anonId } from "@/server/services/home";
+import { experimentTitle, recordExperimentClick } from "@/server/services/experiments";
 import { alsoBought, cardsByIds, categoryBySlug, getPlans, getProduct, priceHistory, recentlyViewedIds, recordView, similarProducts } from "@/server/services/catalog";
 import { ProductHero } from "@/components/product/product-hero";
 import { PriceHistory } from "@/components/product/price-history";
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ProductPage({ params }: Props) {
+export default async function ProductPage({ params, searchParams }: Props & { searchParams: Promise<{ ab?: string }> }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
   const p = await getProduct(slug);
@@ -51,6 +52,8 @@ export default async function ProductPage({ params }: Props) {
   const user = await getCurrentUser();
   const aid = await anonId();
   after(() => recordView(p.id, user?.id ?? null, aid));
+  const { ab } = await searchParams;
+  if (ab) after(() => recordExperimentClick(p.id, aid, ab));
 
   const defaultVariant = p.variants[0];
   const [plans, cat, history, similar, also, recentIds, alerts] = await Promise.all([
@@ -64,7 +67,8 @@ export default async function ProductPage({ params }: Props) {
   ]);
   const recent = await cardsByIds(recentIds, locale);
 
-  const title = loc(p, "title", locale);
+  // A running title test shows the same title the viewer saw on the listing card.
+  const title = (await experimentTitle(p.id, aid, locale)) ?? loc(p, "title", locale);
   const campaign = p.campaignItems[0];
   const specs = (p.specs as Array<{ keyUz: string; keyRu: string; value: string }> | null) ?? [];
   const nasiyaEligible = p.nasiyaEligible ?? p.category.nasiyaEligible;

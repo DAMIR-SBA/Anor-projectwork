@@ -196,6 +196,7 @@ export function DemoButtons({ next }: { next?: string }) {
   const accounts = [
     ["buyer", t("demoBuyer")],
     ["seller", t("demoSeller")],
+    ["sellerPro", t("demoSellerPro")],
     ["seller2", t("demoArtisan")],
     ["business", t("demoBusiness")],
   ] as const;

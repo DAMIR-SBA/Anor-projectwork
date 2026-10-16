@@ -19,6 +19,11 @@ export type ProductCardData = {
   shopName: string;
   badges: { halal: boolean; madeInUz: boolean; official: boolean; preorder: boolean; used: boolean; fast: boolean; flash: boolean; lowest90: boolean };
   dealEndsAt: string | null;
+  /** Overrides the product link (sponsored click tracking, A/B attribution). */
+  href?: string;
+  sponsored?: boolean;
+  /** A/B test arm shown to this viewer; the product link carries it so clicks are attributed. */
+  ab?: "A" | "B";
 };
 
 export type CartView = {

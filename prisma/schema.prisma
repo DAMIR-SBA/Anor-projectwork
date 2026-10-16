@@ -828,6 +828,7 @@ model Shop {
   moderationNote    String?
   kycLevel          Int         @default(0)
   tier              SellerTier  @default(BASIC)
+  tierSince         DateTime?
   isOfficial        Boolean     @default(false)
   city              String?
   rating            Float       @default(0)
@@ -1017,7 +1018,10 @@ model Variant {
   oldPrice    Int?
   /// Sum of available stock across warehouses (cached).
   stock       Int      @default(0)
-  barcode     String?  @unique
+  /// EAN/UPC; the same item sold by several shops shares one barcode (unique per shop, enforced in code).
+  barcode     String?
+  /// Seller's unit cost (so'm), private; used for unit economics only.
+  costPrice   Int?
   imageUrl    String?
   isDefault   Boolean  @default(false)
   weightGrams Int?
@@ -1036,6 +1040,7 @@ model Variant {
   alerts          ProductAlert[]
 
   @@index([productId])
+  @@index([barcode])
 }
 
 model ProductMedia {
@@ -2632,6 +2637,8 @@ model WebhookDelivery {
   status       String   @default("PENDING")
   responseCode Int?
   attempts     Int      @default(0)
+  /// Transport error of the last attempt (timeout, blocked_address, …).
+  error        String?
   createdAt    DateTime @default(now())
 
   webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)

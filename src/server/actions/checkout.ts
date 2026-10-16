@@ -12,6 +12,9 @@ import { transitionOrder, arriveAtPickupPoint } from "@/server/services/orders";
 import { completePayment, startPayment } from "@/server/payments/service";
 import { createReturn } from "@/server/services/returns";
 import { isOwnStorageUrl } from "@/server/storage";
+import { cookies } from "next/headers";
+import { unsign } from "@/server/security/crypto";
+import { AD_COOKIE, attributeOrders } from "@/server/services/ads";
 import { REGIONS } from "@/lib/delivery";
 
 const zCheckout = z.object({
@@ -39,6 +42,9 @@ export const quoteCheckoutAction = action({ schema: zCheckout.pick({ cartId: tru
 
 export const placeOrderAction = action({ schema: zCheckout, rateLimit: { key: "checkout", limit: 10, window: 300 } }, async (input, ctx) => {
   const r = await placeOrder(ctx.user, input, await getLocale());
+  // Last-click ad attribution (signed cookie set by /api/ads/click).
+  const adCookie = unsign((await cookies()).get(AD_COOKIE)?.value);
+  if (adCookie) await attributeOrders(r.groupId, JSON.parse(adCookie)).catch(() => {});
   revalidatePath("/[locale]", "layout");
   return { ok: true, data: r };
 });

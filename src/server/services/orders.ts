@@ -95,7 +95,7 @@ async function notifyStatus(orderId: string, status: OrderStatus) {
 
 /** Seller gets the new order in-app and, if linked, in the seller Telegram bot with Confirm/Reject buttons. */
 async function notifySellerNewOrder(orderId: string) {
-  const order = await db.order.findUniqueOrThrow({ where: { id: orderId }, include: { shop: true, items: true } });
+  const order = await db.order.findUniqueOrThrow({ where: { id: orderId }, include: { shop: true, items: { include: { variant: { select: { sku: true } } } } } });
   await notify({ userId: order.shop.ownerId, type: "seller.new_order", title: `Yangi buyurtma №${order.number}`, body: `${order.items.length} ta pozitsiya · ${order.total.toLocaleString("ru-RU")} so‘m`, href: `/seller/orders/${order.id}` });
   if (order.shop.telegramChatId) {
     const lines = order.items.map((i) => `• ${escapeHtml(i.title)} × ${i.quantity}`).join("\n");
@@ -108,7 +108,7 @@ async function notifySellerNewOrder(orderId: string) {
   }
   // Seller API webhooks (registered in the seller cabinet).
   const { emitWebhook } = await import("./webhooks");
-  await emitWebhook(order.shopId, "order.created", { id: order.id, number: order.number, total: order.total, items: order.items.map((i) => ({ sku: i.variantId, title: i.title, quantity: i.quantity, unitPrice: i.unitPrice })) });
+  await emitWebhook(order.shopId, "order.created", { id: order.id, number: order.number, total: order.total, fulfillment: order.fulfillment, items: order.items.map((i) => ({ sku: i.variant.sku, title: i.title, quantity: i.quantity, unitPrice: i.unitPrice })) });
 }
 
 /** Payment completed (or not needed): orders move to PLACED, receipts for prepaid orders, notifications. */
@@ -199,6 +199,10 @@ export async function transitionOrder(orderId: string, to: OrderStatus, by: Acto
   }
   if (by.actor !== "buyer") await audit({ actorId: by.userId ?? null, actorLogin: by.login ?? null, actorKind: by.actor === "staff" ? "staff" : by.actor === "seller" ? "seller" : "system", action: `order.${to.toLowerCase()}`, entityType: "Order", entityId: orderId, before: { status: order.status }, after: { status: to }, meta: note ? { note } : undefined });
   await notifyStatus(orderId, to);
+  if ((to === "CANCELLED" && order.status !== "PENDING_PAYMENT") || to === "DELIVERED") {
+    const { emitWebhook } = await import("./webhooks");
+    await emitWebhook(order.shopId, to === "CANCELLED" ? "order.cancelled" : "order.delivered", { id: order.id, number: order.number, status: to, ...(to === "CANCELLED" ? { reason: note ?? null } : {}) }).catch(() => {});
+  }
   if (to === "CANCELLED") {
     const { recomputeShopMetrics } = await import("./shop-metrics");
     await recomputeShopMetrics(order.shopId).catch(() => {});

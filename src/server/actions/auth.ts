@@ -201,9 +201,9 @@ export const revokeSessionAction = action({ schema: z.object({ sessionId: z.stri
 
 // ── Demo accounts (DEMO_MODE only) ───────────────────────────────────────
 
-const DEMO_USERS = { buyer: "demo_buyer", seller: "demo_seller", seller2: "demo_artisan", business: "demo_business" } as const;
+const DEMO_USERS = { buyer: "demo_buyer", seller: "demo_seller", sellerPro: "demo_techhub", seller2: "demo_artisan", business: "demo_business" } as const;
 
-export const demoLoginAction = action({ auth: "public", schema: z.object({ as: z.enum(["buyer", "seller", "seller2", "business"]), next: z.string().optional() }) }, async (input) => {
+export const demoLoginAction = action({ auth: "public", schema: z.object({ as: z.enum(["buyer", "seller", "sellerPro", "seller2", "business"]), next: z.string().optional() }) }, async (input) => {
   if (!env().DEMO_MODE) throw new AppError("forbidden");
   const user = await db.user.findUnique({ where: { login: DEMO_USERS[input.as] } });
   if (!user) throw new AppError("demoMissing");

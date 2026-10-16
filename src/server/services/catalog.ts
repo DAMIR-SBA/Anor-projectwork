@@ -123,7 +123,8 @@ export type Filters = {
 };
 
 const ORDER: Record<Sort, Prisma.ProductOrderByWithRelationInput[]> = {
-  popular: [{ soldCount: "desc" }, { rating: "desc" }],
+  // Restricted shops (low fulfillment score) rank below everyone else in the default order.
+  popular: [{ shop: { restrictedAt: { sort: "asc", nulls: "first" } } }, { soldCount: "desc" }, { rating: "desc" }],
   new: [{ publishedAt: "desc" }],
   price_asc: [{ price: "asc" }],
   price_desc: [{ price: "desc" }],
@@ -207,9 +208,10 @@ export async function listProducts(f: Filters, locale: string) {
   const plans = await getPlans();
   // Search keeps relevance order unless the user picks another sort.
   if (searchIds && (!f.sort || f.sort === "popular")) {
-    const matching = await db.product.findMany({ where, select: { id: true } });
-    const allowed = new Set(matching.map((m) => m.id));
-    const ordered = searchIds.filter((id) => allowed.has(id));
+    const matching = await db.product.findMany({ where, select: { id: true, shop: { select: { restrictedAt: true } } } });
+    const allowed = new Set(matching.filter((m) => !m.shop.restrictedAt).map((m) => m.id));
+    const demoted = new Set(matching.filter((m) => m.shop.restrictedAt).map((m) => m.id));
+    const ordered = [...searchIds.filter((id) => allowed.has(id)), ...searchIds.filter((id) => demoted.has(id))];
     const slice = ordered.slice((page - 1) * pageSize, page * pageSize);
     return { items: await cardsByIds(slice, locale), total: ordered.length, page, pageSize };
   }

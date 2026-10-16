@@ -1,7 +1,11 @@
 import type { ReactNode } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { SearchX } from "lucide-react";
-import { facets as getFacets, listProducts, type Filters, type Sort } from "@/server/services/catalog";
+import { after } from "next/server";
+import { categorySubtree, facets as getFacets, listProducts, type Filters, type Sort } from "@/server/services/catalog";
+import { recordImpressions, sponsoredCards } from "@/server/services/ads";
+import { applyExperiments, recordExperimentImpressions } from "@/server/services/experiments";
+import { anonId } from "@/server/services/home";
 import { InfiniteGrid } from "@/components/product/infinite-grid";
 import { CatalogFilters, SortSelect } from "./filters";
 import { EmptyState } from "@/components/ui/display";
@@ -50,6 +54,15 @@ export async function CatalogListing({ base, searchParams, header, emptyExtra }:
   if (one(searchParams.sort)) filters.sort = one(searchParams.sort) as Sort;
   const pageSize = 20;
   const [data, facets] = await Promise.all([listProducts({ ...filters, page: 1, pageSize }, locale), getFacets(filters)]);
+  // Sponsored slots (first page only): search keywords or the category being browsed. Labelled "Reklama".
+  const adContext = filters.q?.trim() ? ({ placement: "SEARCH", query: filters.q } as const) : filters.category ? ({ placement: "CATEGORY", categoryIds: (await categorySubtree(filters.category)) ?? [] } as const) : null;
+  const ads = adContext && data.items.length ? await sponsoredCards(adContext, locale, data.items.slice(0, 4).map((p) => p.id)).catch(() => []) : [];
+  if (ads.length) after(() => recordImpressions(ads.map((a) => a.campaignId)));
+  const merged = ads.length ? [ads[0], ...data.items.slice(0, 5).filter((p) => !ads.some((a) => a.id === p.id)), ...ads.slice(1), ...data.items.slice(5).filter((p) => !ads.some((a) => a.id === p.id))] : data.items;
+  // Seller A/B tests (title/photo) are served on the first, server-rendered page.
+  const ab = await applyExperiments(merged, await anonId(), locale).catch(() => ({ cards: merged, shown: [] }));
+  if (ab.shown.length) after(() => recordExperimentImpressions(ab.shown));
+  const initial = ab.cards;
   return (
     <div className="flex gap-6">
       <CatalogFilters facets={facets} mode="desktop" />
@@ -63,7 +76,7 @@ export async function CatalogListing({ base, searchParams, header, emptyExtra }:
         </div>
         {header}
         {data.items.length ? (
-          <InfiniteGrid initial={data.items} total={data.total} query={apiQuery(base, searchParams)} pageSize={pageSize} />
+          <InfiniteGrid initial={initial} total={data.total} query={apiQuery(base, searchParams)} pageSize={pageSize} />
         ) : (
           <EmptyState icon={<SearchX className="h-8 w-8" />} title={t("emptyTitle")} description={t("emptyText")} action={emptyExtra} className="card" />
         )}

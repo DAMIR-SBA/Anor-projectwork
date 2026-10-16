@@ -14,6 +14,19 @@ import { cn } from "@/lib/cn";
 import type { ProductCardData } from "@/lib/types";
 import { RatingInline } from "./rating";
 
+/** Tracked links (sponsored clicks) go through an API redirect, so they must not get a locale prefix. */
+function CardLink({ p, className, label, children }: { p: ProductCardData; className: string; label?: string; children: React.ReactNode }) {
+  return p.href ? (
+    <a href={p.href} aria-label={label} className={className}>
+      {children}
+    </a>
+  ) : (
+    <Link href={p.ab ? `/p/${p.slug}?ab=${p.ab}` : `/p/${p.slug}`} aria-label={label} className={className}>
+      {children}
+    </Link>
+  );
+}
+
 export function ProductCard({ p, priority, sponsored }: { p: ProductCardData; priority?: boolean; sponsored?: boolean }) {
   const t = useTranslations("product");
   const tc = useTranslations("catalog");
@@ -24,6 +37,7 @@ export function ProductCard({ p, priority, sponsored }: { p: ProductCardData; pr
   const liked = isLiked(p.id);
   const [added, setAdded] = useState(false);
   const [pending, start] = useTransition();
+  const isSponsored = sponsored || p.sponsored;
 
   const add = () => {
     if (!p.variantId) return;
@@ -42,12 +56,12 @@ export function ProductCard({ p, priority, sponsored }: { p: ProductCardData; pr
   return (
     <article className="group relative flex flex-col rounded-[16px] bg-surface p-2 transition-shadow hover:shadow-[var(--shadow-lift)] sm:p-2.5">
       <div className="relative aspect-[3/4] overflow-hidden rounded-[12px] bg-surface-2">
-        <Link href={`/p/${p.slug}`} aria-label={p.title} className="absolute inset-0">
+        <CardLink p={p} label={p.title} className="absolute inset-0">
           {p.image && (
             <Image src={p.image} alt={p.title} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 240px" className={cn("object-cover transition-opacity duration-300", p.hoverImage && "group-hover:opacity-0")} priority={priority} />
           )}
           {p.hoverImage && <Image src={p.hoverImage} alt="" fill sizes="240px" className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100" />}
-        </Link>
+        </CardLink>
         <div className="pointer-events-none absolute left-2 top-2 flex flex-col items-start gap-1">
           {p.discountPct > 0 && <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-extrabold text-white">−{p.discountPct}%</span>}
           {p.badges.flash && (
@@ -74,7 +88,7 @@ export function ProductCard({ p, priority, sponsored }: { p: ProductCardData; pr
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-1 px-1 pb-1 pt-2.5">
-        {sponsored && <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">{tc("sponsored")}</span>}
+        {isSponsored && <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">{tc("sponsored")}</span>}
         <div className="flex flex-wrap items-baseline gap-x-1.5">
           <span className={cn("tabular text-[17px] font-extrabold leading-tight tracking-tight", p.oldPrice && "text-brand-ink")}>{formatUZS(p.price, locale)}</span>
           {p.oldPrice && <s className="tabular text-xs text-muted">{formatUZS(p.oldPrice, locale)}</s>}
@@ -84,9 +98,9 @@ export function ProductCard({ p, priority, sponsored }: { p: ProductCardData; pr
             {t("monthly", { amount: formatUZS(p.monthly.amount, locale), months: p.monthly.months })}
           </span>
         )}
-        <Link href={`/p/${p.slug}`} className="line-clamp-2 text-sm leading-snug text-fg hover:text-primary">
+        <CardLink p={p} className="line-clamp-2 text-sm leading-snug text-fg hover:text-primary">
           {p.title}
-        </Link>
+        </CardLink>
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           <RatingInline rating={p.rating} count={p.reviewCount} />
           {p.dealEndsAt && (

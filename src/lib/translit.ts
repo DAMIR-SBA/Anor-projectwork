@@ -166,3 +166,26 @@ export function transliterateIcu(message: string): string {
   flushText();
   return out;
 }
+
+const C2L: Record<string, string> = {
+  а: "a", б: "b", в: "v", г: "g", ғ: "g‘", д: "d", е: "e", ё: "yo", ж: "j", з: "z", и: "i", й: "y", к: "k", қ: "q", л: "l", м: "m", н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ў: "o‘", ф: "f", х: "x", ҳ: "h", ц: "ts", ч: "ch", ш: "sh", щ: "sh", ъ: "’", ы: "i", ь: "", э: "e", ю: "yu", я: "ya",
+};
+
+/** Uzbek (and Russian) Cyrillic → Uzbek Latin; "е" at a word start becomes "ye". */
+export function cyrillicToLatin(input: string): string {
+  let out = "";
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+    const lower = ch.toLowerCase();
+    let rep = C2L[lower];
+    if (rep === undefined) {
+      out += ch;
+      continue;
+    }
+    const prev = input[i - 1];
+    if (lower === "е" && (!prev || !/\p{L}/u.test(prev))) rep = "ye";
+    if (ch !== lower && rep) rep = rep[0].toUpperCase() + rep.slice(1);
+    out += rep;
+  }
+  return out;
+}
