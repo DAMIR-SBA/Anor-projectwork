@@ -5,13 +5,13 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Banknote, CalendarClock, CreditCard, Gift, Landmark, MapPin, Plus, Store, Truck, Wallet, Zap } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
-import { Button } from "@/components/ui/button";
+import { Button, Spinner } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Checkbox, Input, Textarea } from "@/components/ui/form";
 import { useToast } from "@/components/ui/toast";
 import { placeOrderAction, quoteCheckoutAction } from "@/server/actions/checkout";
 import { formatUZS, groupDigits } from "@/lib/money";
-import { deliverySlots } from "@/lib/delivery";
+import { checkoutSlots } from "@/lib/delivery";
 import { buildSchedule, quote, type Plan } from "@/lib/installment";
 import { fmtDay } from "@/lib/format-date";
 import { cn } from "@/lib/cn";
@@ -55,7 +55,8 @@ export function CheckoutView(props: Props) {
 
   const [method, setMethod] = useState<"PICKUP" | "COURIER" | "EXPRESS">(props.addresses.length ? "COURIER" : "PICKUP");
   const [addressId, setAddressId] = useState(props.addresses.find((a) => a.isDefault)?.id ?? props.addresses[0]?.id ?? null);
-  const [addresses, setAddresses] = useState(props.addresses);
+  // New addresses arrive via router.refresh() → fresh server props.
+  const addresses = props.addresses;
   const [pvz, setPvz] = useState<Pvz | null>(null);
   const [pvzOpen, setPvzOpen] = useState(false);
   const [addrOpen, setAddrOpen] = useState(false);
@@ -78,9 +79,6 @@ export function CheckoutView(props: Props) {
   const [placing, startPlace] = useTransition();
   const seq = useRef(0);
 
-  // New addresses arrive via router.refresh() → fresh server props.
-  useEffect(() => setAddresses(props.addresses), [props.addresses]);
-
   useEffect(() => {
     const id = ++seq.current;
     const handle = setTimeout(() => {
@@ -98,8 +96,7 @@ export function CheckoutView(props: Props) {
   const walletUse = useWallet || payment === "WALLET" ? Math.min(props.walletBalance, totals.total) : 0;
   const toPay = totals.total - walletUse;
   const maxBonus = Math.min(props.bonusBalance, Math.floor((totals.subtotal - totals.promoDiscount - totals.couponDiscount) * 0.3));
-  const earliest = useMemo(() => (data.groups.length ? new Date(Math.min(...data.groups.map((g) => new Date(g.eta).getTime()))) : new Date()), [data.groups]);
-  const slots = useMemo(() => deliverySlots(new Date(Math.max(Date.now() + 2 * 3_600_000, earliest.getTime() - 10 * 3_600_000)), 3).slice(0, 12), [earliest]);
+  const slots = useMemo(() => checkoutSlots(data.groups.map((g) => g.eta)), [data.groups]);
   const plan = data.plans.find((p) => p.months === months) ?? null;
 
   const place = () =>
@@ -316,9 +313,12 @@ export function CheckoutView(props: Props) {
       </div>
 
       <aside className="lg:sticky lg:top-36 lg:self-start">
-        <div className={cn("card space-y-4 p-5 transition-opacity", quoting && "opacity-70")}>
-          <h2 className="text-xl font-extrabold">{t("summary")}</h2>
-          <ul className="max-h-60 space-y-2 overflow-y-auto">
+        {/* Re-quoting keeps text at full contrast; the spinner and aria-busy signal the update. */}
+        <div className="card space-y-4 p-5" aria-busy={quoting}>
+          <h2 className="flex items-center gap-2 text-xl font-extrabold">
+            {t("summary")} {quoting && <Spinner className="h-4 w-4 text-muted" />}
+          </h2>
+          <ul className="max-h-60 space-y-2 overflow-y-auto" tabIndex={0} aria-label={t("summary")}>
             {props.lines.map((l) => (
               <li key={l.variantId} className="flex items-center gap-3 text-sm">
                 <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[10px] bg-surface-2">{l.image && <Image src={l.image} alt="" fill sizes="48px" className="object-cover" />}</span>
@@ -342,7 +342,7 @@ export function CheckoutView(props: Props) {
             <span className="text-lg font-bold">{t("toPay")}</span>
             <span className="tabular text-2xl font-extrabold">{fmt(toPay)}</span>
           </div>
-          {payment === "INSTALLMENT" && plan && <p className="text-right text-sm font-semibold text-[#7a5600] dark:text-accent">{t("installmentText", { months: plan.months, amount: fmt(quote(toPay, plan).monthly) })}</p>}
+          {payment === "INSTALLMENT" && plan && <p className="text-right text-sm font-semibold text-accent-ink">{t("installmentText", { months: plan.months, amount: fmt(quote(toPay, plan).monthly) })}</p>}
           {totals.cashback > 0 && <p className="text-sm text-success">{t("cashback", { amount: groupDigits(totals.cashback) })}</p>}
           <Button size="lg" className="w-full" loading={placing} disabled={quoting || (method === "PICKUP" ? !pvz : !addressId) || (payment === "INSTALLMENT" && !accepted)} onClick={place}>
             {["CLICK", "PAYME", "UZCARD", "HUMO", "CARD"].includes(payment) && toPay > 0 ? t("placeOrderPay", { amount: fmt(toPay) }) : t("placeOrder")}

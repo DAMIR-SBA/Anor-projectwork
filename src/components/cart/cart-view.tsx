@@ -102,7 +102,7 @@ export function CartView({ initial, signedIn, isOwner = true, appUrl }: { initia
                     aria-label={it.title}
                     onChange={(e) => run({ type: "select", itemIds: [it.id], selected: e.target.checked }, () => toggleCartItemsAction({ cartId: cart.id, itemIds: [it.id], selected: e.target.checked }))}
                   />
-                  <Link href={`/p/${it.slug}`} className="relative h-24 w-20 shrink-0 overflow-hidden rounded-[12px] bg-surface-2 sm:h-28 sm:w-24">
+                  <Link href={`/p/${it.slug}`} tabIndex={-1} aria-hidden="true" className="relative h-24 w-20 shrink-0 overflow-hidden rounded-[12px] bg-surface-2 sm:h-28 sm:w-24">
                     {it.image && <Image src={it.image} alt="" fill sizes="96px" className="object-cover" />}
                   </Link>
                   <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -154,7 +154,7 @@ export function CartView({ initial, signedIn, isOwner = true, appUrl }: { initia
           </section>
         ))}
         {optimistic.unavailable.length > 0 && (
-          <section className="card p-4 opacity-70">
+          <section className="card p-4 [&_img]:opacity-60">
             <h2 className="mb-2 font-bold">{t("unavailable")}</h2>
             <ul className="space-y-2">
               {optimistic.unavailable.map((it) => (
@@ -269,7 +269,7 @@ export function CartView({ initial, signedIn, isOwner = true, appUrl }: { initia
             <span className="text-lg font-bold">{t("total")}</span>
             <span className="tabular text-2xl font-extrabold">{fmt(tot.total)}</span>
           </div>
-          {tot.monthly && <p className="text-right text-sm font-semibold text-[#7a5600] dark:text-accent">{tp("monthly", { amount: fmt(tot.monthly.amount), months: tot.monthly.months })}</p>}
+          {tot.monthly && <p className="text-right text-sm font-semibold text-accent-ink">{tp("monthly", { amount: fmt(tot.monthly.amount), months: tot.monthly.months })}</p>}
           {tot.cashback > 0 && <p className="text-sm text-success">{t("cashback", { amount: groupDigits(tot.cashback) })}</p>}
           {isOwner ? (
             <Button

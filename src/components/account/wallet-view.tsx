@@ -124,7 +124,7 @@ export function WalletView({ balance, txs, cards, bonusBalance, bonuses }: { bal
             <h2 className="mb-1 font-bold">{t("bonus")}</h2>
             <p className="tabular text-2xl font-extrabold">{t("bonusBalance", { amount: groupDigits(bonusBalance) })}</p>
             <p className="mb-3 text-xs text-muted">{t("bonusHint")}</p>
-            <ul className="max-h-60 divide-y divide-border overflow-y-auto text-sm">
+            <ul className="max-h-60 divide-y divide-border overflow-y-auto text-sm" tabIndex={0}>
               {bonuses.map((b) => (
                 <li key={b.id} className="flex justify-between gap-2 py-2">
                   <span>

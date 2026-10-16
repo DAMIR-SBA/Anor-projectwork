@@ -172,9 +172,9 @@ export function LiveRoom({ stream, me, host = false }: Props) {
           {stream.status === "SCHEDULED" && (
             <div className="absolute inset-0 grid place-items-center p-6 text-center text-white">
               <div className="space-y-2">
-                <p className="text-sm font-semibold uppercase tracking-wide text-white/80">{t("startsIn")}</p>
+                <p className="text-sm font-semibold uppercase tracking-wide text-white/90">{t("startsIn")}</p>
                 <Countdown to={stream.startsAt} className="text-3xl font-extrabold" onDone={() => router.refresh()} />
-                <p className="text-sm text-white/80">{fmtDateTime(stream.startsAt, locale)}</p>
+                <p className="text-sm text-white/90">{fmtDateTime(stream.startsAt, locale)}</p>
               </div>
             </div>
           )}

@@ -560,7 +560,7 @@ export function BannerEditor({ initial }: { initial?: BannerForm }) {
           <div className="mb-4 flex min-h-28 items-center gap-4 overflow-hidden rounded-[16px] p-5 text-white" style={{ background: f.bgColor }}>
             <div className="min-w-0 flex-1">
               <p className="text-xl font-extrabold">{f.titleUz || t("titleUz")}</p>
-              {f.subtitleUz && <p className="mt-1 text-sm text-white/85">{f.subtitleUz}</p>}
+              {f.subtitleUz && <p className="mt-1 text-sm text-white/90">{f.subtitleUz}</p>}
             </div>
             {f.imageUrl && (
               <span className="relative h-24 w-32 shrink-0">

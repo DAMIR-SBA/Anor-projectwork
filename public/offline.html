@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#C8102E" />
+    <title>Internet yo‘q · ANOR</title>
+    <style>
+      :root { color-scheme: light dark; --bg: #f6f6f8; --fg: #1a1a1f; --muted: #5d5d66; --card: #fff; }
+      @media (prefers-color-scheme: dark) { :root { --bg: #141418; --fg: #f4f4f6; --muted: #a6a6b0; --card: #1f1f25; } }
+      body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, sans-serif; }
+      main { max-width: 360px; margin: 16px; padding: 28px; border-radius: 20px; background: var(--card); text-align: center; }
+      img { width: 64px; height: 64px; }
+      h1 { font-size: 20px; margin: 12px 0 4px; }
+      p { color: var(--muted); margin: 0 0 4px; font-size: 15px; }
+      button { margin-top: 16px; height: 44px; padding: 0 20px; border: 0; border-radius: 12px; background: #c8102e; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/icons/icon-192.png" alt="ANOR" />
+      <h1>Internet aloqasi yo‘q</h1>
+      <p>Avval ochilgan katalog sahifalari oflayn ham ko‘rinadi.</p>
+      <p lang="ru">Нет подключения к интернету. Открытые ранее страницы каталога доступны офлайн.</p>
+      <button type="button" onclick="location.reload()">Qayta urinish · Повторить</button>
+    </main>
+  </body>
+</html>

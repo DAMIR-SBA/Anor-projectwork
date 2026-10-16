@@ -13,13 +13,15 @@ import type { CategoryNode } from "@/server/services/categories";
 export function CatalogButton({ categories, label }: { categories: CategoryNode[]; label: string }) {
   const locale = useLocale();
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  // The menu is open "on" a page: navigating elsewhere closes it without an effect.
+  const [openOn, setOpenOn] = useState<string | null>(null);
+  const open = openOn === pathname;
+  const setOpen = (v: boolean) => setOpenOn(v ? pathname : null);
   const [active, setActive] = useState(categories[0]?.id);
 
-  useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
     if (!open) return;
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpenOn(null);
     document.addEventListener("keydown", esc);
     return () => document.removeEventListener("keydown", esc);
   }, [open]);
@@ -30,7 +32,7 @@ export function CatalogButton({ categories, label }: { categories: CategoryNode[
     <>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(!open)}
         aria-expanded={open}
         className={cn("hidden h-11 shrink-0 items-center gap-2 rounded-[12px] px-4 text-[15px] font-bold text-white transition-colors md:flex", open ? "bg-primary-dark" : "bg-primary hover:bg-primary-dark")}
       >

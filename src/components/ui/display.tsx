@@ -93,9 +93,9 @@ export function Avatar({ name, src, size = 40, className, online }: { name?: str
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="" className="h-full w-full rounded-full object-cover" />
       ) : (
-        <span className="flex h-full w-full items-center justify-center rounded-full font-bold text-white" style={{ background: `hsl(${hue} 55% 45%)`, fontSize: size * 0.38 }} aria-hidden="true">
-          {initials}
-        </span>
+        // Initials are decoration (the name is always next to or around the avatar), drawn via CSS so
+        // they do not become part of a button's or link's accessible name.
+        <span data-initials={initials} className="flex h-full w-full items-center justify-center rounded-full font-bold text-white before:content-[attr(data-initials)]" style={{ background: `hsl(${hue} 50% 30%)`, fontSize: size * 0.38 }} aria-hidden="true" />
       )}
       {online && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-surface bg-success" aria-label="online" />}
     </span>

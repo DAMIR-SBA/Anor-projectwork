@@ -24,8 +24,9 @@ async function main() {
     await seedBuyerPhase8(people);
     const { seedB2B } = await import("./seed/b2b");
     await seedB2B(people);
-    const { seedDiscovery } = await import("./seed/discovery");
+    const { seedDiscovery, seedDemoAddresses } = await import("./seed/discovery");
     await seedDiscovery(people);
+    await seedDemoAddresses(people);
   }
   console.log("Done.");
 }

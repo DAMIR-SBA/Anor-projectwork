@@ -52,7 +52,7 @@ export function MockGateway({ payment, testModeLabel }: { payment: P; testModeLa
     <div className="card overflow-hidden">
       <div className="bg-[#1A1A1F] px-6 py-5 text-white">
         <p className="text-xs font-bold uppercase tracking-widest text-white/60">{payment.provider}</p>
-        <p className="mt-1 text-sm text-white/70">{t("amount")}</p>
+        <p className="mt-1 text-sm text-white/90">{t("amount")}</p>
         <p className="tabular text-3xl font-extrabold">{formatUZS(payment.amount, locale)}</p>
         <p className="mt-1 text-xs text-white/60">{t("merchant")}</p>
       </div>

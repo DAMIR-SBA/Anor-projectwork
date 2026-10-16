@@ -109,7 +109,7 @@ export function MessageBubble({ m, mine, showSender, state, actions, viewer, rea
           className={cn(
             "rounded-[16px] px-3 py-2 text-[15px] leading-snug",
             mine ? "rounded-br-[6px] bg-primary text-white" : "rounded-bl-[6px] bg-surface shadow-[0_1px_1px_rgb(var(--shadow-color)/0.08)] dark:bg-surface-3",
-            m.deleted && "italic opacity-70",
+            m.deleted && "italic text-muted",
             card && "p-1.5",
             m.flagged && !mine && "ring-1 ring-accent",
           )}
@@ -121,7 +121,7 @@ export function MessageBubble({ m, mine, showSender, state, actions, viewer, rea
             </p>
           )}
           {m.replyTo && (
-            <div className={cn("mb-1.5 border-l-2 pl-2 text-[13px]", mine ? "border-white/70 text-white/85" : "border-primary text-muted")}>
+            <div className={cn("mb-1.5 border-l-2 pl-2 text-[13px]", mine ? "border-white/70 text-white/90" : "border-primary text-muted")}>
               <p className="font-semibold">{m.replyTo.senderName ?? "—"}</p>
               <p className="line-clamp-1">{m.replyTo.text ?? t("attachment")}</p>
             </div>

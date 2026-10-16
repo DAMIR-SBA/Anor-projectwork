@@ -5,7 +5,9 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { ThemeScript } from "@/components/layout/theme-script";
+import { ogImage } from "@/server/og";
 import { ToastProvider } from "@/components/ui/toast";
+import { PwaRegister } from "@/components/pwa/pwa";
 
 const APP_URL = process.env.APP_URL || "http://localhost:3000";
 
@@ -22,11 +24,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: t("description"),
     applicationName: "ANOR",
     manifest: "/manifest.webmanifest",
-    openGraph: { siteName: "ANOR", type: "website", locale: locale === "ru" ? "ru_RU" : "uz_UZ" },
+    openGraph: { siteName: "ANOR", type: "website", locale: locale === "ru" ? "ru_RU" : "uz_UZ", images: [ogImage("/api/og", locale, `ANOR — ${t("tagline")}`)] },
+    twitter: { card: "summary_large_image" },
     alternates: {
       languages: { uz: "/", "uz-Cyrl": "/oz", ru: "/ru" },
     },
     appleWebApp: { capable: true, title: "ANOR", statusBarStyle: "default" },
+    icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
   };
 }
 
@@ -53,6 +57,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       <body className="min-h-dvh antialiased">
         <NextIntlClientProvider>
           <ToastProvider>{children}</ToastProvider>
+          <PwaRegister />
         </NextIntlClientProvider>
       </body>
     </html>

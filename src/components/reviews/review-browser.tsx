@@ -76,10 +76,10 @@ export function ReviewBrowser({ productId, stats, initial, signedIn, summary, ct
                       onClick={() => apply({ rating: active ? undefined : n })}
                       aria-pressed={active}
                       className={cn("grid w-full grid-cols-[28px_1fr_36px] items-center gap-2 rounded-[8px] px-1.5 py-1 text-[13px] hover:bg-surface-2 disabled:cursor-default disabled:hover:bg-transparent", active && "bg-surface-3")}
-                      aria-label={`${t("filterRating", { n })}: ${c}`}
                     >
                       <span className="flex items-center gap-0.5 font-semibold">
-                        {n} <Star className="h-3 w-3 text-accent" fill="currentColor" strokeWidth={0} />
+                        <span aria-hidden="true">{n}</span> <Star className="h-3 w-3 text-accent" fill="currentColor" strokeWidth={0} aria-hidden="true" />
+                        <span className="sr-only">{t("filterRating", { n })}:</span>
                       </span>
                       <span className="h-2 overflow-hidden rounded-full bg-surface-3">
                         <span className="block h-full rounded-full bg-accent" style={{ width: `${(c / max) * 100}%` }} />

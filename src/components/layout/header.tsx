@@ -21,7 +21,7 @@ const BADGE = "absolute -right-2 -top-1.5 min-w-[18px] rounded-full bg-primary p
 
 function IconLink({ href, label, count, live, children }: { href: string; label: string; count?: number; live?: "chat"; children: React.ReactNode }) {
   return (
-    <Link href={href} className="relative hidden flex-col items-center gap-0.5 rounded-[12px] px-2.5 py-1.5 text-[11px] font-semibold text-muted hover:bg-surface-3 hover:text-fg md:flex" aria-label={label}>
+    <Link href={href} className="relative hidden flex-col items-center gap-0.5 rounded-[12px] px-2.5 py-1.5 text-[11px] font-semibold text-muted hover:bg-surface-3 hover:text-fg md:flex">
       <span className="relative">
         {children}
         {live ? <LiveBadge initial={count ?? 0} kind={live} className={BADGE} /> : !!count && count > 0 && <span className={BADGE}>{count > 99 ? "99+" : count}</span>}

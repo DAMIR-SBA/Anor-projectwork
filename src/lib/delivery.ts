@@ -80,3 +80,9 @@ export function deliverySlots(earliest: Date, days = 3): Slot[] {
   }
   return slots;
 }
+
+/** Courier slots for checkout: from the earliest parcel's ETA, but never sooner than 2 hours from now. */
+export function checkoutSlots(etas: string[], now: number = Date.now()): Slot[] {
+  const earliest = etas.length ? Math.min(...etas.map((e) => Date.parse(e))) : now;
+  return deliverySlots(new Date(Math.max(now + 2 * 3_600_000, earliest - 10 * 3_600_000)), 3).slice(0, 12);
+}

@@ -9,19 +9,20 @@ import { cn } from "@/lib/cn";
 export type StoryData = { id: string; shopName: string; shopSlug: string; logo: string | null; title: string; body: string | null; media: string; productSlugs: string[]; artisan: boolean };
 
 /** Instagram-like seller stories: avatars row + full-screen viewer with progress bars. */
-export function Stories({ stories, labels }: { stories: StoryData[]; labels: { title: string; shop: string; close: string } }) {
+export function Stories({ stories, labels }: { stories: StoryData[]; labels: { title: string; shop: string; close: string; prev: string; next: string } }) {
   const [open, setOpen] = useState<number | null>(null);
-  const [progress, setProgress] = useState(0);
+  // Progress belongs to one story; a different story simply starts from 0.
+  const [tick, setTick] = useState({ index: -1, value: 0 });
+  const progress = tick.index === open ? tick.value : 0;
 
   useEffect(() => {
     if (open == null) return;
-    setProgress(0);
     const started = Date.now();
     const id = setInterval(() => {
       const p = (Date.now() - started) / 6000;
       if (p >= 1) {
         setOpen((o) => (o != null && o + 1 < stories.length ? o + 1 : null));
-      } else setProgress(p);
+      } else setTick({ index: open, value: p });
     }, 50);
     return () => clearInterval(id);
   }, [open, stories.length]);
@@ -62,11 +63,11 @@ export function Stories({ stories, labels }: { stories: StoryData[]; labels: { t
               </button>
             </div>
             <Image src={s.media} alt="" fill sizes="430px" className="object-cover" />
-            <button type="button" className="absolute inset-y-0 left-0 w-1/3" aria-label="prev" onClick={() => setOpen((o) => (o! > 0 ? o! - 1 : o))} />
-            <button type="button" className="absolute inset-y-0 right-0 w-1/3" aria-label="next" onClick={() => setOpen((o) => (o! + 1 < stories.length ? o! + 1 : null))} />
+            <button type="button" className="absolute inset-y-0 left-0 w-1/3" aria-label={labels.prev} onClick={() => setOpen((o) => (o! > 0 ? o! - 1 : o))} />
+            <button type="button" className="absolute inset-y-0 right-0 w-1/3" aria-label={labels.next} onClick={() => setOpen((o) => (o! + 1 < stories.length ? o! + 1 : null))} />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-5 pt-20 text-white">
               <h3 className="text-xl font-extrabold">{s.title}</h3>
-              {s.body && <p className="mt-1 text-sm text-white/85">{s.body}</p>}
+              {s.body && <p className="mt-1 text-sm text-white/90">{s.body}</p>}
               {s.productSlugs[0] && (
                 <Link href={`/p/${s.productSlugs[0]}`} onClick={() => setOpen(null)} className="mt-4 inline-flex rounded-[12px] bg-white px-4 py-2 text-sm font-bold text-[#1A1A1F]">
                   {labels.shop} →

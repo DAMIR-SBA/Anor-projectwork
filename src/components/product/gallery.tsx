@@ -18,12 +18,13 @@ export function Gallery({ items, activeUrl }: { items: GalleryItem[]; activeUrl?
   const n = items.length;
   const cur = items[i] ?? items[0];
 
-  // Selecting a variant jumps to its photo.
-  useEffect(() => {
-    if (!activeUrl) return;
-    const idx = items.findIndex((m) => m.url === activeUrl);
+  // Selecting a variant jumps to its photo (state adjusted during render when the prop changes).
+  const [seenUrl, setSeenUrl] = useState(activeUrl);
+  if (activeUrl !== seenUrl) {
+    setSeenUrl(activeUrl);
+    const idx = activeUrl ? items.findIndex((m) => m.url === activeUrl) : -1;
     if (idx >= 0) setI(idx);
-  }, [activeUrl, items]);
+  }
 
   useEffect(() => {
     if (!full) return;

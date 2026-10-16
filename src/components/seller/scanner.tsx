@@ -113,7 +113,7 @@ export function Scanner() {
             <ScanLine className="pointer-events-none absolute inset-0 m-auto h-24 w-24 animate-pulse text-primary" />
           </>
         ) : (
-          <div className="flex aspect-[4/3] flex-col items-center justify-center gap-2 p-6 text-center text-sm text-white/70">
+          <div className="flex aspect-[4/3] flex-col items-center justify-center gap-2 p-6 text-center text-sm text-white/90">
             <CameraOff className="h-8 w-8" />
             {supported ? t("cameraOff") : t("unsupported")}
           </div>

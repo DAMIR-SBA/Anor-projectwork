@@ -41,18 +41,16 @@ export function HeroCarousel({ slides, labels }: { slides: Slide[]; labels: { pr
     >
       <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${i * 100}%)` }}>
         {slides.map((s, idx) => (
+          <div key={s.id} role="group" aria-roledescription="slide" aria-label={`${idx + 1} / ${n}`} className="w-full shrink-0">
           <Link
-            key={s.id}
             href={s.href}
-            className="relative flex h-[200px] w-full shrink-0 items-center overflow-hidden px-6 text-white sm:h-[260px] md:h-[320px] md:px-12"
+            className="relative flex h-[200px] w-full items-center overflow-hidden px-6 text-white sm:h-[260px] md:h-[320px] md:px-12"
             style={{ background: s.bg }}
-            aria-roledescription="slide"
-            aria-label={`${idx + 1} / ${n}: ${s.title}`}
             tabIndex={idx === i ? 0 : -1}
           >
             <div className="relative z-10 max-w-[60%] md:max-w-[50%]">
               <h2 className="text-2xl font-extrabold leading-tight sm:text-3xl md:text-5xl">{s.title}</h2>
-              {s.subtitle && <p className="mt-2 text-sm text-white/85 sm:text-base md:mt-3 md:text-lg">{s.subtitle}</p>}
+              {s.subtitle && <p className="mt-2 text-sm text-white/90 sm:text-base md:mt-3 md:text-lg">{s.subtitle}</p>}
             </div>
             {s.image && (
               <div className="absolute -right-6 bottom-0 top-0 aspect-square md:right-8">
@@ -62,6 +60,7 @@ export function HeroCarousel({ slides, labels }: { slides: Slide[]; labels: { pr
             <span aria-hidden className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
             <span aria-hidden className="absolute bottom-6 left-1/3 h-6 w-6 rounded-full bg-accent/80" />
           </Link>
+          </div>
         ))}
       </div>
       {n > 1 && (

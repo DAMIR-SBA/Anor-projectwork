@@ -43,7 +43,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               <Icon className={cn("mt-0.5 h-5 w-5 shrink-0", t.tone === "success" ? "text-success" : t.tone === "error" ? "text-danger" : "text-accent")} />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">{t.title}</p>
-                {t.description && <p className="mt-0.5 text-sm text-white/70">{t.description}</p>}
+                {t.description && <p className="mt-0.5 text-sm text-white/90">{t.description}</p>}
               </div>
               <button type="button" className="text-white/60 hover:text-white" onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))} aria-label="Close">
                 <X className="h-4 w-4" />

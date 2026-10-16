@@ -6,6 +6,7 @@ import { Bell, ChevronDown, LogOut, Package, Settings, Shield, Store, User, Wall
 import { Link } from "@/i18n/navigation";
 import { Avatar, Badge } from "@/components/ui/display";
 import { logoutAction } from "@/server/actions/auth";
+import { clearOfflineCache } from "@/components/pwa/pwa";
 
 type Props = { user: { login: string; name: string | null; avatarUrl: string | null; isPlus: boolean; hasShop: boolean } | null; notifications: number };
 
@@ -30,7 +31,7 @@ export function AccountMenu({ user, notifications }: Props) {
 
   if (!user) {
     return (
-      <Link href="/auth/login" className="ml-1 inline-flex h-10 items-center gap-2 rounded-[12px] bg-primary px-4 text-sm font-bold text-white hover:bg-primary-dark">
+      <Link href="/auth/login" aria-label={t("login")} className="ml-1 inline-flex h-10 items-center gap-2 rounded-[12px] bg-primary px-4 text-sm font-bold text-white hover:bg-primary-dark">
         <User className="h-4.5 w-4.5" />
         <span className="hidden sm:inline">{t("login")}</span>
       </Link>
@@ -50,7 +51,7 @@ export function AccountMenu({ user, notifications }: Props) {
 
   return (
     <div ref={ref} className="relative ml-1">
-      <button type="button" onClick={() => setOpen((o) => !o)} className="flex items-center gap-1.5 rounded-[12px] p-1 pr-2 hover:bg-surface-3" aria-expanded={open} aria-haspopup="menu">
+      <button type="button" onClick={() => setOpen((o) => !o)} className="flex items-center gap-1.5 rounded-[12px] p-1 pr-2 hover:bg-surface-3" aria-expanded={open} aria-haspopup="menu" aria-label={t("account")}>
         <span className="relative">
           <Avatar name={user.name ?? user.login} src={user.avatarUrl} size={36} />
           {notifications > 0 && <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-surface bg-primary" />}
@@ -82,7 +83,7 @@ export function AccountMenu({ user, notifications }: Props) {
               </Link>
             </li>
           </ul>
-          <form action={logoutAction} className="border-t border-border p-1.5">
+          <form action={logoutAction} onSubmit={clearOfflineCache} className="border-t border-border p-1.5">
             <button type="submit" role="menuitem" className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2 text-sm font-medium text-danger hover:bg-danger/10">
               <LogOut className="h-4.5 w-4.5" /> {t("logout")}
             </button>

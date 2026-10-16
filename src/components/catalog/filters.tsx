@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SlidersHorizontal, X } from "lucide-react";
@@ -35,34 +35,43 @@ function Toggle({ name, label }: { name: string; label: string }) {
   );
 }
 
-function FilterBody({ facets }: { facets: Facets }) {
+/** Price inputs start from the URL; the parent remounts them (key) when the URL range changes. */
+function PriceRange({ facets, initialMin, initialMax }: { facets: Facets; initialMin: string; initialMax: string }) {
   const t = useTranslations("catalog");
-  const { sp, update } = useParamsState();
-  const [min, setMin] = useState(sp.get("min") ?? "");
-  const [max, setMax] = useState(sp.get("max") ?? "");
-  useEffect(() => {
-    setMin(sp.get("min") ?? "");
-    setMax(sp.get("max") ?? "");
-  }, [sp]);
-  const brands = sp.getAll("brand");
+  const { update } = useParamsState();
+  const [min, setMin] = useState(initialMin);
+  const [max, setMax] = useState(initialMax);
   const applyPrice = () =>
     update((q) => {
       const a = min.replace(/\D/g, "");
       const b = max.replace(/\D/g, "");
-      a ? q.set("min", a) : q.delete("min");
-      b ? q.set("max", b) : q.delete("max");
+      if (a) q.set("min", a);
+      else q.delete("min");
+      if (b) q.set("max", b);
+      else q.delete("max");
     });
+  return (
+    <fieldset>
+      <legend className="mb-2 font-bold">{t("price")}</legend>
+      <div className="flex items-center gap-2">
+        <input inputMode="numeric" value={min} onChange={(e) => setMin(e.target.value)} onBlur={applyPrice} onKeyDown={(e) => e.key === "Enter" && applyPrice()} placeholder={`${t("priceFrom")} ${groupDigits(facets.priceMin)}`} aria-label={t("priceFrom")} className="h-10 w-full min-w-0 rounded-[10px] border border-border bg-surface px-3 text-sm" />
+        <span className="text-muted">—</span>
+        <input inputMode="numeric" value={max} onChange={(e) => setMax(e.target.value)} onBlur={applyPrice} onKeyDown={(e) => e.key === "Enter" && applyPrice()} placeholder={`${t("priceTo")} ${groupDigits(facets.priceMax)}`} aria-label={t("priceTo")} className="h-10 w-full min-w-0 rounded-[10px] border border-border bg-surface px-3 text-sm" />
+      </div>
+    </fieldset>
+  );
+}
+
+function FilterBody({ facets }: { facets: Facets }) {
+  const t = useTranslations("catalog");
+  const { sp, update } = useParamsState();
+  const brands = sp.getAll("brand");
+  const urlMin = sp.get("min") ?? "";
+  const urlMax = sp.get("max") ?? "";
 
   return (
     <div className="space-y-5">
-      <fieldset>
-        <legend className="mb-2 font-bold">{t("price")}</legend>
-        <div className="flex items-center gap-2">
-          <input inputMode="numeric" value={min} onChange={(e) => setMin(e.target.value)} onBlur={applyPrice} onKeyDown={(e) => e.key === "Enter" && applyPrice()} placeholder={`${t("priceFrom")} ${groupDigits(facets.priceMin)}`} aria-label={t("priceFrom")} className="h-10 w-full min-w-0 rounded-[10px] border border-border bg-surface px-3 text-sm" />
-          <span className="text-muted">—</span>
-          <input inputMode="numeric" value={max} onChange={(e) => setMax(e.target.value)} onBlur={applyPrice} onKeyDown={(e) => e.key === "Enter" && applyPrice()} placeholder={`${t("priceTo")} ${groupDigits(facets.priceMax)}`} aria-label={t("priceTo")} className="h-10 w-full min-w-0 rounded-[10px] border border-border bg-surface px-3 text-sm" />
-        </div>
-      </fieldset>
+      <PriceRange key={`${urlMin}|${urlMax}`} facets={facets} initialMin={urlMin} initialMax={urlMax} />
       {facets.brands.length > 0 && (
         <fieldset>
           <legend className="mb-2 font-bold">{t("brand")}</legend>
@@ -189,7 +198,7 @@ export function SortSelect() {
   return (
     <label className="flex items-center gap-2 text-sm">
       <span className="hidden text-muted sm:inline">{t("sort")}:</span>
-      <select value={sp.get("sort") ?? "popular"} onChange={(e) => update((q) => (e.target.value === "popular" ? q.delete("sort") : q.set("sort", e.target.value)))} className="h-10 rounded-[12px] border border-border bg-surface px-3 font-semibold">
+      <select aria-label={t("sort")} value={sp.get("sort") ?? "popular"} onChange={(e) => update((q) => (e.target.value === "popular" ? q.delete("sort") : q.set("sort", e.target.value)))} className="h-10 rounded-[12px] border border-border bg-surface px-3 font-semibold">
         {sorts.map((s) => (
           <option key={s} value={s}>
             {t(`sorts.${s}`)}

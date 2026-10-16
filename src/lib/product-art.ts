@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars -- every drawing receives the full palette {c, d, l} and uses what it needs */
 // Deterministic flat product illustrations used for demo catalog imagery.
 // /media/demo/<kind>-<hex>-<variant>.svg → SVG. Real uploads replace these in production.
 

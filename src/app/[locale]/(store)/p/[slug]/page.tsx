@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import Image from "next/image";
+import { ogImage } from "@/server/og";
 import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
 import { BadgeCheck, MessageCircle, Package, ShieldCheck, Star, Store, Truck, Zap, MapPin } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -33,12 +34,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!p) return {};
   const title = loc(p, "title", locale);
   const description = loc(p, "description", locale).slice(0, 160);
-  const image = p.media.find((m) => m.type === "IMAGE")?.url;
   return {
     title,
     description,
     alternates: { canonical: `/p/${slug}`, languages: { uz: `/p/${slug}`, "uz-Cyrl": `/oz/p/${slug}`, ru: `/ru/p/${slug}` } },
-    openGraph: { title, description, type: "website", images: [`/p/${slug}/opengraph-image`, ...(image ? [image] : [])] },
+    openGraph: { title, description, type: "website", images: [ogImage(`/api/og/p/${slug}`, locale, title)] },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

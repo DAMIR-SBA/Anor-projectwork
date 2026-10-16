@@ -15,17 +15,49 @@ function pin(active: boolean) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 30 40"><path d="M15 39s13-13.2 13-24A13 13 0 0 0 2 15c0 10.8 13 24 13 24z" fill="${fill}" stroke="#fff" stroke-width="2"/><circle cx="15" cy="15" r="5" fill="#F5B301"/></svg>`;
 }
 
+type DrawInput = { markers: MapMarker[]; picked?: [number, number] | null; fitMarkers: boolean; center?: [number, number] | null };
+type Callbacks = { onMarkerClick?: (id: string) => void; onPick?: (lat: number, lng: number) => void };
+
+/** Redraw markers (and the draggable picked pin) on the layer. */
+function drawMarkers(leaflet: typeof import("leaflet"), map: LeafletMap, layer: LayerGroup, o: DrawInput, cb: { current: Callbacks }) {
+  layer.clearLayers();
+  for (const m of o.markers) {
+    const icon = leaflet.divIcon({ html: pin(!!m.active), className: "", iconSize: [30, 40], iconAnchor: [15, 39] });
+    leaflet
+      .marker([m.lat, m.lng], { icon, title: m.label, keyboard: true })
+      .on("click", () => cb.current.onMarkerClick?.(m.id))
+      .bindTooltip(m.label)
+      .addTo(layer);
+  }
+  if (o.picked) {
+    const icon = leaflet.divIcon({ html: pin(true), className: "", iconSize: [30, 40], iconAnchor: [15, 39] });
+    const marker = leaflet.marker(o.picked, { icon, draggable: true }).addTo(layer);
+    marker.on("dragend", () => {
+      const ll = marker.getLatLng();
+      cb.current.onPick?.(ll.lat, ll.lng);
+    });
+  }
+  if (o.fitMarkers && o.markers.length > 1 && !o.center) map.fitBounds(leaflet.latLngBounds(o.markers.map((m) => [m.lat, m.lng])), { padding: [30, 30], maxZoom: 13 });
+}
+
 /**
  * Leaflet map (client-only). Markers for pickup points; with `onPick` the user can click /
  * drag to choose a location (address picker). Tiles come from NEXT_PUBLIC_MAP_TILE_URL.
  */
-export function MapView({ markers = [], center, zoom = 12, onMarkerClick, onPick, picked, className, fitMarkers = true }: { markers?: MapMarker[]; center?: [number, number] | null; zoom?: number; onMarkerClick?: (id: string) => void; onPick?: (lat: number, lng: number) => void; picked?: [number, number] | null; className?: string; fitMarkers?: boolean }) {
+export function MapView({ markers = [], center, zoom = 12, onMarkerClick, onPick, picked, className, fitMarkers = true, label = "Map" }: { markers?: MapMarker[]; center?: [number, number] | null; zoom?: number; onMarkerClick?: (id: string) => void; onPick?: (lat: number, lng: number) => void; picked?: [number, number] | null; className?: string; fitMarkers?: boolean; label?: string }) {
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<LeafletMap | null>(null);
   const layer = useRef<LayerGroup | null>(null);
   const L = useRef<typeof import("leaflet") | null>(null);
-  const cb = useRef({ onMarkerClick, onPick });
-  cb.current = { onMarkerClick, onPick };
+  const cb = useRef<Callbacks>({ onMarkerClick, onPick });
+  const latest = useRef<DrawInput>({ markers, picked, fitMarkers, center });
+  const initial = useRef({ center, picked, zoom });
+
+  // Callbacks and inputs change every render; the map reads the latest through refs.
+  useEffect(() => {
+    cb.current = { onMarkerClick, onPick };
+    latest.current = { markers, picked, fitMarkers, center };
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -33,47 +65,26 @@ export function MapView({ markers = [], center, zoom = 12, onMarkerClick, onPick
       const leaflet = await import("leaflet");
       if (cancelled || !el.current || map.current) return;
       L.current = leaflet;
-      map.current = leaflet.map(el.current, { zoomControl: true, attributionControl: true }).setView(center ?? picked ?? DEFAULT, zoom);
+      const start = initial.current;
+      map.current = leaflet.map(el.current, { zoomControl: true, attributionControl: true }).setView(start.center ?? start.picked ?? DEFAULT, start.zoom);
       leaflet.tileLayer(TILE, { attribution: ATTRIBUTION, maxZoom: 19 }).addTo(map.current);
       layer.current = leaflet.layerGroup().addTo(map.current);
       map.current.on("click", (e) => cb.current.onPick?.(e.latlng.lat, e.latlng.lng));
-      draw();
+      drawMarkers(leaflet, map.current, layer.current, latest.current, cb);
     })();
     return () => {
       cancelled = true;
       map.current?.remove();
       map.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const draw = () => {
-    const leaflet = L.current;
-    if (!leaflet || !map.current || !layer.current) return;
-    layer.current.clearLayers();
-    for (const m of markers) {
-      const icon = leaflet.divIcon({ html: pin(!!m.active), className: "", iconSize: [30, 40], iconAnchor: [15, 39] });
-      leaflet
-        .marker([m.lat, m.lng], { icon, title: m.label, keyboard: true })
-        .on("click", () => cb.current.onMarkerClick?.(m.id))
-        .bindTooltip(m.label)
-        .addTo(layer.current);
-    }
-    if (picked) {
-      const icon = leaflet.divIcon({ html: pin(true), className: "", iconSize: [30, 40], iconAnchor: [15, 39] });
-      const marker = leaflet.marker(picked, { icon, draggable: true }).addTo(layer.current);
-      marker.on("dragend", () => {
-        const ll = marker.getLatLng();
-        cb.current.onPick?.(ll.lat, ll.lng);
-      });
-    }
-    if (fitMarkers && markers.length > 1 && !center) map.current.fitBounds(leaflet.latLngBounds(markers.map((m) => [m.lat, m.lng])), { padding: [30, 30], maxZoom: 13 });
-  };
-
-  useEffect(draw);
+  useEffect(() => {
+    if (L.current && map.current && layer.current) drawMarkers(L.current, map.current, layer.current, { markers, picked, fitMarkers, center }, cb);
+  }, [markers, picked, fitMarkers, center]);
   useEffect(() => {
     if (center && map.current) map.current.setView(center, Math.max(map.current.getZoom(), 13));
   }, [center]);
 
-  return <div ref={el} className={className ?? "h-80 w-full overflow-hidden rounded-[16px]"} role="application" aria-label="Map" />;
+  return <div ref={el} className={className ?? "h-80 w-full overflow-hidden rounded-[16px]"} role="application" aria-label={label} />;
 }

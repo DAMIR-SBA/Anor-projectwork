@@ -28,7 +28,7 @@ export default async function LivePage({ params }: { params: Promise<{ locale: s
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {streams.map((s, i) => (
             <li key={s.id}>
-              <Link href={`/live/${s.id}`} className={cn("card block overflow-hidden transition-shadow hover:shadow-md", s.status === "ENDED" && "opacity-75")}>
+              <Link href={`/live/${s.id}`} className={cn("card block overflow-hidden transition-shadow hover:shadow-md", s.status === "ENDED" && "[&_img]:grayscale")}>
                 <span className="relative block aspect-[16/10] bg-surface-2">
                   {s.posterUrl && <Image src={s.posterUrl} alt="" fill loading={i < 3 ? "eager" : "lazy"} sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />}
                   <span className="absolute left-3 top-3 flex items-center gap-1.5">

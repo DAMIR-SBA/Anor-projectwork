@@ -1,20 +1,36 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Check, Copy } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-/** Countdown to a deadline; renders HH:MM:SS (with days when > 24h). */
+// One shared 1-second clock for every countdown on the page (they tick together).
+const clock = { now: 0, timer: null as ReturnType<typeof setInterval> | null, listeners: new Set<() => void>() };
+function subscribeClock(cb: () => void) {
+  clock.listeners.add(cb);
+  if (!clock.timer) {
+    // Fresh reading when the clock (re)starts; React re-reads the snapshot right after subscribing.
+    clock.now = Date.now();
+    clock.timer = setInterval(() => {
+      clock.now = Date.now();
+      clock.listeners.forEach((l) => l());
+    }, 1000);
+  }
+  return () => {
+    clock.listeners.delete(cb);
+    if (!clock.listeners.size && clock.timer) {
+      clearInterval(clock.timer);
+      clock.timer = null;
+    }
+  };
+}
+const readClock = () => clock.now || (clock.now = Date.now());
+
+/** Countdown to a deadline; renders HH:MM:SS (with days when > 24h). Shows dashes until hydrated. */
 export function Countdown({ to, className, onDone, labels }: { to: string | Date; className?: string; onDone?: () => void; labels?: { d: string } }) {
   const target = typeof to === "string" ? new Date(to).getTime() : to.getTime();
-  const [now, setNow] = useState<number | null>(null);
+  const now = useSyncExternalStore(subscribeClock, readClock, () => null);
   const doneRef = useRef(false);
-
-  useEffect(() => {
-    setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
 
   const left = now == null ? null : Math.max(0, target - now);
   useEffect(() => {

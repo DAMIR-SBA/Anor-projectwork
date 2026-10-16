@@ -192,7 +192,7 @@ export function SupportDesk({ me, initial, counts: initialCounts, agents, canned
                     {it.priority !== "NORMAL" && <Badge tone={PRIORITY_TONE[it.priority]}>{t(`priorities.${it.priority}`)}</Badge>}
                     {it.awaitingAgent && <span className="h-2 w-2 rounded-full bg-primary" aria-label={t("awaitingReply")} />}
                     {sla.state !== "met" && it.status !== "RESOLVED" && (
-                      <span className={cn("ml-auto inline-flex items-center gap-1 text-[12px] font-semibold", sla.state === "breached" ? "text-danger" : sla.state === "warning" ? "text-accent" : "text-muted")}>
+                      <span className={cn("ml-auto inline-flex items-center gap-1 text-[12px] font-semibold", sla.state === "breached" ? "text-danger" : sla.state === "warning" ? "text-accent-ink" : "text-muted")}>
                         <Timer className="h-3.5 w-3.5" /> {sla.state === "breached" ? t("slaBreached") : t("slaLeft", { min: sla.minutesLeft })}
                       </span>
                     )}

@@ -97,7 +97,7 @@ export function StockTable({ data }: { data: Overview }) {
                   {r.byWarehouse[w.id]?.reserved ? <span className="text-xs text-muted"> ({t("reserved", { n: r.byWarehouse[w.id].reserved })})</span> : null}
                 </td>
               ))}
-              <td className={cn("tabular px-3 py-2 text-right font-bold", r.total === 0 ? "text-danger" : r.total <= 3 && "text-accent")}>{r.total}</td>
+              <td className={cn("tabular px-3 py-2 text-right font-bold", r.total === 0 ? "text-danger" : r.total <= 3 && "text-accent-ink")}>{r.total}</td>
             </tr>
           ))}
         </tbody>

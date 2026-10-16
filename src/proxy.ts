@@ -16,6 +16,9 @@ export default function proxy(req: NextRequest) {
   return res;
 }
 
+// Everything except API routes, Next internals, the two root route handlers and files (any path
+// with a dot: /media/*.svg, /uploads/*, /sw.js, /robots.txt, /.well-known/*). Exclusions are whole
+// segments, so storefront pages such as /brand/<slug> or /opengraph-image still get a locale.
 export const config = {
-  matcher: ["/((?!api|health|_next|_vercel|media|uploads|brand|demo|sw\\.js|manifest\\.webmanifest|robots\\.txt|sitemap\\.xml|\\.well-known|.*\\..*).*)"],
+  matcher: ["/((?!api(?:/|$)|_next/|_vercel|health$|open$|.*\\..*).*)"],
 };

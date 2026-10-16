@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
   // cart and locale cookies, so Cache Components would add little here.
   poweredByHeader: false,
   // Fonts read at runtime by the PDF receipt route must ship with the serverless bundle.
-  outputFileTracingIncludes: { "/api/orders/[id]/receipt": ["./assets/fonts/**"], "/api/invoices/[id]": ["./assets/fonts/**"] },
+  outputFileTracingIncludes: { "/api/orders/[id]/receipt": ["./assets/fonts/**"], "/api/invoices/[id]": ["./assets/fonts/**"], "/api/og": ["./assets/fonts/**"], "/api/og/p/[slug]": ["./assets/fonts/**"] },
   serverExternalPackages: ["@node-rs/argon2", "pg-boss", "exceljs", "pdf-lib", "nodemailer", "web-push"],
   images: {
     remotePatterns: [
@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "t.me" },
     ],
-    localPatterns: [{ pathname: "/media/**" }, { pathname: "/uploads/**" }, { pathname: "/brand/**" }, { pathname: "/demo/**" }],
+    localPatterns: [{ pathname: "/media/**" }, { pathname: "/uploads/**" }, { pathname: "/brand/**" }, { pathname: "/demo/**" }, { pathname: "/icons/**" }],
   },
   experimental: {
     serverActions: { bodySizeLimit: "12mb" },
@@ -35,6 +35,12 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  async rewrites() {
+    return [
+      { source: "/.well-known/assetlinks.json", destination: "/api/well-known/assetlinks" },
+      { source: "/.well-known/apple-app-site-association", destination: "/api/well-known/apple-app-site-association" },
+    ];
   },
   async headers() {
     return [

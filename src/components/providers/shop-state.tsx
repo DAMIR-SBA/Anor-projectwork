@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, useSyncExternalStore, useTransition, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useToast } from "@/components/ui/toast";
@@ -17,24 +17,64 @@ type ShopState = {
 
 const Ctx = createContext<ShopState | null>(null);
 const COMPARE_KEY = "anor_compare";
+const COMPARE_EVENT = "anor-compare";
+const EMPTY: string[] = [];
+
+// The compare list lives in localStorage (survives reloads, shared by tabs); this store keeps
+// one parsed copy per stored value so React sees a stable snapshot.
+let cachedRaw: string | null = null;
+let cachedList: string[] = EMPTY;
+function readCompare(): string[] {
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(COMPARE_KEY);
+  } catch {
+    return EMPTY;
+  }
+  if (raw !== cachedRaw) {
+    cachedRaw = raw;
+    try {
+      const v = JSON.parse(raw || "[]");
+      cachedList = Array.isArray(v) ? v.filter((x): x is string => typeof x === "string").slice(0, 4) : EMPTY;
+    } catch {
+      cachedList = EMPTY;
+    }
+  }
+  return cachedList;
+}
+function writeCompare(next: string[]) {
+  try {
+    if (next.length) localStorage.setItem(COMPARE_KEY, JSON.stringify(next));
+    else localStorage.removeItem(COMPARE_KEY);
+  } catch {
+    /* private mode: the list lasts for this page only */
+  }
+  window.dispatchEvent(new Event(COMPARE_EVENT));
+}
+function subscribeCompare(cb: () => void) {
+  window.addEventListener(COMPARE_EVENT, cb);
+  window.addEventListener("storage", cb);
+  return () => {
+    window.removeEventListener(COMPARE_EVENT, cb);
+    window.removeEventListener("storage", cb);
+  };
+}
 
 export function ShopStateProvider({ children, likedIds, signedIn }: { children: ReactNode; likedIds: string[]; signedIn: boolean }) {
   const [liked, setLiked] = useState(() => new Set(likedIds));
-  const [compare, setCompare] = useState<string[]>([]);
+  const compare = useSyncExternalStore(subscribeCompare, readCompare, () => EMPTY);
   const [, start] = useTransition();
   const router = useRouter();
   const toast = useToast();
   const t = useTranslations("compare");
   const tw = useTranslations("wishlist");
 
-  useEffect(() => setLiked(new Set(likedIds)), [likedIds]);
-  useEffect(() => {
-    try {
-      setCompare(JSON.parse(localStorage.getItem(COMPARE_KEY) || "[]") as string[]);
-    } catch {
-      /* ignore */
-    }
-  }, []);
+  // Fresh server data (after sign-in or a refresh) replaces the optimistic set.
+  const [seenLiked, setSeenLiked] = useState(likedIds);
+  if (seenLiked !== likedIds) {
+    setSeenLiked(likedIds);
+    setLiked(new Set(likedIds));
+  }
 
   const toggleLike = useCallback(
     (productId: string) => {
@@ -68,23 +108,11 @@ export function ShopStateProvider({ children, likedIds, signedIn }: { children: 
 
   const toggleCompare = useCallback(
     (productId: string) => {
-      setCompare((prev) => {
-        let next: string[];
-        if (prev.includes(productId)) next = prev.filter((x) => x !== productId);
-        else if (prev.length >= 4) {
-          toast.error(t("limit"));
-          return prev;
-        } else {
-          next = [...prev, productId];
-          toast.success(t("added"));
-        }
-        try {
-          localStorage.setItem(COMPARE_KEY, JSON.stringify(next));
-        } catch {
-          /* ignore */
-        }
-        return next;
-      });
+      const prev = readCompare();
+      if (prev.includes(productId)) return writeCompare(prev.filter((x) => x !== productId));
+      if (prev.length >= 4) return void toast.error(t("limit"));
+      writeCompare([...prev, productId]);
+      toast.success(t("added"));
     },
     [toast, t],
   );
@@ -96,14 +124,7 @@ export function ShopStateProvider({ children, likedIds, signedIn }: { children: 
       toggleLike,
       compare,
       toggleCompare,
-      clearCompare: () => {
-        setCompare([]);
-        try {
-          localStorage.removeItem(COMPARE_KEY);
-        } catch {
-          /* ignore */
-        }
-      },
+      clearCompare: () => writeCompare([]),
     }),
     [signedIn, liked, toggleLike, compare, toggleCompare],
   );

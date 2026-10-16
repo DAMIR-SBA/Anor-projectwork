@@ -26,7 +26,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
             ))}
           </ul>
         </div>
-        <p className="relative z-10 text-sm text-white/70">© ANOR</p>
+        <p className="relative z-10 text-sm text-white/90">© ANOR</p>
         {/* Decorative pomegranate seeds */}
         <div aria-hidden className="absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-primary-dark" />
         <div aria-hidden className="absolute bottom-24 right-24 h-10 w-10 rounded-full bg-accent" />

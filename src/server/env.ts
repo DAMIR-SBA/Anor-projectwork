@@ -60,6 +60,10 @@ const schema = z.object({
   OWNER_ALERT_EMAIL: z.string().optional(),
 
   SENTRY_DSN: z.string().optional(),
+  // Deep links for future native apps (served from /.well-known).
+  ANDROID_APP_PACKAGE: z.string().optional(),
+  ANDROID_APP_SHA256: z.string().optional(),
+  IOS_APP_ID: z.string().optional(),
   VAPID_PUBLIC_KEY: z.string().optional(),
   VAPID_PRIVATE_KEY: z.string().optional(),
   VAPID_SUBJECT: z.string().default("mailto:support@anor.local"),

@@ -18,7 +18,8 @@ export function TelegramLogin({ label, botUsername, next }: { label: string; bot
     (window as unknown as { onTelegramAuth: (u: TgUser) => void }).onTelegramAuth = (u: TgUser) => {
       const params = new URLSearchParams(Object.entries(u).map(([k, v]) => [k, String(v)]));
       if (next) params.set("next", next);
-      window.location.href = `/api/auth/telegram?${params.toString()}`;
+      // A full navigation: the API route sets the session cookie and redirects.
+      window.location.assign(new URL(`/api/auth/telegram?${params.toString()}`, window.location.origin).href);
     };
     const s = document.createElement("script");
     s.src = "https://telegram.org/js/telegram-widget.js?22";
@@ -38,9 +39,10 @@ export function TelegramLogin({ label, botUsername, next }: { label: string; bot
       type="button"
       onClick={() => {
         if (botUsername) setWidget(true);
-        else window.location.href = `/api/auth/telegram?demo=1${next ? `&next=${encodeURIComponent(next)}` : ""}`;
+        // Demo sign-in goes through the same API route (full navigation, it sets the cookie).
+        else window.location.assign(new URL(`/api/auth/telegram?demo=1${next ? `&next=${encodeURIComponent(next)}` : ""}`, window.location.origin).href);
       }}
-      className="flex h-11 items-center justify-center gap-2 rounded-[12px] bg-[#2AABEE] text-[15px] font-semibold text-white hover:brightness-95"
+      className="flex h-11 items-center justify-center gap-2 rounded-[12px] bg-[#1A6FA8] text-[15px] font-semibold text-white hover:brightness-95"
     >
       <Send className="h-4.5 w-4.5" aria-hidden />
       {label}

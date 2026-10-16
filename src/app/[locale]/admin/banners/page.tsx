@@ -30,7 +30,7 @@ export default async function AdminBannersPage({ params }: { params: Promise<{ l
                 <div className="flex min-h-24 items-center gap-3 p-4 text-white" style={{ background: b.bgColor }}>
                   <div className="min-w-0 flex-1">
                     <p className="font-extrabold">{locale === "ru" ? b.titleRu : b.titleUz}</p>
-                    {(locale === "ru" ? b.subtitleRu : b.subtitleUz) && <p className="text-sm text-white/85">{locale === "ru" ? b.subtitleRu : b.subtitleUz}</p>}
+                    {(locale === "ru" ? b.subtitleRu : b.subtitleUz) && <p className="text-sm text-white/90">{locale === "ru" ? b.subtitleRu : b.subtitleUz}</p>}
                   </div>
                   {b.imageUrl && (
                     <span className="relative h-16 w-24 shrink-0">

@@ -14,17 +14,24 @@ export function CompareView() {
   const t = useTranslations("compare");
   const locale = useLocale();
   const { compare, toggleCompare, clearCompare } = useShopState();
-  const [data, setData] = useState<Data | null>(null);
+  // Results are keyed by the id list, so a stale table never shows for a changed selection.
+  const key = `${compare.join(",")}|${locale}`;
+  const [loaded, setLoaded] = useState<{ key: string; data: Data | null } | null>(null);
 
   useEffect(() => {
-    if (!compare.length) return setData(null);
+    if (!compare.length) return;
+    let live = true;
     fetch(`/api/v1/products/compare?ids=${compare.join(",")}&locale=${locale}`)
       .then((r) => r.json())
-      .then(setData)
-      .catch(() => setData(null));
-  }, [compare, locale]);
+      .then((d: Data) => live && setLoaded({ key, data: d }))
+      .catch(() => live && setLoaded({ key, data: null }));
+    return () => {
+      live = false;
+    };
+  }, [compare, locale, key]);
 
   if (!compare.length) return <EmptyState className="card" icon={<GitCompare className="h-8 w-8" />} title={t("empty")} />;
+  const data = loaded?.key === key ? loaded.data : null;
   if (!data) return <div className="skeleton h-96" />;
   const cols = data.cards.length;
   return (

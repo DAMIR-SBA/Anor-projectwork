@@ -3292,6 +3292,22 @@
     "webhooks": "Webhooklar",
     "webhooksText": "Sotuvchi kabinetida URL qo‘shing — hodisalar HMAC-SHA256 imzosi bilan POST qilinadi. Muvaffaqiyatsiz yetkazishlar qayta yuboriladi."
   },
+  "pwa": {
+    "title": "ANOR ilovasini o‘rnating",
+    "text": "Bosh ekrandan bir bosishda oching, buyurtma holati haqida xabar oling, ochilgan katalog oflayn ham ko‘rinadi.",
+    "install": "O‘rnatish",
+    "later": "Keyinroq",
+    "share": "Ulashish",
+    "iosBefore": "Safari’da",
+    "iosAfter": "tugmasini bosing va «Bosh ekranga qo‘shish»ni tanlang.",
+    "pushTitle": "Push-bildirishnomalar",
+    "pushText": "Buyurtma holati, chat javoblari va narx tushishi haqida shu qurilmaga xabar.",
+    "pushEnable": "Yoqish",
+    "pushOn": "Shu qurilmada yoqilgan",
+    "pushDenied": "Brauzer sozlamalarida bildirishnomalarga ruxsat bering.",
+    "pushUnsupported": "Bu brauzer push-bildirishnomalarni qo‘llab-quvvatlamaydi.",
+    "pushNotConfigured": "Push-bildirishnomalar serverda sozlanmagan (VAPID kalitlari)."
+  },
   "reviews": {
     "title": "Sharhlar",
     "count": "{count, plural, one {# ta sharh} other {# ta sharh}}",

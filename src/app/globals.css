@@ -13,6 +13,12 @@
   --border: #e4e4ea;
   /* Text-safe brand tint (AA on current surface). */
   --brand-ink: #c8102e;
+  /* Status colors, dark enough for AA text on white and on their own 12–15% tints. */
+  /* Yellow is a fill color; text in the accent hue uses this darker ink. */
+  --accent-ink: #7a5600;
+  --success: #0f6e41;
+  --danger: #b3262b;
+  --info: #1d58bd;
   --overlay: rgb(26 26 31 / 0.55);
   --shadow-color: 26 26 31;
   /* Chart tokens (validated with the dataviz palette checker). */
@@ -30,6 +36,10 @@
   --muted: #a3a3ae;
   --border: #2d2d36;
   --brand-ink: #ff5a74;
+  --accent-ink: #f5b301;
+  --success: #3ccf86;
+  --danger: #ff6b70;
+  --info: #6c9cf5;
   --overlay: rgb(0 0 0 / 0.65);
   --shadow-color: 0 0 0;
   --chart-1: #e8344f;
@@ -45,9 +55,6 @@
   --color-primary-100: #fad0d7;
   --color-accent: #f5b301;
   --color-accent-50: #fff7e0;
-  --color-success: #1fa463;
-  --color-danger: #e5484d;
-  --color-info: #2f6fde;
 
   --font-sans: "Manrope Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
@@ -85,6 +92,10 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-brand-ink: var(--brand-ink);
+  --color-accent-ink: var(--accent-ink);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
 }
 
 @layer base {
@@ -183,4 +194,16 @@
     animation: none;
     opacity: 0;
   }
+}
+
+/* Dark mode contrast: the brand red stays the fill color, but as text it switches to the lighter
+   brand ink; status fills turn light in dark mode, so text on them turns dark. */
+.dark .text-primary,
+.dark .hover\:text-primary:hover {
+  color: var(--brand-ink);
+}
+.dark .bg-success.text-white,
+.dark .bg-info.text-white,
+.dark .bg-danger.text-white {
+  color: #141418;
 }

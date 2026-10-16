@@ -59,3 +59,11 @@ export async function seedDiscovery(people: DemoAccounts) {
   }
   await prisma.setting.create({ data: { key: "seed.discovery", value: { at: new Date().toISOString() } } });
 }
+
+/** The demo buyer's home address, so courier checkout and delivery slots work out of the box. */
+export async function seedDemoAddresses(people: DemoAccounts) {
+  if (await prisma.address.count({ where: { userId: people.buyer.id } })) return;
+  await prisma.address.create({
+    data: { userId: people.buyer.id, label: "Uy", recipient: "Aziza Karimova", phone: "+998901112233", region: "toshkent_sh", city: "Toshkent", district: "Chilonzor", street: "Bunyodkor shoh ko‘chasi", house: "24", apartment: "17", entrance: "2", floor: "5", lat: 41.2856, lng: 69.2034, isDefault: true },
+  });
+}

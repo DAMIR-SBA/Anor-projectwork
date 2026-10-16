@@ -10,7 +10,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
       <header className="flex items-center justify-between p-4 md:p-6">
         <div className="flex items-center gap-3">
           <AnorLogo tone="white" height={30} />
-          <span className="rounded-md bg-white/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-white/80">Staff</span>
+          <span className="rounded-md bg-white/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-white/90">Staff</span>
         </div>
         <LocaleSwitcher className="text-white hover:bg-white/10 [&_option]:text-black" />
       </header>

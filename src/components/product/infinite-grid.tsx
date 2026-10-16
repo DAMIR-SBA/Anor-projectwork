@@ -16,10 +16,13 @@ export function InfiniteGrid({ initial, total, query, pageSize }: { initial: Pro
   const sentinel = useRef<HTMLDivElement>(null);
   const done = items.length >= total;
 
-  useEffect(() => {
+  // New filters or a refreshed first page: start over (adjusted during render, not in an effect).
+  const [source, setSource] = useState({ initial, query });
+  if (source.initial !== initial || source.query !== query) {
+    setSource({ initial, query });
     setItems(initial);
     setPage(1);
-  }, [initial, query]);
+  }
 
   const loadMore = async () => {
     if (loading || done) return;

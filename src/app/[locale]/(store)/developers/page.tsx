@@ -28,7 +28,7 @@ function verify(req, secret) {
 }`;
 
 function Code({ children }: { children: string }) {
-  return <pre className="overflow-x-auto rounded-[12px] bg-[#1A1A1F] p-3 text-[13px] leading-relaxed text-[#F4F4F6]">{children}</pre>;
+  return <pre tabIndex={0} className="overflow-x-auto rounded-[12px] bg-[#1A1A1F] p-3 text-[13px] leading-relaxed text-[#F4F4F6]">{children}</pre>;
 }
 
 export default async function DevelopersPage({ params }: { params: Promise<{ locale: string }> }) {

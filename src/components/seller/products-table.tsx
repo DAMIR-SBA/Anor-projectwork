@@ -119,8 +119,8 @@ export function ProductsTable({ rows }: { rows: Row[] }) {
                   {r.oldPrice && <p className="text-xs text-muted line-through">{formatUZS(r.oldPrice, locale)}</p>}
                 </td>
                 <td className="px-3 py-2.5">
-                  <span className={cn("tabular font-semibold", r.stock === 0 ? "text-danger" : r.lowStock && "text-accent")}>{r.stock}</span>
-                  {r.lowStock && r.stock > 0 && <span className="ml-1 text-xs text-accent">{t("low")}</span>}
+                  <span className={cn("tabular font-semibold", r.stock === 0 ? "text-danger" : r.lowStock && "text-accent-ink")}>{r.stock}</span>
+                  {r.lowStock && r.stock > 0 && <span className="ml-1 text-xs font-semibold text-accent-ink">{t("low")}</span>}
                 </td>
                 <td className="px-3 py-2.5">
                   <Badge tone={TONE[r.status]}>{t(`statuses.${r.status}`)}</Badge>

@@ -37,7 +37,7 @@ export default async function PlusLanding({ params }: { params: Promise<{ locale
             <Crown className="h-5 w-5" /> ANOR Plus
           </p>
           <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{t("title")}</h1>
-          <p className="mt-3 max-w-xl text-white/80">{t("lead")}</p>
+          <p className="mt-3 max-w-xl text-white/90">{t("lead")}</p>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {benefits.map((b) => (
               <li key={b.title} className="rounded-[16px] bg-white/10 p-4">

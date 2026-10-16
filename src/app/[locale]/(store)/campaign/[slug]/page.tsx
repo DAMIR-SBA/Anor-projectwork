@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { campaignOpenFor } from "@/lib/campaign";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { db } from "@/server/db";
 import { getCurrentUser } from "@/server/auth/session";
@@ -17,9 +18,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ local
   if (!c || c.status === "DRAFT") notFound();
   const t = await getTranslations("home");
   const user = await getCurrentUser();
-  const now = Date.now();
-  const earlyStart = c.startsAt.getTime() - c.plusEarlyHours * 3_600_000;
-  const open = now >= c.startsAt.getTime() || (!!user?.isPlus && now >= earlyStart);
+  const open = campaignOpenFor(c, !!user?.isPlus);
   const cards = open ? await cardsByIds(c.products.map((p) => p.productId), locale) : [];
   const blocks = (c.blocks as Block[] | null) ?? [{ type: "hero" }, { type: "countdown" }, { type: "products" }];
   return (
@@ -29,7 +28,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ local
           return (
             <header key={i} className="rounded-[20px] p-8 text-white md:p-12" style={{ background: c.themeColor }}>
               <h1 className="text-3xl font-extrabold md:text-5xl">{loc(c, "name", locale)}</h1>
-              {loc(c, "description", locale) && <p className="mt-3 max-w-2xl text-lg text-white/85">{loc(c, "description", locale)}</p>}
+              {loc(c, "description", locale) && <p className="mt-3 max-w-2xl text-lg text-white/90">{loc(c, "description", locale)}</p>}
             </header>
           );
         if (b.type === "countdown")

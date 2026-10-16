@@ -174,7 +174,7 @@ export function VoicePlayer({ url, duration, waveform, mine }: { url: string; du
             <span key={i} className={cn("w-[3px] shrink-0 rounded-full", i / bars.length < progress ? (mine ? "bg-white" : "bg-primary") : mine ? "bg-white/40" : "bg-primary/30")} style={{ height: `${Math.max(14, b * 100)}%` }} />
           ))}
         </div>
-        <span className={cn("tabular text-[11px]", mine ? "text-white/80" : "text-muted")}>{formatDuration(playing ? progress * length : length)}</span>
+        <span className={cn("tabular text-[11px]", mine ? "text-white/90" : "text-muted")}>{formatDuration(playing ? progress * length : length)}</span>
       </div>
     </div>
   );

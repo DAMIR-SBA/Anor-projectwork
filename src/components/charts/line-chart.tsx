@@ -141,7 +141,7 @@ export function LineChart({ points, formatY, formatTick, height = 220, title, mi
             style={{ left: Math.min(Math.max(geo.x(h) - 70, 0), width - 150), maxWidth: 160 }}
           >
             <p className="tabular text-sm font-bold">{formatY(points[h].y)}</p>
-            <p className="text-xs text-white/70">{points[h].label}</p>
+            <p className="text-xs text-white/90">{points[h].label}</p>
           </div>
         )}
       </div>

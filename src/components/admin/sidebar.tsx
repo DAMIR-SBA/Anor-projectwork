@@ -58,7 +58,7 @@ export function AdminSidebar({ groups, badges }: { groups: AdminNavGroup[]; badg
     <nav className="flex flex-col gap-5 overflow-y-auto px-3 pb-8" aria-label="Admin">
       {groups.map((g) => (
         <div key={g.key}>
-          <p className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-white/40">{t(`groups.${g.key}`)}</p>
+          <p className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-white/60">{t(`groups.${g.key}`)}</p>
           <ul className="space-y-0.5">
             {g.items.map((item) => {
               const Icon = ICONS[item.icon] ?? Circle;
@@ -95,7 +95,7 @@ export function AdminSidebar({ groups, badges }: { groups: AdminNavGroup[]; badg
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col bg-[#141418] lg:flex">
         <div className="flex h-16 items-center gap-2 px-5">
           <AnorLogo tone="white" height={26} />
-          <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white/70">Admin</span>
+          <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white/90">Admin</span>
         </div>
         {nav}
       </aside>
@@ -105,7 +105,7 @@ export function AdminSidebar({ groups, badges }: { groups: AdminNavGroup[]; badg
           <aside className="absolute inset-y-0 left-0 flex w-72 flex-col bg-[#141418]">
             <div className="flex h-16 items-center justify-between px-5">
               <AnorLogo tone="white" height={26} />
-              <button type="button" onClick={() => setOpen(false)} className="text-white/70" aria-label="Close">
+              <button type="button" onClick={() => setOpen(false)} className="text-white/90" aria-label="Close">
                 <X className="h-5 w-5" />
               </button>
             </div>

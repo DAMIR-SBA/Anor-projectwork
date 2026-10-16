@@ -30,7 +30,7 @@ export default async function NasiyaLanding({ params }: { params: Promise<{ loca
             <CalendarClock className="h-5 w-5" /> ANOR NASIYA
           </p>
           <h1 className="mt-2 text-3xl font-extrabold leading-tight md:text-4xl">{t("landing.title")}</h1>
-          <p className="mt-3 max-w-xl text-white/80">{t("landing.lead")}</p>
+          <p className="mt-3 max-w-xl text-white/90">{t("landing.lead")}</p>
           <Link href="/account/nasiya" className={buttonClasses("primary", "lg", "mt-5 bg-accent text-[#1A1A1F] hover:bg-accent/90")}>
             {t("landing.cta")}
           </Link>

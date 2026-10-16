@@ -20,7 +20,7 @@ export default async function MadeInUzPage({ params, searchParams }: { params: P
       <header className="mb-5 overflow-hidden rounded-[20px] bg-[#0E6E6E] p-6 text-white md:p-10">
         <p className="text-sm font-bold uppercase tracking-widest text-accent">🇺🇿 Made in Uzbekistan</p>
         <h1 className="mt-2 text-3xl font-extrabold md:text-5xl">{t("madeInUz")}</h1>
-        <p className="mt-2 max-w-xl text-white/85">{t("madeInUzText")}</p>
+        <p className="mt-2 max-w-xl text-white/90">{t("madeInUzText")}</p>
       </header>
       {stories.length > 0 && (
         <div className="mb-6 grid gap-3 md:grid-cols-3">

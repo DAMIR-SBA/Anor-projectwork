@@ -16,6 +16,7 @@ import { holidayOn } from "@/lib/holidays";
 import { tashkentDayKey } from "@/lib/dates";
 import { flagsFor, trackExposures } from "@/server/services/flags";
 import { cookieConsent } from "@/server/services/privacy";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -43,12 +44,12 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     season: d.season && (
       <Link href={`/campaign/${d.season.slug}`} className="flex flex-wrap items-center justify-between gap-3 rounded-[20px] p-5 text-white md:p-6" style={{ background: `linear-gradient(120deg, ${d.season.themeColor}, #1A1A1F)` }}>
         <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-white/80">{t("seasonal")}</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-white/90">{t("seasonal")}</p>
           <p className="text-2xl font-extrabold">{loc(d.season, "name", locale)}</p>
-          {loc(d.season, "description", locale) && <p className="mt-1 max-w-xl text-sm text-white/85">{loc(d.season, "description", locale)}</p>}
+          {loc(d.season, "description", locale) && <p className="mt-1 max-w-xl text-sm text-white/90">{loc(d.season, "description", locale)}</p>}
         </div>
         <span className="flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-sm font-bold">
-          {t("endsIn")} <Countdown to={d.season.endsAt.toISOString()} className="text-accent" />
+          {t("endsIn")} <Countdown to={d.season.endsAt.toISOString()} className="rounded-md bg-accent px-1.5 text-[#1A1A1F]" />
         </span>
       </Link>
     ),
@@ -79,7 +80,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <Timer className="h-6 w-6 text-accent" /> {t("dealOfDay")}
           </h2>
           <p className="flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-sm font-bold">
-            {t("endsIn")} <Countdown to={d.deal.campaign.endsAt.toISOString()} className="text-accent" />
+            {t("endsIn")} <Countdown to={d.deal.campaign.endsAt.toISOString()} className="rounded-md bg-accent px-1.5 text-[#1A1A1F]" />
           </p>
         </div>
         <ProductGrid items={d.deal.cards} className="text-fg lg:grid-cols-3 xl:grid-cols-6" />
@@ -104,7 +105,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <Link href={d.strip.href} className="flex flex-wrap items-center justify-between gap-3 rounded-[20px] px-6 py-5 text-white" style={{ background: d.strip.bgColor }}>
         <div>
           <p className="text-xl font-extrabold">{loc(d.strip, "title", locale)}</p>
-          <p className="text-sm text-white/80">{loc(d.strip, "subtitle", locale)}</p>
+          <p className="text-sm text-white/90">{loc(d.strip, "subtitle", locale)}</p>
         </div>
         <span className="rounded-[12px] bg-accent px-4 py-2 text-sm font-bold text-[#1A1A1F]">ANOR Plus →</span>
       </Link>
@@ -115,9 +116,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
           <div>
             <h2 className="text-xl font-extrabold md:text-2xl">🇺🇿 {t("madeInUz")}</h2>
-            <p className="text-sm text-white/80">{t("madeInUzText")}</p>
+            <p className="text-sm text-white/90">{t("madeInUzText")}</p>
           </div>
-          <Link href="/made-in-uzbekistan" className="text-sm font-bold text-accent">
+          <Link href="/made-in-uzbekistan" className="rounded-full bg-accent px-3 py-1 text-sm font-bold text-[#1A1A1F]">
             {t("seeAll")} →
           </Link>
         </div>
@@ -139,8 +140,12 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     recent: <ProductRail items={d.recent} title={t("recentlyViewed")} />,
   };
 
+  const base = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
+  const prefix = locale === "ru" ? "/ru" : locale === "uz-Cyrl" ? "/oz" : "";
   return (
     <div className="container-page space-y-4 py-4 md:space-y-6 md:py-6">
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "Organization", name: "ANOR", url: base, logo: `${base}/icons/icon-512.png` }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "WebSite", name: "ANOR", url: `${base}${prefix || "/"}`, inLanguage: locale, potentialAction: { "@type": "SearchAction", target: `${base}${prefix}/search?q={search_term_string}`, "query-input": "required name=search_term_string" } }} />
       {holiday && (
         <p className="rounded-[16px] bg-gradient-to-r from-accent/25 via-primary-50 to-accent/25 px-4 py-2.5 text-center font-bold dark:from-accent/15 dark:via-primary/15 dark:to-accent/15">
           {holiday.emoji} {t(`holidays.${holiday.key}`)}
@@ -175,7 +180,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             productSlugs: s.productIds,
             artisan: s.kind === "ARTISAN",
           }))}
-          labels={{ title: t("sellerStories"), shop: tp("goToShop"), close: tc("close") }}
+          labels={{ title: t("sellerStories"), shop: tp("goToShop"), close: tc("close"), prev: tc("prev"), next: tc("next") }}
         />
       )}
 

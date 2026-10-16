@@ -164,13 +164,14 @@ function VideoCard({ video, index, active, near, muted, onMute }: { video: FeedV
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 to-transparent" />
 
       <div className="absolute right-3 bottom-36 flex flex-col items-center gap-4 text-white">
-        <button type="button" onClick={toggleLike} disabled={pending} className="flex flex-col items-center gap-0.5 text-xs font-bold" aria-pressed={like.liked} aria-label={t("like")}>
+        <button type="button" onClick={toggleLike} disabled={pending} className="flex flex-col items-center gap-0.5 text-xs font-bold" aria-pressed={like.liked}>
+          <span className="sr-only">{t("like")}</span>
           <span className="grid h-11 w-11 place-items-center rounded-full bg-black/35">
             <Heart className={cn("h-6 w-6", like.liked && "fill-[#C8102E] text-[#C8102E]")} />
           </span>
           {compact(like.likes, locale)}
         </button>
-        <button type="button" onClick={share} className="flex flex-col items-center gap-0.5 text-xs font-bold" aria-label={t("share")}>
+        <button type="button" onClick={share} className="flex flex-col items-center gap-0.5 text-xs font-bold">
           <span className="grid h-11 w-11 place-items-center rounded-full bg-black/35">
             <Share2 className="h-5 w-5" />
           </span>
@@ -207,10 +208,10 @@ function VideoCard({ video, index, active, near, muted, onMute }: { video: FeedV
           {video.shop.name}
         </Link>
         <p className="line-clamp-2 pr-16 text-[15px] leading-snug">{video.caption}</p>
-        <p className="text-xs text-white/70">{t("views", { count: video.views, n: groupDigits(video.views) })}</p>
+        <p className="text-xs text-white/90">{t("views", { count: video.views, n: groupDigits(video.views) })}</p>
         {video.product && (
           <div className="flex items-center gap-2 rounded-[14px] bg-white p-2 text-fg dark:bg-[#26262C] dark:text-white">
-            <Link href={`/p/${video.product.slug}`} className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[10px] bg-surface-2">
+            <Link href={`/p/${video.product.slug}`} tabIndex={-1} aria-hidden="true" className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[10px] bg-surface-2">
               {video.product.image && <Image src={video.product.image} alt="" fill sizes="48px" className="object-cover" />}
             </Link>
             <Link href={`/p/${video.product.slug}`} className="min-w-0 flex-1">

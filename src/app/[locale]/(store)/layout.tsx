@@ -10,6 +10,7 @@ import { env } from "@/server/env";
 import { RealtimeProvider } from "@/components/providers/realtime";
 import { PlatformBars } from "@/components/layout/platform-bars";
 import { CookieBanner } from "@/components/privacy/privacy-tools";
+import { InstallPrompt } from "@/components/pwa/pwa";
 import { CONSENT_COOKIE, parseConsent } from "@/lib/consent";
 import Script from "next/script";
 import { cookies } from "next/headers";
@@ -50,6 +51,7 @@ export default async function StoreLayout({ children, params }: { children: Reac
         <Footer />
         {!consentChosen && <CookieBanner />}
         <MobileNav cartCount={data.counts.cart} wishlistCount={data.counts.wishlist} />
+        <InstallPrompt disabled={inTelegram} />
       </ShopStateProvider>
     </RealtimeProvider>
   );
