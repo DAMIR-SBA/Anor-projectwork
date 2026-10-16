@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { BANK_ACCOUNT_RE, MFO_RE, TAX_ID_RE } from "@/lib/b2b";
 import { revalidatePath, updateTag } from "next/cache";
 import { action, AppError, zInt } from "@/server/action";
 import type { StaffContext } from "@/server/auth/session";
@@ -100,6 +101,14 @@ export const saveSettingsAction = action(
           .trim()
           .max(60)
           .refine((v) => !v || /^(@|https:\/\/t\.me\/)?[A-Za-z][A-Za-z0-9_]{3,31}$/.test(v), { message: "telegram" }),
+      }),
+      requisites: z.object({
+        legalName: zText(160),
+        taxId: z.string().trim().refine((v) => !v || TAX_ID_RE.test(v), { message: "taxId" }),
+        address: zText(240),
+        bankName: zText(120),
+        bankAccount: z.string().trim().refine((v) => !v || BANK_ACCOUNT_RE.test(v), { message: "bankAccount" }),
+        mfo: z.string().trim().refine((v) => !v || MFO_RE.test(v), { message: "mfo" }),
       }),
     }),
   },

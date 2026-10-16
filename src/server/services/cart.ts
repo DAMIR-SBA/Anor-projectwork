@@ -7,6 +7,7 @@ import { AppError } from "@/server/action";
 import { randomToken, randomCode } from "@/server/security/crypto";
 import { computeCart, type CartLine, type Coupon, type Promotion } from "@/lib/pricing";
 import { bestMonthly } from "@/lib/installment";
+import { quotePriceFor } from "@/lib/b2b";
 import { loc, locText } from "@/lib/localized";
 import { earlyCampaignIds, getPlans, liveCampaignWhere } from "./catalog";
 import { GUEST_CART_COOKIE } from "./header-data";
@@ -86,6 +87,8 @@ export async function addItem(cartId: string, variantId: string, quantity: numbe
   const max = variant.product.isPreorder ? MAX_QTY : Math.min(MAX_QTY, variant.stock);
   if (max <= 0) throw new AppError("outOfStock");
   const existing = await db.cartItem.findUnique({ where: { cartId_variantId: { cartId, variantId } } });
+  // A line bought at a quoted price keeps the quoted quantity.
+  if (existing?.quoteId) throw new AppError("quoteLocked");
   const qty = Math.min(max, (existing?.quantity ?? 0) + quantity);
   await db.cartItem.upsert({
     where: { cartId_variantId: { cartId, variantId } },
@@ -100,6 +103,7 @@ export async function setItemQuantity(cartId: string, itemId: string, quantity: 
   const item = await db.cartItem.findFirst({ where: { id: itemId, cartId }, include: { variant: { include: { product: { select: { isPreorder: true } } } } } });
   if (!item) throw new AppError("notFound");
   if (quantity <= 0) return db.cartItem.delete({ where: { id: item.id } });
+  if (item.quoteId) throw new AppError("quoteLocked");
   const max = item.variant.product.isPreorder ? MAX_QTY : Math.min(MAX_QTY, item.variant.stock);
   return db.cartItem.update({ where: { id: item.id }, data: { quantity: Math.max(1, Math.min(max, quantity)) } });
 }
@@ -114,6 +118,7 @@ export async function mergeGuestCart(userId: string) {
     const cart = (await db.cart.findUnique({ where: { userId } })) ?? (await db.cart.create({ data: { userId } }));
     for (const it of guest.items) {
       const existing = await db.cartItem.findUnique({ where: { cartId_variantId: { cartId: cart.id, variantId: it.variantId } } });
+      if (existing?.quoteId) continue;
       const max = it.variant.product.isPreorder ? MAX_QTY : Math.max(1, it.variant.stock);
       const qty = Math.min(max, (existing?.quantity ?? 0) + it.quantity);
       await db.cartItem.upsert({ where: { cartId_variantId: { cartId: cart.id, variantId: it.variantId } }, create: { cartId: cart.id, variantId: it.variantId, quantity: qty }, update: { quantity: qty } });
@@ -147,6 +152,7 @@ export async function loadCartView(cartId: string, user: CurrentUser | null, loc
         orderBy: { createdAt: "asc" },
         include: {
           addedBy: { select: { name: true, login: true } },
+          quote: { select: { status: true, userId: true, validUntil: true, quotedPrice: true, createdAt: true, quantity: true } },
           variant: {
             include: {
               product: {
@@ -170,8 +176,10 @@ export async function loadCartView(cartId: string, user: CurrentUser | null, loc
   const views: Array<CartItemView & { shopId: string; shopName: string; shopSlug: string; fulfillment: "FBO" | "FBS" | "DBS"; line: CartLine; available: boolean }> = cart.items.map((it) => {
     const p = it.variant.product;
     const sale = p.campaignItems[0]?.salePrice;
-    const price = sale ? Math.min(sale, it.variant.price) : it.variant.price;
-    const oldPrice = sale ? Math.max(it.variant.oldPrice ?? it.variant.price, it.variant.price) : it.variant.oldPrice;
+    const quoted = quotePriceFor(it.quote, user?.id);
+    const price = quoted ?? (sale ? Math.min(sale, it.variant.price) : it.variant.price);
+    const oldPrice = quoted ? it.variant.price : sale ? Math.max(it.variant.oldPrice ?? it.variant.price, it.variant.price) : it.variant.oldPrice;
+    const quantity = quoted && it.quote ? it.quote.quantity : it.quantity;
     const available = p.status === "ACTIVE" && !p.deletedAt && p.shop.status === "APPROVED" && (p.isPreorder || it.variant.stock > 0);
     const variantTitle = locale === "ru" ? it.variant.titleRu : locText(it.variant.titleUz, locale);
     const wholesaleTiers = (p.wholesaleTiers as Array<{ minQty: number; price: number }> | null) ?? null;
@@ -185,7 +193,7 @@ export async function loadCartView(cartId: string, user: CurrentUser | null, loc
       image: it.variant.imageUrl ?? p.media[0]?.url ?? null,
       price,
       oldPrice: oldPrice && oldPrice > price ? oldPrice : null,
-      quantity: it.quantity,
+      quantity,
       stock: p.isPreorder ? 99 : it.variant.stock,
       selected: it.selected,
       lineTotal: 0,
@@ -193,12 +201,13 @@ export async function loadCartView(cartId: string, user: CurrentUser | null, loc
       isPreorder: p.isPreorder,
       addedBy: it.addedBy ? (it.addedBy.name ?? it.addedBy.login) : null,
       wholesale: false,
+      quoted: quoted != null,
       shopId: p.shop.id,
       shopName: locText(p.shop.name, locale),
       shopSlug: p.shop.slug,
       fulfillment: p.fulfillment,
       available,
-      line: { variantId: it.variantId, productId: p.id, shopId: p.shop.id, categoryIds: ancestors[p.categoryId] ?? [p.categoryId], unitPrice: price, oldPrice, quantity: Math.min(it.quantity, p.isPreorder ? 99 : it.variant.stock), wholesaleTiers },
+      line: { variantId: it.variantId, productId: p.id, shopId: p.shop.id, categoryIds: ancestors[p.categoryId] ?? [p.categoryId], unitPrice: price, oldPrice, quantity: Math.min(quantity, p.isPreorder ? 99_999 : it.variant.stock), wholesaleTiers, negotiated: quoted != null },
     };
   });
 
@@ -230,7 +239,7 @@ export async function loadCartView(cartId: string, user: CurrentUser | null, loc
     const l = byVariant.get(v.variantId);
     v.lineTotal = l ? l.lineTotal : v.price * v.quantity;
     v.promoDiscount = l?.promoDiscount ?? 0;
-    v.wholesale = !!l && l.effectivePrice < v.price;
+    v.wholesale = !v.quoted && !!l && l.effectivePrice < v.price;
   }
 
   const groups = new Map<string, CartView["groups"][number]>();
@@ -263,6 +272,6 @@ export async function loadCartView(cartId: string, user: CurrentUser | null, loc
 }
 
 function strip(v: CartItemView & Record<string, unknown>): CartItemView {
-  const { id, variantId, productId, slug, title, variantTitle, image, price, oldPrice, quantity, stock, selected, lineTotal, promoDiscount, isPreorder, addedBy, wholesale } = v;
-  return { id, variantId, productId, slug, title, variantTitle, image, price, oldPrice, quantity, stock, selected, lineTotal, promoDiscount, isPreorder, addedBy, wholesale };
+  const { id, variantId, productId, slug, title, variantTitle, image, price, oldPrice, quantity, stock, selected, lineTotal, promoDiscount, isPreorder, addedBy, wholesale, quoted } = v;
+  return { id, variantId, productId, slug, title, variantTitle, image, price, oldPrice, quantity, stock, selected, lineTotal, promoDiscount, isPreorder, addedBy, wholesale, quoted };
 }

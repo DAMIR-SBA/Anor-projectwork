@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Banknote, CalendarClock, CreditCard, Gift, MapPin, Plus, Store, Truck, Wallet, Zap } from "lucide-react";
+import { Banknote, CalendarClock, CreditCard, Gift, Landmark, MapPin, Plus, Store, Truck, Wallet, Zap } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -33,6 +33,8 @@ type Props = {
   bonusBalance: number;
   nasiyaAvailable: number;
   user: { name: string | null; phone: string | null };
+  /** Verified company: can pay by bank transfer against an invoice. */
+  business: { companyName: string; invoiceDays: number } | null;
 };
 
 const ONLINE = [
@@ -265,6 +267,7 @@ export function CheckoutView(props: Props) {
             {ONLINE.map((o) => payOption(o.m, o.label))}
             {payOption("COD", <span className="flex items-center gap-2"><Banknote className="h-4 w-4" /> {t("cod")}</span>, t("codText"))}
             {payOption("WALLET", <span className="flex items-center gap-2"><Wallet className="h-4 w-4" /> {t("wallet")}</span>, t("walletBalance", { amount: fmt(props.walletBalance) }))}
+            {props.business && payOption("BANK_TRANSFER", <span className="flex items-center gap-2"><Landmark className="h-4 w-4" /> {t("bankTransfer")}</span>, t("bankTransferText", { company: props.business.companyName, days: props.business.invoiceDays }))}
           </div>
           {data.plans.length > 0 && props.nasiyaAvailable > 0 ? (
             <div className={cn("rounded-[14px] border-2 p-3", payment === "INSTALLMENT" ? "border-accent bg-accent-50 dark:bg-accent/10" : "border-border")}>

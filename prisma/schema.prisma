@@ -470,6 +470,8 @@ enum QuoteStatus {
   ACCEPTED
   DECLINED
   EXPIRED
+  /// Bought: the accepted quote was paid for in an order.
+  ORDERED
 }
 
 enum InvoiceStatus {
@@ -1036,6 +1038,7 @@ model Variant {
   priceHistory    PriceHistory[]
   scheduledPrices ScheduledPriceChange[]
   cartItems       CartItem[]
+  quotes          QuoteRequest[]
   orderItems      OrderItem[]
   supplyItems     SupplyRequestItem[]
   reviews         Review[]
@@ -1259,11 +1262,14 @@ model CartItem {
   quantity  Int
   addedById String?
   selected  Boolean  @default(true)
+  /// An accepted B2B quote fixes this line's unit price and quantity.
+  quoteId   String?  @unique
   createdAt DateTime @default(now())
 
-  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  variant Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
-  addedBy User?   @relation(fields: [addedById], references: [id], onDelete: SetNull)
+  cart    Cart          @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant Variant       @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  addedBy User?         @relation(fields: [addedById], references: [id], onDelete: SetNull)
+  quote   QuoteRequest? @relation(fields: [quoteId], references: [id], onDelete: SetNull)
 
   @@unique([cartId, variantId])
 }
@@ -2748,9 +2754,11 @@ model BusinessProfile {
 
 model QuoteRequest {
   id          String      @id @default(cuid())
+  number      String      @unique
   userId      String
   shopId      String
   productId   String
+  variantId   String?
   quantity    Int
   targetPrice Int?
   message     String?
@@ -2760,10 +2768,18 @@ model QuoteRequest {
   validUntil  DateTime?
   createdAt   DateTime    @default(now())
   quotedAt    DateTime?
+  acceptedAt  DateTime?
+  /// Order group the accepted quote was bought in.
+  groupId     String?
 
-  user    User    @relation(fields: [userId], references: [id])
-  shop    Shop    @relation(fields: [shopId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  shop     Shop      @relation(fields: [shopId], references: [id])
+  product  Product   @relation(fields: [productId], references: [id])
+  variant  Variant?  @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  cartItem CartItem?
+
+  @@index([shopId, status])
+  @@index([userId, createdAt])
 }
 
 model Invoice {
@@ -2776,11 +2792,18 @@ model Invoice {
   status    InvoiceStatus @default(ISSUED)
   dueDate   DateTime
   paidAt    DateTime?
+  /// Bank payment order number entered by finance when the money arrived.
+  paidRef   String?
+  paidById  String?
   eInvoiceId String?
+  /// Buyer and payee requisites frozen at issue time (the profile may change later).
+  requisites Json?
   createdAt DateTime      @default(now())
 
   user  User       @relation(fields: [userId], references: [id])
   group OrderGroup @relation(fields: [groupId], references: [id])
+
+  @@index([status, dueDate])
 }
 
 model ConsentRecord {

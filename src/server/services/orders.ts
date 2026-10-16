@@ -196,6 +196,15 @@ export async function transitionOrder(orderId: string, to: OrderStatus, by: Acto
       if (bonusShare > 0) await bonusEarn(tx, order.userId, bonusShare, "ADJUSTMENT", { refId: orderId, note: "refund" });
       if (walletShare > 0) await walletCredit(tx, order.userId, walletShare, "REFUND", { refType: "order", refId: orderId });
     });
+    // One invoice covers the whole checkout: cancelling part of it voids the invoice and the rest.
+    if (g.paymentMethod === "BANK_TRANSFER") {
+      const voided = await db.invoice.updateMany({ where: { groupId: g.id, status: "ISSUED" }, data: { status: "CANCELLED" } });
+      if (voided.count) {
+        await db.payment.updateMany({ where: { groupId: g.id, method: "BANK_TRANSFER", status: "PENDING" }, data: { status: "FAILED" } });
+        for (const o of others) if (o.id !== orderId && o.status === "PENDING_PAYMENT") await transitionOrder(o.id, "CANCELLED", { actor: "system" }, "invoice_void");
+        await db.orderGroup.update({ where: { id: g.id }, data: { paymentStatus: "CANCELLED" } });
+      }
+    }
   }
   if (by.actor !== "buyer") await audit({ actorId: by.userId ?? null, actorLogin: by.login ?? null, actorKind: by.actor === "staff" ? "staff" : by.actor === "seller" ? "seller" : "system", action: `order.${to.toLowerCase()}`, entityType: "Order", entityId: orderId, before: { status: order.status }, after: { status: to }, meta: note ? { note } : undefined });
   await notifyStatus(orderId, to);

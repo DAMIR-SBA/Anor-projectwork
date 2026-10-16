@@ -113,9 +113,15 @@ export function CartView({ initial, signedIn, isOwner = true, appUrl }: { initia
                     <div className="flex flex-wrap gap-1.5 text-xs">
                       {it.isPreorder && <span className="rounded bg-info/15 px-1.5 py-0.5 font-bold text-info">{t("preorder")}</span>}
                       {it.wholesale && <span className="rounded bg-success/15 px-1.5 py-0.5 font-bold text-success">{t("wholesaleApplied")}</span>}
+                      {it.quoted && <span className="rounded bg-accent/20 px-1.5 py-0.5 font-bold text-fg">{t("quotedPrice")}</span>}
                       {it.addedBy && <span className="text-muted">{t("addedBy", { name: it.addedBy })}</span>}
                     </div>
                     <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-1">
+                      {it.quoted ? (
+                        <span className="tabular flex h-9 items-center rounded-[10px] bg-surface-2 px-3 text-sm font-bold" title={t("quotedQtyLocked")}>
+                          × {it.quantity}
+                        </span>
+                      ) : (
                       <div className="flex h-9 items-center rounded-[10px] border border-border">
                         <button type="button" className="flex h-full w-9 items-center justify-center" aria-label={t("minusOne")} onClick={() => run({ type: "qty", itemId: it.id, quantity: it.quantity - 1 }, () => updateCartItemAction({ cartId: cart.id, itemId: it.id, quantity: it.quantity - 1 }))}>
                           <Minus className="h-4 w-4" />
@@ -125,6 +131,7 @@ export function CartView({ initial, signedIn, isOwner = true, appUrl }: { initia
                           <Plus className="h-4 w-4" />
                         </button>
                       </div>
+                      )}
                       <div className="text-right">
                         <p className="tabular font-extrabold">{fmt(it.lineTotal)}</p>
                         {(it.oldPrice || it.promoDiscount > 0) && <s className="tabular text-xs text-muted">{fmt((it.oldPrice ?? it.price) * it.quantity)}</s>}

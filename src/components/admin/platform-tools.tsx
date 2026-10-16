@@ -141,6 +141,7 @@ export function SettingsForm({ initial }: { initial: PlatformSettings }) {
   const setA = (patch: Partial<typeof a>) => setS((prev) => ({ ...prev, announcement: { ...prev.announcement, ...patch } }));
   const setP = (patch: Partial<PlatformSettings["ordersPaused"]>) => setS((prev) => ({ ...prev, ordersPaused: { ...prev.ordersPaused, ...patch } }));
   const setSup = (patch: Partial<PlatformSettings["support"]>) => setS((prev) => ({ ...prev, support: { ...prev.support, ...patch } }));
+  const setReq = (patch: Partial<PlatformSettings["requisites"]>) => setS((prev) => ({ ...prev, requisites: { ...prev.requisites, ...patch } }));
 
   return (
     <form
@@ -234,6 +235,31 @@ export function SettingsForm({ initial }: { initial: PlatformSettings }) {
           </Field>
           <Field label={t("telegram")} htmlFor="st-tg" error={errors["support.telegram"]} hint={t("telegramHint")}>
             <Input id="st-tg" maxLength={60} placeholder="@..." value={s.support.telegram} onChange={(e) => setSup({ telegram: e.target.value })} />
+          </Field>
+        </div>
+      </section>
+
+      <section className="card space-y-3 p-5">
+        <h2 className="font-bold">{t("requisites")}</h2>
+        <p className="text-sm text-muted">{t("requisitesHint")}</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label={t("legalName")} htmlFor="rq-name" error={errors["requisites.legalName"]}>
+            <Input id="rq-name" maxLength={160} value={s.requisites.legalName} onChange={(e) => setReq({ legalName: e.target.value })} />
+          </Field>
+          <Field label={t("taxId")} htmlFor="rq-tax" error={errors["requisites.taxId"]}>
+            <Input id="rq-tax" inputMode="numeric" maxLength={9} value={s.requisites.taxId} onChange={(e) => setReq({ taxId: e.target.value.replace(/\D/g, "") })} />
+          </Field>
+          <Field label={t("legalAddress")} htmlFor="rq-addr" error={errors["requisites.address"]} className="sm:col-span-2">
+            <Input id="rq-addr" maxLength={240} value={s.requisites.address} onChange={(e) => setReq({ address: e.target.value })} />
+          </Field>
+          <Field label={t("bankName")} htmlFor="rq-bank" error={errors["requisites.bankName"]}>
+            <Input id="rq-bank" maxLength={120} value={s.requisites.bankName} onChange={(e) => setReq({ bankName: e.target.value })} />
+          </Field>
+          <Field label={t("mfo")} htmlFor="rq-mfo" error={errors["requisites.mfo"]}>
+            <Input id="rq-mfo" inputMode="numeric" maxLength={5} value={s.requisites.mfo} onChange={(e) => setReq({ mfo: e.target.value.replace(/\D/g, "") })} />
+          </Field>
+          <Field label={t("bankAccount")} htmlFor="rq-acc" error={errors["requisites.bankAccount"]} className="sm:col-span-2">
+            <Input id="rq-acc" inputMode="numeric" maxLength={20} value={s.requisites.bankAccount} onChange={(e) => setReq({ bankAccount: e.target.value.replace(/\D/g, "") })} />
           </Field>
         </div>
       </section>

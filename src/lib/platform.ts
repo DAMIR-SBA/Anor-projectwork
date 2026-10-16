@@ -9,6 +9,8 @@ export type PlatformSettings = {
   ordersPaused: { enabled: boolean; messageUz: string; messageRu: string };
   sellerSignupOpen: boolean;
   support: { phone: string; email: string; telegram: string };
+  /** The operator's legal details printed on bank-transfer invoices (the payee). */
+  requisites: { legalName: string; taxId: string; address: string; bankName: string; bankAccount: string; mfo: string };
 };
 
 export const DEFAULT_PLATFORM: PlatformSettings = {
@@ -16,6 +18,7 @@ export const DEFAULT_PLATFORM: PlatformSettings = {
   ordersPaused: { enabled: false, messageUz: "", messageRu: "" },
   sellerSignupOpen: true,
   support: { phone: "", email: "", telegram: "" },
+  requisites: { legalName: "", taxId: "", address: "", bankName: "", bankAccount: "", mfo: "" },
 };
 
 export function mergePlatform(raw: unknown): PlatformSettings {
@@ -25,6 +28,7 @@ export function mergePlatform(raw: unknown): PlatformSettings {
     ordersPaused: { ...DEFAULT_PLATFORM.ordersPaused, ...(r.ordersPaused ?? {}) },
     sellerSignupOpen: r.sellerSignupOpen ?? DEFAULT_PLATFORM.sellerSignupOpen,
     support: { ...DEFAULT_PLATFORM.support, ...(r.support ?? {}) },
+    requisites: { ...DEFAULT_PLATFORM.requisites, ...(r.requisites ?? {}) },
   };
 }
 

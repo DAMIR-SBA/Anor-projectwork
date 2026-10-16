@@ -6,3 +6,4 @@ import "./definitions/support";
 import "./definitions/seller";
 import "./definitions/admin";
 import "./definitions/buyer";
+import "./definitions/b2b";

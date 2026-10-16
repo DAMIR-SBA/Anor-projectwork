@@ -11,6 +11,8 @@ export type CartLine = {
   quantity: number;
   /** Optional B2B tiers: [{ minQty, price }]. */
   wholesaleTiers?: Array<{ minQty: number; price: number }> | null;
+  /** Price agreed in an accepted B2B quote: final, so no tiers, promotions or coupons on top. */
+  negotiated?: boolean;
 };
 
 export type Promotion = {
@@ -64,7 +66,7 @@ export type CartTotals = {
 
 /** Unit price after wholesale tiers (the best tier whose minQty is reached). */
 export function effectiveUnitPrice(line: CartLine, isBusiness: boolean): number {
-  if (!isBusiness || !line.wholesaleTiers?.length) return line.unitPrice;
+  if (line.negotiated || !isBusiness || !line.wholesaleTiers?.length) return line.unitPrice;
   const tier = [...line.wholesaleTiers].filter((t) => line.quantity >= t.minQty).sort((a, b) => a.price - b.price)[0];
   return tier ? Math.min(tier.price, line.unitPrice) : line.unitPrice;
 }
@@ -77,7 +79,7 @@ export function effectiveUnitPrice(line: CartLine, isBusiness: boolean): number 
 export function promotionDiscounts(lines: Array<CartLine & { effectivePrice: number }>, promotions: Promotion[]): Map<string, number> {
   const best = new Map<string, number>();
   for (const promo of promotions) {
-    const eligible = lines.filter((l) => promo.productIds.includes(l.productId));
+    const eligible = lines.filter((l) => !l.negotiated && promo.productIds.includes(l.productId));
     if (!eligible.length) continue;
     let applies = false;
     if (promo.type === "MULTI_BUY") applies = eligible.reduce((s, l) => s + l.quantity, 0) >= promo.minQty;
@@ -155,7 +157,7 @@ export function computeCart(input: {
   if (input.coupon) {
     const err = validateCoupon(input.coupon, input.couponCtx ?? { now: new Date(), isFirstOrder: false, userUses: 0 });
     const c = input.coupon;
-    const scoped = lines.map((l) => (!c.categoryId || l.categoryIds.includes(c.categoryId)) && (!c.shopId || l.shopId === c.shopId));
+    const scoped = lines.map((l) => !l.negotiated && (!c.categoryId || l.categoryIds.includes(c.categoryId)) && (!c.shopId || l.shopId === c.shopId));
     const base = lines.reduce((s, l, i) => s + (scoped[i] ? l.effectivePrice * l.quantity - (promo.get(l.variantId) ?? 0) : 0), 0);
     if (err) couponError = err;
     else if (base <= 0) couponError = "notApplicable";

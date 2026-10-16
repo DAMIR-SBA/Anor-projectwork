@@ -31,7 +31,7 @@ const zCheckout = z.object({
   hidePrice: z.boolean().default(false),
   recipientName: z.string().max(80).nullish(),
   recipientPhone: z.string().max(20).nullish(),
-  paymentMethod: z.enum(["CLICK", "PAYME", "UZCARD", "HUMO", "CARD", "COD", "WALLET", "INSTALLMENT"]),
+  paymentMethod: z.enum(["CLICK", "PAYME", "UZCARD", "HUMO", "CARD", "COD", "WALLET", "INSTALLMENT", "BANK_TRANSFER"]),
   savedCardId: z.string().nullish(),
   installmentMonths: z.number().int().nullish(),
   bonus: zInt(0).default(0),
@@ -62,7 +62,8 @@ export const placeOrderAction = action({ schema: zCheckout, rateLimit: { key: "c
 });
 
 export const retryPaymentAction = action({ schema: z.object({ groupId: z.string(), method: z.enum(["CLICK", "PAYME", "UZCARD", "HUMO", "CARD"]) }) }, async (input, ctx) => {
-  const group = await db.orderGroup.findFirst({ where: { id: input.groupId, userId: ctx.user.id, paymentStatus: { in: ["PENDING", "FAILED"] } }, include: { orders: true } });
+  // Invoiced (bank transfer) orders are settled by finance against the invoice, not re-paid here.
+  const group = await db.orderGroup.findFirst({ where: { id: input.groupId, userId: ctx.user.id, paymentStatus: { in: ["PENDING", "FAILED"] }, paymentMethod: { not: "BANK_TRANSFER" } }, include: { orders: true } });
   if (!group || !group.orders.some((o) => o.status === "PENDING_PAYMENT")) throw new AppError("conflict");
   const amount = group.total - group.walletUsed;
   const pay = await startPayment({ userId: ctx.user.id, method: input.method, amount, purpose: "ORDER", groupId: group.id });

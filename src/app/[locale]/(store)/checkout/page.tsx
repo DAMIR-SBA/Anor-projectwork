@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/ui/display";
 import { FormError } from "@/components/ui/form";
 import { platformSettings } from "@/server/services/platform";
 import { pickText } from "@/lib/platform";
+import { INVOICE_BANK_DAYS } from "@/lib/b2b";
 
 export const metadata = { robots: { index: false } };
 
@@ -25,12 +26,13 @@ export default async function CheckoutPage({ params, searchParams }: { params: P
     if (err instanceof AppError) redirect({ href: "/cart", locale });
     throw err;
   }
-  const [addresses, points, cards, wallet, platform] = await Promise.all([
+  const [addresses, points, cards, wallet, platform, business] = await Promise.all([
     db.address.findMany({ where: { userId: user.id }, orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }] }),
     db.pickupPoint.findMany({ where: { isActive: true }, orderBy: [{ city: "asc" }, { name: "asc" }] }),
     db.savedCard.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" } }),
     db.wallet.findUnique({ where: { userId: user.id } }),
     platformSettings(),
+    db.businessProfile.findFirst({ where: { userId: user.id, verifiedAt: { not: null } }, select: { companyName: true } }),
   ]);
   const paused = platform.ordersPaused.enabled ? pickText(platform.ordersPaused.messageUz, platform.ordersPaused.messageRu, locale) || t("paused") : null;
   return (
@@ -52,6 +54,7 @@ export default async function CheckoutPage({ params, searchParams }: { params: P
         bonusBalance={user.bonusBalance}
         nasiyaAvailable={Math.max(0, user.nasiyaLimit - user.nasiyaUsed)}
         user={{ name: user.name, phone: user.phone }}
+        business={business ? { companyName: business.companyName, invoiceDays: INVOICE_BANK_DAYS } : null}
       />
     </div>
   );

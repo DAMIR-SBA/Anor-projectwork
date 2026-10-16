@@ -12,7 +12,7 @@ defineJob("orders.expire-unpaid", {
   cron: "*/5 * * * *",
   description: "Cancel checkouts left unpaid for 30 minutes and release their stock",
   handler: async () => {
-    const stale = await db.orderGroup.findMany({ where: { paymentStatus: "PENDING", createdAt: { lt: new Date(Date.now() - 30 * 60_000) }, orders: { some: { status: "PENDING_PAYMENT" } } }, select: { id: true } });
+    const stale = await db.orderGroup.findMany({ where: { paymentStatus: "PENDING", paymentMethod: { not: "BANK_TRANSFER" }, createdAt: { lt: new Date(Date.now() - 30 * 60_000) }, orders: { some: { status: "PENDING_PAYMENT" } } }, select: { id: true } });
     for (const g of stale) await cancelUnpaidGroup(g.id);
     return { cancelled: stale.length };
   },

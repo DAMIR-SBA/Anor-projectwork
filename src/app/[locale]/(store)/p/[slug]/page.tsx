@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { db } from "@/server/db";
 import { trackMission } from "@/server/services/missions";
 import { getCurrentUser } from "@/server/auth/session";
+import { isVerifiedBusiness } from "@/server/services/b2b";
 import { anonId } from "@/server/services/home";
 import { experimentTitle, recordExperimentClick } from "@/server/services/experiments";
 import { alsoBought, cardsByIds, categoryBySlug, getPlans, getProduct, priceHistory, recentlyViewedIds, recordView, similarProducts } from "@/server/services/catalog";
@@ -69,6 +70,7 @@ export default async function ProductPage({ params, searchParams }: Props & { se
     recentlyViewedIds(user?.id ?? null, aid, p.id, 10),
     user ? db.productAlert.findMany({ where: { userId: user.id, productId: p.id, notifiedAt: null }, select: { type: true } }) : [],
   ]);
+  const business = !user ? "guest" : (await isVerifiedBusiness(user.id)) ? "verified" : "none";
   const recent = await cardsByIds(recentIds, locale);
 
   // A running title test shows the same title the viewer saw on the listing card.
@@ -171,6 +173,7 @@ export default async function ProductPage({ params, searchParams }: Props & { se
           plans,
           campaign: campaign ? { salePrice: campaign.salePrice, endsAt: campaign.campaign.endsAt.toISOString(), name: loc(campaign.campaign, "name", locale) } : null,
           alerts: { priceDrop: alerts.some((a) => a.type === "PRICE_DROP"), backInStock: alerts.some((a) => a.type === "BACK_IN_STOCK") },
+          business,
         }}
         aside={
           <div className="space-y-4">

@@ -445,6 +445,20 @@
     "slugTaken": "Bu manzil band",
     "emailTaken": "Bu email boshqa akkauntda ishlatilgan",
     "deletionBlocked": "Hozircha o‘chirib bo‘lmaydi: {what}",
+    "taxId": "STIR 9 ta raqamdan iborat va 2–7 bilan boshlanadi",
+    "bankAccount": "Hisob raqami 20 ta raqam",
+    "mfo": "MFO 5 ta raqam",
+    "taxIdNotFound": "STIR soliq reyestrida topilmadi",
+    "taxIdInactive": "Bu STIR bo‘yicha tashkilot faol emas",
+    "businessRequired": "Avval biznes akkauntni tasdiqlang",
+    "quoteMinQty": "Narx so‘rovi kamida {min} dona uchun",
+    "quoteTargetHigh": "Istalgan narx joriy narxdan past bo‘lishi kerak",
+    "quoteExists": "Bu mahsulot uchun ochiq so‘rovingiz bor",
+    "quotePriceHigh": "Taklif joriy narxdan past bo‘lishi kerak",
+    "quoteExpired": "Narx taklifining muddati o‘tgan",
+    "quoteLocked": "Kelishilgan narxdagi miqdorni o‘zgartirib bo‘lmaydi",
+    "invoiceOrdersCancelled": "Buyurtmalar bekor qilingan — pulni qaytaring",
+    "businessTaxIdTaken": "Bu STIR boshqa biznes akkauntga bog‘langan",
     "notEligible": "Sharhni faqat yetkazilgan buyurtmadagi mahsulotga qoldirish mumkin",
     "alreadyReviewed": "Bu buyurtma bo‘yicha sharh allaqachon qoldirilgan",
     "reviewBanned": "Sizga sharh va savol qoldirish cheklangan",
@@ -978,7 +992,8 @@
       "overview": "Umumiy",
       "payouts": "To‘lovlar",
       "refunds": "Pul qaytarish",
-      "installments": "Nasiya portfeli"
+      "installments": "Nasiya portfeli",
+      "invoices": "Hisob-fakturalar"
     },
     "generate": "O‘tgan haftani hisoblash",
     "generateConfirm": "O‘tgan hafta uchun to‘lovlarni hisoblaysizmi? Mavjudlari takrorlanmaydi.",
@@ -1043,7 +1058,27 @@
     "dueDate": "Muddat",
     "daysLate": "Kun",
     "amountDue": "Qarz",
-    "noOverdue": "Muddati o‘tgan to‘lovlar yo‘q"
+    "noOverdue": "Muddati o‘tgan to‘lovlar yo‘q",
+    "invoicesHint": "Bank o‘tkazmasi bilan to‘lanadigan B2B buyurtmalar. Bank ko‘chirmasida pul ko‘rinsa, «To‘langan» deb belgilang — buyurtma sotuvchiga ketadi.",
+    "invoiceStatus": {
+      "ISSUED": "To‘lov kutilmoqda",
+      "PAID": "To‘langan",
+      "CANCELLED": "Bekor qilingan"
+    },
+    "invoicesN": "{count} ta hisob",
+    "invoice": "Hisob",
+    "company": "Kompaniya",
+    "taxIdShort": "STIR {taxId}",
+    "vatShort": "QQS {vat}",
+    "paidRef": "To‘lov topshiriqnomasi: {ref}",
+    "markPaid": "To‘langan",
+    "markPaidTitle": "{number} — {amount} tushdimi?",
+    "paymentOrder": "To‘lov topshiriqnomasi raqami",
+    "paymentOrderHint": "Bank ko‘chirmasidagi raqam. Summa hisobdagidan farq qilsa, belgilamang.",
+    "markedPaid": "Hisob to‘langan deb belgilandi",
+    "cancelInvoice": "Bekor qilish",
+    "cancelInvoiceTitle": "{number} hisobini bekor qilish",
+    "noInvoices": "Hisoblar yo‘q"
   },
   "adminNasiya": {
     "title": "ANOR Nasiya",
@@ -1224,7 +1259,15 @@
     "phone": "Telefon",
     "email": "Email",
     "telegram": "Telegram",
-    "telegramHint": "@username yoki https://t.me/username"
+    "telegramHint": "@username yoki https://t.me/username",
+    "requisites": "Rekvizitlar (hisob-fakturalar uchun)",
+    "requisitesHint": "B2B hisob-fakturalarida to‘lov oluvchi sifatida chiqadi. Faqat haqiqiy rekvizitlarni kiriting.",
+    "legalName": "Yuridik nomi",
+    "taxId": "STIR",
+    "legalAddress": "Yuridik manzil",
+    "bankName": "Bank",
+    "mfo": "MFO",
+    "bankAccount": "Hisob raqami"
   },
   "adminStatus": {
     "title": "Tizim holati",
@@ -1512,7 +1555,13 @@
     "toOrders": "Buyurtmalarim",
     "continueShopping": "Xaridni davom ettirish",
     "cashback": "Yetkazilgandan so‘ng +{amount} bonus",
-    "paused": "Yangi buyurtmalar vaqtincha qabul qilinmayapti. Savatingiz saqlanadi."
+    "paused": "Yangi buyurtmalar vaqtincha qabul qilinmayapti. Savatingiz saqlanadi.",
+    "bankTransfer": "Bank o‘tkazmasi (hisob-faktura)",
+    "bankTransferText": "{company} hisobidan, {days} ish kuni ichida",
+    "invoiceIssued": "Hisob {number} chiqarildi",
+    "invoiceAmount": "To‘lov: {amount}, {date} gacha.",
+    "invoiceHint": "To‘lov maqsadida hisob raqamini yozing. Pul tushgach buyurtma sotuvchiga yuboriladi.",
+    "invoiceDownload": "Hisobni yuklab olish (PDF)"
   },
   "nasiya": {
     "employment": {
@@ -2087,7 +2136,8 @@
     "goToCart": "Savatga o‘tish",
     "warranty": "Kafolat va qaytarish",
     "warrantyText": "14 kun ichida qaytarish, sifatsiz mahsulot uchun to‘liq pul qaytariladi",
-    "tryOn": "Topshirish punktida kiyib ko‘rish mumkin"
+    "tryOn": "Topshirish punktida kiyib ko‘rish mumkin",
+    "wholesaleBusinessOnly": "Ulgurji narxlar tasdiqlangan biznes akkauntlarga qo‘llanadi."
   },
   "cart": {
     "title": "Savat",
@@ -2131,7 +2181,9 @@
     "minusOne": "Kamaytirish",
     "plusOne": "Ko‘paytirish",
     "wholesaleApplied": "Ulgurji narx",
-    "loginToSave": "Savat saqlanishi uchun tizimga kiring"
+    "loginToSave": "Savat saqlanishi uchun tizimga kiring",
+    "quotedPrice": "Kelishilgan narx",
+    "quotedQtyLocked": "Miqdor narx so‘rovida kelishilgan"
   },
   "wishlist": {
     "title": "Saralangan",
@@ -2397,7 +2449,8 @@
     "subtotal": "Mahsulotlar",
     "discount": "Chegirma",
     "deliveryFee": "Yetkazish",
-    "cashback": "Keshbek"
+    "cashback": "Keshbek",
+    "invoiceLink": "Hisob-faktura {number} (PDF)"
   },
   "returns": {
     "title": "Qaytarishlar",
@@ -2784,6 +2837,194 @@
       "BACK_IN_STOCK": "Sotuvga chiqsa"
     }
   },
+  "b2b": {
+    "title": "Biznes akkaunt",
+    "subtitle": "Kompaniya nomidan xarid: ulgurji narxlar, narx so‘rovlari va QQS bilan hisob-faktura.",
+    "perkWholesale": "Ulgurji narxlar",
+    "perkWholesaleText": "Ko‘p dona olganda sotuvchining ulgurji narxi savatda avtomatik qo‘llanadi.",
+    "perkQuotes": "Narx so‘rovi",
+    "perkQuotesText": "{min} donadan boshlab sotuvchidan alohida narx so‘rang.",
+    "perkInvoice": "Bank o‘tkazmasi",
+    "perkInvoiceText": "Hisob-faktura bo‘yicha {days} ish kuni ichida kompaniya hisobidan to‘lang.",
+    "formTitle": "Kompaniya rekvizitlari",
+    "formHint": "STIR soliq reyestri orqali tekshiriladi. Rekvizitlar hisob-fakturalarga yoziladi.",
+    "companyName": "Kompaniya nomi",
+    "taxId": "STIR",
+    "taxIdHint": "9 ta raqam",
+    "taxIdShort": "STIR {taxId}",
+    "legalAddress": "Yuridik manzil",
+    "bankName": "Bank",
+    "bankMfo": "MFO",
+    "bankAccount": "Hisob raqami",
+    "bankAccountHint": "20 ta raqam",
+    "saved": "Kompaniya ma’lumotlari saqlandi",
+    "edit": "Tahrirlash",
+    "verified": "Tasdiqlangan · {date}",
+    "verifiedShort": "Tasdiqlangan kompaniya",
+    "unverified": "Tasdiqlanmagan",
+    "activeHint": "Ulgurji narxlar savatda avtomatik qo‘llanadi. Rasmiylashtirishda «Bank o‘tkazmasi»ni tanlang — hisob {days} ish kuni amal qiladi.",
+    "quotesTitle": "Narx so‘rovlari",
+    "quotesEmpty": "So‘rovlar yo‘q",
+    "quotesEmptyHint": "Mahsulot sahifasida «Narx so‘rash» tugmasini bosing ({min} donadan).",
+    "invoicesTitle": "Hisob-fakturalar",
+    "invoicesEmpty": "Hisob-fakturalar yo‘q",
+    "invoicesEmptyHint": "Bank o‘tkazmasi bilan buyurtma bersangiz, hisob shu yerda paydo bo‘ladi.",
+    "quoteStatus": {
+      "OPEN": "Javob kutilmoqda",
+      "QUOTED": "Narx taklif qilindi",
+      "ACCEPTED": "Savatda",
+      "ORDERED": "Buyurtma qilingan",
+      "DECLINED": "Rad etilgan",
+      "EXPIRED": "Muddati o‘tgan"
+    },
+    "invoiceStatus": {
+      "ISSUED": "To‘lov kutilmoqda",
+      "PAID": "To‘langan",
+      "CANCELLED": "Bekor qilingan"
+    },
+    "qtyTimes": "{qty} dona",
+    "listPrice": "Narxi: {price}",
+    "listPriceLabel": "Joriy narx",
+    "yourTarget": "siz taklif qilgan: {price}",
+    "offer": "Taklif: {price} / dona · jami {total}",
+    "yourOffer": "Sizning taklifingiz: {price} / dona · jami {total}",
+    "validUntil": "{date} gacha amal qiladi",
+    "inCart": "Savatga o‘tish",
+    "accept": "Qabul qilish",
+    "acceptedToCart": "Kelishilgan narx savatga qo‘shildi",
+    "decline": "Rad etish",
+    "withdraw": "Bekor qilish",
+    "vatIncl": "QQS {vat}",
+    "payBy": "{date} gacha to‘lang",
+    "paidOn": "{date} da to‘langan",
+    "order": "Buyurtma",
+    "requestQuote": "Narx so‘rash",
+    "openBusiness": "Ulgurji xarid uchun biznes akkaunt oching",
+    "requestHint": "Kerakli miqdorni yozing (kamida {min} dona). Sotuvchi 7 kun ichida narx taklif qiladi.",
+    "variant": "Variant",
+    "quantity": "Miqdor",
+    "targetPrice": "Istalgan narx (dona)",
+    "message": "Izoh",
+    "messagePlaceholder": "Yetkazish muddati, qadoqlash, to‘lov shartlari…",
+    "send": "Yuborish",
+    "requestSent": "So‘rov {number} yuborildi",
+    "requestSentHint": "Javobni «Biznes akkaunt» bo‘limida ko‘rasiz.",
+    "sellerTitle": "Narx so‘rovlari",
+    "sellerSubtitle": "Kompaniyalar ulgurji narx so‘ramoqda. Taklif qiling — xaridor qabul qilsa, buyurtma shu narxda keladi.",
+    "sellerTabs": {
+      "open": "Yangi",
+      "answered": "Javob berilgan",
+      "closed": "Yopilgan"
+    },
+    "sellerEmpty": "So‘rovlar yo‘q",
+    "sellerEmptyHint": "Biznes xaridorlar mahsulot sahifasidan narx so‘raganda shu yerda ko‘rinadi.",
+    "stock": "Qoldiq",
+    "makeOffer": "Narx taklif qilish",
+    "unitPrice": "Dona narxi",
+    "validFor": "Amal qilish muddati",
+    "days": "{count, plural, one {# kun} other {# kun}}",
+    "offerTotal": "{qty} dona uchun jami: {total}",
+    "note": "Izoh xaridorga",
+    "notePlaceholder": "Yetkazish muddati, minimal partiya…",
+    "quoteSent": "Taklif yuborildi",
+    "declined": "So‘rov rad etildi",
+    "declineConfirm": "So‘rovni rad etasizmi?"
+  },
+  "seller": {
+    "nav": {
+      "quotes": "Narx so‘rovlari",
+      "dashboard": "Bosh sahifa",
+      "orders": "Buyurtmalar",
+      "products": "Mahsulotlar",
+      "reviews": "Sharhlar",
+      "questions": "Savollar",
+      "chats": "Chatlar",
+      "finance": "Moliya",
+      "analytics": "Analitika",
+      "promotions": "Aksiyalar",
+      "ads": "Reklama",
+      "settings": "Sozlamalar",
+      "storefront": "Do‘kon sahifasi",
+      "returns": "Qaytarishlar",
+      "stock": "Qoldiqlar",
+      "rating": "Reyting",
+      "competitors": "Raqobatchilar",
+      "academy": "Akademiya va Pro",
+      "api": "API va webhooklar"
+    },
+    "title": "Sotuvchi kabineti",
+    "noShop": "Sizda do‘kon yo‘q",
+    "noShopText": "Sotuvchi bo‘lish uchun do‘kon oching — ariza moderatsiyadan o‘tadi.",
+    "openShop": "Do‘kon ochish",
+    "soon": "Bu bo‘lim keyingi bosqichda ishga tushadi",
+    "reviews": {
+      "title": "Sharhlar",
+      "subtitle": "Xaridorlar fikriga tezroq javob bering — bu reyting va savdoga ta’sir qiladi",
+      "avg": "O‘rtacha baho",
+      "replyRate": "Javob berilgan",
+      "responseTime": "O‘rtacha javob vaqti",
+      "minutes": "{count, plural, one {# daqiqa} other {# daqiqa}}",
+      "hours": "{count, plural, one {# soat} other {# soat}}",
+      "tabs": {
+        "unanswered": "Javobsiz",
+        "negative": "Salbiy (1–3★)",
+        "removal": "O‘chirish so‘rovlari",
+        "all": "Hammasi"
+      },
+      "empty": "Bu bo‘limda sharhlar yo‘q",
+      "reply": "Javob yozish",
+      "editReply": "Javobni tahrirlash",
+      "replyPlaceholder": "Xaridorga xushmuomala javob yozing…",
+      "replyHint": "Javob hamma uchun ko‘rinadi. Telefon raqam va havolalar avtomatik yashiriladi.",
+      "replySaved": "Javob saqlandi",
+      "requestRemoval": "O‘chirishni so‘rash",
+      "removalTitle": "Sharhni o‘chirish so‘rovi",
+      "removalHint": "So‘rov moderatorlar tomonidan ko‘rib chiqiladi. Salbiy, lekin halol sharhlar o‘chirilmaydi.",
+      "removalDetails": "Batafsil tushuntiring",
+      "removalSent": "So‘rov yuborildi",
+      "removalReasons": {
+        "fake": "Soxta sharh (xarid bo‘lmagan)",
+        "offensive": "Haqorat",
+        "wrongProduct": "Boshqa mahsulot haqida",
+        "personal": "Shaxsiy ma’lumotlar",
+        "extortion": "Kompensatsiya talab qilish / tovlamachilik",
+        "other": "Boshqa"
+      },
+      "removalStatus": {
+        "OPEN": "Ko‘rib chiqilmoqda",
+        "RESOLVED": "Qondirildi",
+        "DISMISSED": "Rad etildi"
+      },
+      "pendingModeration": "Moderatsiyada"
+    },
+    "questions": {
+      "title": "Xaridorlar savollari",
+      "subtitle": "Tez javoblar konversiyani oshiradi",
+      "tabs": {
+        "unanswered": "Javobsiz",
+        "all": "Hammasi"
+      },
+      "empty": "Savollar yo‘q",
+      "answered": "Javob berilgan"
+    },
+    "menu": "Menyu",
+    "close": "Yopish",
+    "switchShop": "Do‘konni almashtirish",
+    "groups": {
+      "sales": "Savdo",
+      "catalog": "Katalog",
+      "money": "Pul va reyting",
+      "grow": "Rivojlanish"
+    },
+    "status": {
+      "DRAFT": "Ariza to‘ldirilmagan — do‘kon hali sotuvda emas.",
+      "PENDING": "Ariza moderatsiyada. Tasdiqlangach, mahsulotlar sotuvga chiqadi.",
+      "REJECTED": "Ariza rad etildi — ma’lumotlarni tuzatib, qayta yuboring.",
+      "SUSPENDED": "Do‘kon to‘xtatilgan. Qo‘llab-quvvatlash xizmatiga murojaat qiling.",
+      "open": "Arizani ochish",
+      "restricted": "Reyting past: reklama to‘xtatilgan, qidiruvda pastroq ko‘rsatilmoqda."
+    }
+  },
   "reviews": {
     "title": "Sharhlar",
     "count": "{count, plural, one {# ta sharh} other {# ta sharh}}",
@@ -2922,100 +3163,6 @@
     "answers": "{count, plural, =0 {Javob yo‘q} one {# ta javob} other {# ta javob}}",
     "noAnswer": "Hali javob yo‘q",
     "more": "Yana savollar"
-  },
-  "seller": {
-    "title": "Sotuvchi kabineti",
-    "noShop": "Sizda do‘kon yo‘q",
-    "noShopText": "Sotuvchi bo‘lish uchun do‘kon oching — ariza moderatsiyadan o‘tadi.",
-    "openShop": "Do‘kon ochish",
-    "nav": {
-      "dashboard": "Bosh sahifa",
-      "orders": "Buyurtmalar",
-      "products": "Mahsulotlar",
-      "reviews": "Sharhlar",
-      "questions": "Savollar",
-      "chats": "Chatlar",
-      "finance": "Moliya",
-      "analytics": "Analitika",
-      "promotions": "Aksiyalar",
-      "ads": "Reklama",
-      "settings": "Sozlamalar",
-      "storefront": "Do‘kon sahifasi",
-      "returns": "Qaytarishlar",
-      "stock": "Qoldiqlar",
-      "rating": "Reyting",
-      "competitors": "Raqobatchilar",
-      "academy": "Akademiya va Pro",
-      "api": "API va webhooklar"
-    },
-    "soon": "Bu bo‘lim keyingi bosqichda ishga tushadi",
-    "reviews": {
-      "title": "Sharhlar",
-      "subtitle": "Xaridorlar fikriga tezroq javob bering — bu reyting va savdoga ta’sir qiladi",
-      "avg": "O‘rtacha baho",
-      "replyRate": "Javob berilgan",
-      "responseTime": "O‘rtacha javob vaqti",
-      "minutes": "{count, plural, one {# daqiqa} other {# daqiqa}}",
-      "hours": "{count, plural, one {# soat} other {# soat}}",
-      "tabs": {
-        "unanswered": "Javobsiz",
-        "negative": "Salbiy (1–3★)",
-        "removal": "O‘chirish so‘rovlari",
-        "all": "Hammasi"
-      },
-      "empty": "Bu bo‘limda sharhlar yo‘q",
-      "reply": "Javob yozish",
-      "editReply": "Javobni tahrirlash",
-      "replyPlaceholder": "Xaridorga xushmuomala javob yozing…",
-      "replyHint": "Javob hamma uchun ko‘rinadi. Telefon raqam va havolalar avtomatik yashiriladi.",
-      "replySaved": "Javob saqlandi",
-      "requestRemoval": "O‘chirishni so‘rash",
-      "removalTitle": "Sharhni o‘chirish so‘rovi",
-      "removalHint": "So‘rov moderatorlar tomonidan ko‘rib chiqiladi. Salbiy, lekin halol sharhlar o‘chirilmaydi.",
-      "removalDetails": "Batafsil tushuntiring",
-      "removalSent": "So‘rov yuborildi",
-      "removalReasons": {
-        "fake": "Soxta sharh (xarid bo‘lmagan)",
-        "offensive": "Haqorat",
-        "wrongProduct": "Boshqa mahsulot haqida",
-        "personal": "Shaxsiy ma’lumotlar",
-        "extortion": "Kompensatsiya talab qilish / tovlamachilik",
-        "other": "Boshqa"
-      },
-      "removalStatus": {
-        "OPEN": "Ko‘rib chiqilmoqda",
-        "RESOLVED": "Qondirildi",
-        "DISMISSED": "Rad etildi"
-      },
-      "pendingModeration": "Moderatsiyada"
-    },
-    "questions": {
-      "title": "Xaridorlar savollari",
-      "subtitle": "Tez javoblar konversiyani oshiradi",
-      "tabs": {
-        "unanswered": "Javobsiz",
-        "all": "Hammasi"
-      },
-      "empty": "Savollar yo‘q",
-      "answered": "Javob berilgan"
-    },
-    "menu": "Menyu",
-    "close": "Yopish",
-    "switchShop": "Do‘konni almashtirish",
-    "groups": {
-      "sales": "Savdo",
-      "catalog": "Katalog",
-      "money": "Pul va reyting",
-      "grow": "Rivojlanish"
-    },
-    "status": {
-      "DRAFT": "Ariza to‘ldirilmagan — do‘kon hali sotuvda emas.",
-      "PENDING": "Ariza moderatsiyada. Tasdiqlangach, mahsulotlar sotuvga chiqadi.",
-      "REJECTED": "Ariza rad etildi — ma’lumotlarni tuzatib, qayta yuboring.",
-      "SUSPENDED": "Do‘kon to‘xtatilgan. Qo‘llab-quvvatlash xizmatiga murojaat qiling.",
-      "open": "Arizani ochish",
-      "restricted": "Reyting past: reklama to‘xtatilgan, qidiruvda pastroq ko‘rsatilmoqda."
-    }
   },
   "moderation": {
     "title": "Sharhlar moderatsiyasi",

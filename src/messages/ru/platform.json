@@ -1,7 +1,21 @@
 {
   "errors": {
     "emailTaken": "Этот email уже используется в другом аккаунте",
-    "deletionBlocked": "Пока нельзя удалить: {what}"
+    "deletionBlocked": "Пока нельзя удалить: {what}",
+    "taxId": "ИНН — 9 цифр, начинается с 2–7",
+    "bankAccount": "Расчётный счёт — 20 цифр",
+    "mfo": "МФО — 5 цифр",
+    "taxIdNotFound": "ИНН не найден в налоговом реестре",
+    "taxIdInactive": "Организация с этим ИНН не действует",
+    "businessRequired": "Сначала подтвердите бизнес-аккаунт",
+    "quoteMinQty": "Запрос цены — от {min} шт.",
+    "quoteTargetHigh": "Желаемая цена должна быть ниже текущей",
+    "quoteExists": "По этому товару у вас уже есть открытый запрос",
+    "quotePriceHigh": "Предложение должно быть ниже текущей цены",
+    "quoteExpired": "Срок предложения истёк",
+    "quoteLocked": "Количество по согласованной цене менять нельзя",
+    "invoiceOrdersCancelled": "Заказы отменены — верните деньги",
+    "businessTaxIdTaken": "Этот ИНН уже привязан к другому бизнес-аккаунту"
   },
   "privacy": {
     "bannerTitle": "Файлы cookie",
@@ -71,5 +85,156 @@
       "PRICE_DROP": "Снижение цены",
       "BACK_IN_STOCK": "Поступление"
     }
+  },
+  "b2b": {
+    "title": "Бизнес-аккаунт",
+    "subtitle": "Покупки от имени компании: оптовые цены, запросы цены и счёт с НДС.",
+    "perkWholesale": "Оптовые цены",
+    "perkWholesaleText": "При покупке крупной партии оптовая цена продавца применяется в корзине автоматически.",
+    "perkQuotes": "Запрос цены",
+    "perkQuotesText": "Запросите у продавца индивидуальную цену от {min} шт.",
+    "perkInvoice": "Банковский перевод",
+    "perkInvoiceText": "Оплата по счёту с расчётного счёта компании в течение {days} банковских дней.",
+    "formTitle": "Реквизиты компании",
+    "formHint": "ИНН проверяется по налоговому реестру. Реквизиты попадают в счета на оплату.",
+    "companyName": "Название компании",
+    "taxId": "ИНН",
+    "taxIdHint": "9 цифр",
+    "taxIdShort": "ИНН {taxId}",
+    "legalAddress": "Юридический адрес",
+    "bankName": "Банк",
+    "bankMfo": "МФО",
+    "bankAccount": "Расчётный счёт",
+    "bankAccountHint": "20 цифр",
+    "saved": "Данные компании сохранены",
+    "edit": "Изменить",
+    "verified": "Подтверждена · {date}",
+    "verifiedShort": "Подтверждённая компания",
+    "unverified": "Не подтверждена",
+    "activeHint": "Оптовые цены применяются в корзине автоматически. При оформлении выберите «Банковский перевод» — счёт действует {days} банковских дня.",
+    "quotesTitle": "Запросы цены",
+    "quotesEmpty": "Запросов нет",
+    "quotesEmptyHint": "Нажмите «Запросить цену» на странице товара (от {min} шт.).",
+    "invoicesTitle": "Счета на оплату",
+    "invoicesEmpty": "Счетов нет",
+    "invoicesEmptyHint": "Если оформите заказ с оплатой банковским переводом, счёт появится здесь.",
+    "quoteStatus": {
+      "OPEN": "Ждёт ответа",
+      "QUOTED": "Цена предложена",
+      "ACCEPTED": "В корзине",
+      "ORDERED": "Заказан",
+      "DECLINED": "Отклонён",
+      "EXPIRED": "Истёк"
+    },
+    "invoiceStatus": {
+      "ISSUED": "Ожидает оплаты",
+      "PAID": "Оплачен",
+      "CANCELLED": "Аннулирован"
+    },
+    "qtyTimes": "{qty} шт.",
+    "listPrice": "Цена: {price}",
+    "listPriceLabel": "Текущая цена",
+    "yourTarget": "ваша цена: {price}",
+    "offer": "Предложение: {price} / шт. · итого {total}",
+    "yourOffer": "Ваше предложение: {price} / шт. · итого {total}",
+    "validUntil": "действует до {date}",
+    "inCart": "Перейти в корзину",
+    "accept": "Принять",
+    "acceptedToCart": "Согласованная цена добавлена в корзину",
+    "decline": "Отклонить",
+    "withdraw": "Отозвать",
+    "vatIncl": "НДС {vat}",
+    "payBy": "оплатить до {date}",
+    "paidOn": "оплачен {date}",
+    "order": "Заказ",
+    "requestQuote": "Запросить цену",
+    "openBusiness": "Откройте бизнес-аккаунт для оптовых покупок",
+    "requestHint": "Укажите нужное количество (не меньше {min} шт.). Продавец предложит цену в течение 7 дней.",
+    "variant": "Вариант",
+    "quantity": "Количество",
+    "targetPrice": "Желаемая цена (за шт.)",
+    "message": "Комментарий",
+    "messagePlaceholder": "Сроки поставки, упаковка, условия оплаты…",
+    "send": "Отправить",
+    "requestSent": "Запрос {number} отправлен",
+    "requestSentHint": "Ответ появится в разделе «Бизнес-аккаунт».",
+    "sellerTitle": "Запросы цены",
+    "sellerSubtitle": "Компании запрашивают оптовую цену. Предложите цену — если покупатель примет, заказ придёт по ней.",
+    "sellerTabs": {
+      "open": "Новые",
+      "answered": "С ответом",
+      "closed": "Закрытые"
+    },
+    "sellerEmpty": "Запросов нет",
+    "sellerEmptyHint": "Здесь появятся запросы бизнес-покупателей со страниц ваших товаров.",
+    "stock": "Остаток",
+    "makeOffer": "Предложить цену",
+    "unitPrice": "Цена за шт.",
+    "validFor": "Срок действия",
+    "days": "{count, plural, one {# день} few {# дня} many {# дней} other {# дня}}",
+    "offerTotal": "Итого за {qty} шт.: {total}",
+    "note": "Комментарий покупателю",
+    "notePlaceholder": "Сроки поставки, минимальная партия…",
+    "quoteSent": "Предложение отправлено",
+    "declined": "Запрос отклонён",
+    "declineConfirm": "Отклонить запрос?"
+  },
+  "cart": {
+    "quotedPrice": "Согласованная цена",
+    "quotedQtyLocked": "Количество согласовано в запросе цены"
+  },
+  "product": {
+    "wholesaleBusinessOnly": "Оптовые цены действуют для подтверждённых бизнес-аккаунтов."
+  },
+  "checkout": {
+    "bankTransfer": "Банковский перевод (счёт)",
+    "bankTransferText": "со счёта {company}, в течение {days} банковских дней",
+    "invoiceIssued": "Выставлен счёт {number}",
+    "invoiceAmount": "К оплате: {amount}, до {date}.",
+    "invoiceHint": "Укажите номер счёта в назначении платежа. После поступления денег заказ уйдёт продавцу.",
+    "invoiceDownload": "Скачать счёт (PDF)"
+  },
+  "orders": {
+    "invoiceLink": "Счёт {number} (PDF)"
+  },
+  "seller": {
+    "nav": {
+      "quotes": "Запросы цены"
+    }
+  },
+  "adminFinance": {
+    "tabs": {
+      "invoices": "Счета"
+    },
+    "invoicesHint": "B2B-заказы с оплатой банковским переводом. Когда деньги видны в выписке, отметьте «Оплачен» — заказ уйдёт продавцу.",
+    "invoiceStatus": {
+      "ISSUED": "Ожидает оплаты",
+      "PAID": "Оплачен",
+      "CANCELLED": "Аннулирован"
+    },
+    "invoicesN": "{count, plural, one {# счёт} few {# счёта} many {# счетов} other {# счёта}}",
+    "invoice": "Счёт",
+    "company": "Компания",
+    "taxIdShort": "ИНН {taxId}",
+    "vatShort": "НДС {vat}",
+    "paidRef": "Платёжное поручение: {ref}",
+    "markPaid": "Оплачен",
+    "markPaidTitle": "{number} — поступило {amount}?",
+    "paymentOrder": "Номер платёжного поручения",
+    "paymentOrderHint": "Номер из банковской выписки. Если сумма отличается от счёта, не отмечайте.",
+    "markedPaid": "Счёт отмечен оплаченным",
+    "cancelInvoice": "Аннулировать",
+    "cancelInvoiceTitle": "Аннулировать счёт {number}",
+    "noInvoices": "Счетов нет"
+  },
+  "adminSettings": {
+    "requisites": "Реквизиты (для счетов)",
+    "requisitesHint": "Указываются получателем платежа в B2B-счетах. Вводите только настоящие реквизиты.",
+    "legalName": "Юридическое название",
+    "taxId": "ИНН",
+    "legalAddress": "Юридический адрес",
+    "bankName": "Банк",
+    "mfo": "МФО",
+    "bankAccount": "Расчётный счёт"
   }
 }

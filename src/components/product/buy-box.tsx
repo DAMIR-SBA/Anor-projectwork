@@ -16,6 +16,7 @@ import { fmtDay } from "@/lib/format-date";
 import { cn } from "@/lib/cn";
 import type { Plan } from "@/lib/installment";
 import { InstallmentWidget } from "./installment-widget";
+import { QuoteRequestButton } from "@/components/b2b/b2b-tools";
 
 export type BuyVariant = { id: string; title: string; price: number; oldPrice: number | null; stock: number; image: string | null };
 
@@ -25,10 +26,12 @@ type Props = {
   plans: Plan[];
   campaign: { salePrice: number; endsAt: string; name: string } | null;
   alerts: { priceDrop: boolean; backInStock: boolean };
+  /** B2B: verified companies can request a quote; others are pointed to the business account. */
+  business: "verified" | "none" | "guest";
   onVariantImage?: (url: string | null) => void;
 };
 
-export function BuyBox({ product, variants, plans, campaign, alerts, onVariantImage }: Props) {
+export function BuyBox({ product, variants, plans, campaign, alerts, business, onVariantImage }: Props) {
   const t = useTranslations("product");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -136,15 +139,21 @@ export function BuyBox({ product, variants, plans, campaign, alerts, onVariantIm
         </fieldset>
       )}
 
-      {product.wholesale && product.wholesale.length > 0 && (
-        <div className="rounded-[12px] bg-surface-2 p-3 text-sm">
-          <p className="mb-1 font-bold">{t("wholesale")}</p>
-          <ul className="space-y-0.5 text-muted">
-            {product.wholesale.map((w) => (
-              <li key={w.minQty}>{t("wholesaleFrom", { qty: w.minQty, price: formatUZS(w.price, locale) })}</li>
-            ))}
-          </ul>
+      {product.wholesale && product.wholesale.length > 0 ? (
+        <div className="space-y-2 rounded-[12px] bg-surface-2 p-3 text-sm">
+          <div>
+            <p className="mb-1 font-bold">{t("wholesale")}</p>
+            <ul className="space-y-0.5 text-muted">
+              {product.wholesale.map((w) => (
+                <li key={w.minQty}>{t("wholesaleFrom", { qty: w.minQty, price: formatUZS(w.price, locale) })}</li>
+              ))}
+            </ul>
+            {business !== "verified" && <p className="mt-1 text-xs text-muted">{t("wholesaleBusinessOnly")}</p>}
+          </div>
+          <QuoteRequestButton productId={product.id} productSlug={product.slug} variants={variants.map((x) => ({ id: x.id, title: x.title, price: x.price }))} variantId={v.id} business={business} />
         </div>
+      ) : (
+        business === "verified" && <QuoteRequestButton productId={product.id} productSlug={product.slug} variants={variants.map((x) => ({ id: x.id, title: x.title, price: x.price }))} variantId={v.id} business={business} />
       )}
 
       <p className={cn("text-sm font-semibold", v.stock > 0 && v.stock <= 5 ? "text-danger" : "text-success")}>

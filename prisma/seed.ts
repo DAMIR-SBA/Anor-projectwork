@@ -22,6 +22,8 @@ async function main() {
     await seedAdmin(people);
     const { seedBuyerPhase8 } = await import("./seed/buyer");
     await seedBuyerPhase8(people);
+    const { seedB2B } = await import("./seed/b2b");
+    await seedB2B(people);
   }
   console.log("Done.");
 }

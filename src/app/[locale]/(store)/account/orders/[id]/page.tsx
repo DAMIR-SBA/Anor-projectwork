@@ -24,7 +24,7 @@ export default async function OrderPage({ params }: { params: Promise<{ locale: 
   const format = await getFormatter();
   const order = await db.order.findFirst({
     where: { id, userId: user.id },
-    include: { items: { include: { product: { select: { slug: true } } } }, events: { orderBy: { createdAt: "asc" } }, shop: true, pickupPoint: true, shipments: true, receipt: true, reviews: { select: { productId: true } }, shopReview: { select: { id: true } }, group: { include: { payments: true } } },
+    include: { items: { include: { product: { select: { slug: true } } } }, events: { orderBy: { createdAt: "asc" } }, shop: true, pickupPoint: true, shipments: true, receipt: true, reviews: { select: { productId: true } }, shopReview: { select: { id: true } }, group: { include: { payments: true, invoice: { select: { id: true, number: true, status: true, dueDate: true } } } } },
   });
   if (!order) notFound();
   const fmt = (v: number) => formatUZS(v, locale);
@@ -155,6 +155,13 @@ export default async function OrderPage({ params }: { params: Promise<{ locale: 
           <Card className="space-y-2 p-5 text-sm">
             <h2 className="font-bold">{t("payment")}</h2>
             <p>{t(`paymentMethod.${order.paymentMethod}`)}</p>
+            {order.group.invoice && (
+              <p>
+                <a href={`/api/invoices/${order.group.invoice.id}?locale=${locale === "ru" ? "ru" : "uz"}`} target="_blank" rel="noopener" className="font-semibold text-primary hover:underline">
+                  {t("invoiceLink", { number: order.group.invoice.number })}
+                </a>
+              </p>
+            )}
             <dl className="space-y-1">
               <div className="flex justify-between">
                 <dt className="text-muted">{t("subtotal")}</dt>

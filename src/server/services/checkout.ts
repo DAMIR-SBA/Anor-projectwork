@@ -12,6 +12,7 @@ import { earlyCampaignIds, getPlans, liveCampaignWhere } from "./catalog";
 import { bonusSpend, walletDebit } from "./wallet";
 import { markGroupPlaced, newGroupNumber } from "./orders";
 import { startPayment } from "@/server/payments/service";
+import { addBankDays, INVOICE_BANK_DAYS, quotePriceFor, vatIncluded } from "@/lib/b2b";
 import type { CurrentUser } from "@/server/auth/session";
 import type { PaymentMethod } from "@/generated/prisma/enums";
 
@@ -48,6 +49,7 @@ type Line = CartLine & {
   isPreorder: boolean;
   nasiyaEligible: boolean;
   campaignId: string | null;
+  quoteId: string | null;
 };
 
 async function loadLines(user: CurrentUser, cartId: string | null | undefined, locale: string) {
@@ -57,6 +59,7 @@ async function loadLines(user: CurrentUser, cartId: string | null | undefined, l
   const items = await db.cartItem.findMany({
     where: { cartId: cart.id, selected: true },
     include: {
+      quote: { select: { id: true, status: true, userId: true, validUntil: true, quotedPrice: true, createdAt: true, quantity: true } },
       variant: {
         include: {
           product: {
@@ -76,9 +79,11 @@ async function loadLines(user: CurrentUser, cartId: string | null | undefined, l
   for (const it of items) {
     const p = it.variant.product;
     if (p.status !== "ACTIVE" || p.deletedAt || p.shop.status !== "APPROVED") continue;
-    if (!p.isPreorder && it.variant.stock < it.quantity) throw new AppError("outOfStock");
-    const sale = p.campaignItems[0];
-    const price = sale ? Math.min(sale.salePrice, it.variant.price) : it.variant.price;
+    const quoted = quotePriceFor(it.quote, user.id);
+    const quantity = quoted != null && it.quote ? it.quote.quantity : it.quantity;
+    if (!p.isPreorder && it.variant.stock < quantity) throw new AppError("outOfStock");
+    const sale = quoted != null ? undefined : p.campaignItems[0];
+    const price = quoted ?? (sale ? Math.min(sale.salePrice, it.variant.price) : it.variant.price);
     const rule = p.category.commissionRules.find((r) => r.tier === p.shop.tier);
     lines.push({
       itemId: it.id,
@@ -87,9 +92,11 @@ async function loadLines(user: CurrentUser, cartId: string | null | undefined, l
       shopId: p.shop.id,
       categoryIds: ancestors[p.categoryId] ?? [p.categoryId],
       unitPrice: price,
-      oldPrice: it.variant.oldPrice,
-      quantity: it.quantity,
+      oldPrice: quoted != null ? it.variant.price : it.variant.oldPrice,
+      quantity,
       wholesaleTiers: (p.wholesaleTiers as Array<{ minQty: number; price: number }> | null) ?? null,
+      negotiated: quoted != null,
+      quoteId: quoted != null && it.quote ? it.quote.id : null,
       title: loc(p, "title", locale),
       variantTitle: locale === "ru" ? it.variant.titleRu : locText(it.variant.titleUz, locale),
       image: it.variant.imageUrl ?? p.media[0]?.url ?? null,
@@ -210,7 +217,10 @@ export async function placeOrder(user: CurrentUser, input: CheckoutInput, locale
   }
 
   const onlineMethod = ["CLICK", "PAYME", "UZCARD", "HUMO", "CARD"].includes(input.paymentMethod) && external > 0;
-  const initialStatus = onlineMethod ? "PENDING_PAYMENT" : "PLACED";
+  // Bank transfer: the order waits for the money like an online payment, but for days, against an invoice.
+  const bankTransfer = input.paymentMethod === "BANK_TRANSFER" && external > 0;
+  const requisites = bankTransfer ? await (await import("./b2b")).invoiceRequisites(user.id) : null;
+  const initialStatus = onlineMethod || bankTransfer ? "PENDING_PAYMENT" : "PLACED";
   const groupNumber = newGroupNumber();
   const lineTotals = new Map(totals.lines.map((l) => [l.variantId, l]));
   const shopSubtotals = q.groups.map((g) => g.lines.reduce((s, l) => s + (lineTotals.get(l.variantId)?.lineTotal ?? 0), 0));
@@ -305,6 +315,16 @@ export async function placeOrder(user: CurrentUser, input: CheckoutInput, locale
       if (input.paymentMethod === "COD" && external > 0) {
         await tx.payment.create({ data: { userId: user.id, groupId: group.id, method: "COD", purpose: "ORDER", amount: external, status: "PENDING" } });
       }
+      if (bankTransfer && requisites) {
+        const number = `INV-${groupNumber}`;
+        await tx.payment.create({ data: { userId: user.id, groupId: group.id, method: "BANK_TRANSFER", purpose: "ORDER", amount: external, status: "PENDING", meta: { invoice: number } } });
+        await tx.invoice.create({ data: { number, userId: user.id, groupId: group.id, amount: external, vat: vatIncluded(external), dueDate: addBankDays(new Date(), INVOICE_BANK_DAYS), requisites } });
+      }
+      // Quoted lines are now bought; a quote that lapsed meanwhile stops the order.
+      for (const l of q.lines.filter((x) => x.quoteId)) {
+        const ok = await tx.quoteRequest.updateMany({ where: { id: l.quoteId!, userId: user.id, status: "ACCEPTED" }, data: { status: "ORDERED", groupId: group.id } });
+        if (ok.count !== 1) throw new AppError("quoteExpired");
+      }
       // Purchased lines leave the cart.
       await tx.cartItem.deleteMany({ where: { id: { in: q.lines.map((l) => l.itemId) } } });
       if (q.cart.couponCode) await tx.cart.update({ where: { id: q.cart.id }, data: { couponCode: null } });
@@ -317,6 +337,11 @@ export async function placeOrder(user: CurrentUser, input: CheckoutInput, locale
     const pay = await startPayment({ userId: user.id, method: input.paymentMethod, amount: external, purpose: "ORDER", groupId: group.id, savedCardId: input.savedCardId });
     if (pay.status === "PAID") return { groupId: group.id, redirectUrl: null };
     return { groupId: group.id, redirectUrl: pay.redirectUrl };
+  }
+  if (bankTransfer) {
+    const { notify } = await import("@/server/notify");
+    await notify({ userId: user.id, type: "b2b.invoice_issued", title: `Hisob INV-${groupNumber}`, body: `Bank o‘tkazmasi orqali ${INVOICE_BANK_DAYS} ish kuni ichida to‘lang.`, href: "/account/business#invoices", channels: ["email"] });
+    return { groupId: group.id, redirectUrl: null };
   }
   await markGroupPlaced(group.id, external === 0 || input.paymentMethod === "INSTALLMENT");
   return { groupId: group.id, redirectUrl: null };

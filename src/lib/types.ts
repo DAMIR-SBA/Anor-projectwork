@@ -72,4 +72,6 @@ export type CartItemView = {
   isPreorder: boolean;
   addedBy: string | null;
   wholesale: boolean;
+  /** Price and quantity fixed by an accepted B2B quote. */
+  quoted: boolean;
 };

@@ -7,6 +7,7 @@ import {
   BarChart3,
   Boxes,
   Code2,
+  FileText,
   GraduationCap,
   Gauge,
   LayoutDashboard,
@@ -39,6 +40,7 @@ const GROUPS = [
       { href: "/seller/chats", key: "chats", icon: MessagesSquare },
       { href: "/seller/reviews", key: "reviews", icon: MessageSquareQuote },
       { href: "/seller/questions", key: "questions", icon: MessageCircleQuestion },
+      { href: "/seller/quotes", key: "quotes", icon: FileText },
     ],
   },
   {

@@ -4,6 +4,8 @@ import { Link } from "@/i18n/navigation";
 import { requireStaff } from "@/server/auth/guards";
 import { financeOverview, installmentPortfolio, payoutsList, refundsList } from "@/server/services/admin/finance";
 import { generatePayoutsAction, settlePayoutsAction } from "@/server/actions/admin-risk";
+import { cancelInvoiceAction, markInvoicePaidAction } from "@/server/actions/b2b";
+import { adminInvoices } from "@/server/services/b2b";
 import { Badge, Card, PageHeader } from "@/components/ui/display";
 import { buttonClasses } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
@@ -12,7 +14,7 @@ import { ActionButton } from "@/components/admin/ui";
 import { formatUZS } from "@/lib/money";
 import { fmtDay, fmtDateTime } from "@/lib/format-date";
 
-const TABS = ["overview", "payouts", "refunds", "installments"] as const;
+const TABS = ["overview", "payouts", "refunds", "invoices", "installments"] as const;
 
 export default async function AdminFinancePage({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string; status?: string; page?: string }> }) {
   const { locale } = await params;
@@ -43,6 +45,7 @@ export default async function AdminFinancePage({ params, searchParams }: { param
       {tab === "overview" && <Overview t={t} fmt={fmt} />}
       {tab === "payouts" && <Payouts t={t} fmt={fmt} locale={locale} status={sp.status} page={page} />}
       {tab === "refunds" && <Refunds t={t} fmt={fmt} locale={locale} page={page} />}
+      {tab === "invoices" && <Invoices t={t} fmt={fmt} locale={locale} page={page} status={sp.status} canManage={canManage} />}
       {tab === "installments" && <Installments t={t} fmt={fmt} locale={locale} />}
     </div>
   );
@@ -285,6 +288,85 @@ async function Installments({ t, fmt, locale }: { t: T; fmt: (v: number) => stri
           {!p.overdue.length && <p className="p-6 text-center text-sm text-muted">{t("noOverdue")}</p>}
         </div>
       </Card>
+    </div>
+  );
+}
+
+const INVOICE_FILTERS = ["ISSUED", "PAID", "CANCELLED", "all"] as const;
+
+async function Invoices({ t, fmt, locale, page, status, canManage }: { t: T; fmt: (v: number) => string; locale: string; page: number; status?: string; canManage: boolean }) {
+  const filter = (INVOICE_FILTERS as readonly string[]).includes(status ?? "") ? (status as (typeof INVOICE_FILTERS)[number]) : "ISSUED";
+  const data = await adminInvoices(filter, page);
+  const sum = (s: string) => data.sums.find((x) => x.status === s);
+  const now = new Date();
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted">{t("invoicesHint")}</p>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {(["ISSUED", "PAID", "CANCELLED"] as const).map((s) => (
+          <Card key={s} className="p-4">
+            <p className="text-[13px] text-muted">{t(`invoiceStatus.${s}`)}</p>
+            <p className="tabular mt-1 text-xl font-extrabold">{fmt(sum(s)?._sum.amount ?? 0)}</p>
+            <p className="text-[12px] text-muted">{t("invoicesN", { count: sum(s)?._count._all ?? 0 })}</p>
+          </Card>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {INVOICE_FILTERS.map((s) => (
+          <Link key={s} href={`/admin/finance?tab=invoices&status=${s}`} aria-current={filter === s ? "page" : undefined} className={filter === s ? "rounded-full bg-[#1A1A1F] px-3 py-1 text-sm font-semibold text-white" : "rounded-full bg-surface-3 px-3 py-1 text-sm font-semibold"}>
+            {s === "all" ? t("all") : t(`invoiceStatus.${s}`)}
+          </Link>
+        ))}
+      </div>
+      <div className="card overflow-x-auto p-0">
+        <table className="w-full min-w-[880px] text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
+              <th className="px-4 py-2.5">{t("invoice")}</th>
+              <th className="px-3 py-2.5">{t("company")}</th>
+              <th className="px-3 py-2.5 text-right">{t("amount")}</th>
+              <th className="px-3 py-2.5">{t("dueDate")}</th>
+              <th className="px-3 py-2.5">{t("status")}</th>
+              <th className="px-3 py-2.5" />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {data.items.map((inv) => (
+              <tr key={inv.id}>
+                <td className="px-4 py-2">
+                  <a href={`/api/invoices/${inv.id}?locale=${locale === "ru" ? "ru" : "uz"}`} target="_blank" rel="noopener" className="font-mono text-[13px] font-semibold text-primary hover:underline">
+                    {inv.number}
+                  </a>
+                  <span className="block text-xs text-muted">{fmtDateTime(inv.createdAt.toISOString(), locale)}</span>
+                </td>
+                <td className="px-3 py-2">
+                  <span className="block font-semibold">{inv.user.businessProfile?.companyName ?? inv.user.login}</span>
+                  <span className="text-xs text-muted">{t("taxIdShort", { taxId: inv.user.businessProfile?.taxId ?? "—" })}</span>
+                </td>
+                <td className="tabular px-3 py-2 text-right font-semibold">
+                  {fmt(inv.amount)}
+                  <span className="block text-xs font-normal text-muted">{t("vatShort", { vat: fmt(inv.vat) })}</span>
+                </td>
+                <td className={inv.status === "ISSUED" && inv.dueDate < now ? "px-3 py-2 text-[13px] font-semibold text-danger" : "px-3 py-2 text-[13px]"}>{fmtDay(inv.dueDate.toISOString(), locale)}</td>
+                <td className="px-3 py-2">
+                  <Badge tone={inv.status === "PAID" ? "success" : inv.status === "CANCELLED" ? "neutral" : "accent"}>{t(`invoiceStatus.${inv.status}`)}</Badge>
+                  {inv.paidRef && <span className="block text-xs text-muted">{t("paidRef", { ref: inv.paidRef })}</span>}
+                </td>
+                <td className="px-3 py-2">
+                  {canManage && inv.status === "ISSUED" && (
+                    <div className="flex justify-end gap-1.5">
+                      <ActionButton action={markInvoicePaidAction} input={{ invoiceId: inv.id }} variant="primary" label={t("markPaid")} reason={{ title: t("markPaidTitle", { number: inv.number, amount: fmt(inv.amount) }), label: t("paymentOrder"), hint: t("paymentOrderHint") }} success={t("markedPaid")} />
+                      <ActionButton action={cancelInvoiceAction} input={{ invoiceId: inv.id }} variant="ghost" label={t("cancelInvoice")} reason={{ title: t("cancelInvoiceTitle", { number: inv.number }), label: t("reason") }} />
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {data.items.length === 0 && <p className="p-8 text-center text-muted">{t("noInvoices")}</p>}
+      </div>
+      <Pagination page={page} total={data.total} pageSize={25} />
     </div>
   );
 }
