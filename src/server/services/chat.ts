@@ -357,24 +357,26 @@ export async function sendMessage(actor: Actor, conversationId: string, input: S
   // Agents join the thread on their first reply so they get receipts and unread counts.
   if (a.agent && !a.member) await db.conversationMember.create({ data: { conversationId, userId: actor.userId, role: "AGENT", lastReadAt: row.createdAt } }).catch(() => {});
 
-  if (isSupport) await updateTicketOnMessage(conversationId, actor, fromCustomer, filtered.text ?? preview);
+  if (isSupport) await updateTicketOnMessage(conversationId, actor, fromCustomer, filtered.text ?? preview, input.source);
 
   const message = toChatMessage(row);
   await broadcastMessage(conversationId, message, actor.userId);
   const recipients = await db.conversationMember.findMany({ where: { conversationId, userId: { not: actor.userId } }, select: { userId: true } });
   await Promise.all(recipients.map(async (r) => publish(`user:${r.userId}`, "chat.unread", { total: await unreadTotal(r.userId) })));
-  await notifyRecipients(conversationId, actor.userId, message, sender.name ?? sender.login);
+  // Agent replies on threads the customer started in Telegram are sent back there.
+  const bridged = isSupport && !fromCustomer ? await (await import("@/server/telegram/bot")).bridgeSupportReply(conversationId, filtered.text).catch(() => false) : false;
+  await notifyRecipients(conversationId, actor.userId, message, sender.name ?? sender.login, bridged);
   if (isSupport && fromCustomer) void maybeBotReply(conversationId, filtered.text ?? "");
   return { message, conversationId };
 }
 
-async function updateTicketOnMessage(conversationId: string, actor: Actor, fromCustomer: boolean, text: string) {
+async function updateTicketOnMessage(conversationId: string, actor: Actor, fromCustomer: boolean, text: string, source?: MessageSource) {
   const conv = await db.conversation.findUniqueOrThrow({ where: { id: conversationId }, include: { ticket: true, members: { where: { role: "CUSTOMER" } } } });
   let t = conv.ticket;
   if (!t && fromCustomer) {
     // Sellers and Plus members get priority support.
     const plus = await db.subscription.count({ where: { userId: actor.userId, status: "ACTIVE", currentPeriodEnd: { gt: new Date() } } });
-    t = await db.ticket.create({ data: { conversationId, customerId: actor.userId, subject: text.slice(0, 80), slaDueAt: new Date(Date.now() + SUPPORT_FIRST_REPLY_MINUTES * (plus ? 0.5 : 1) * 60_000), priority: conv.type === "SELLER_SUPPORT" || plus ? "HIGH" : "NORMAL" } });
+    t = await db.ticket.create({ data: { conversationId, customerId: actor.userId, subject: text.slice(0, 80), slaDueAt: new Date(Date.now() + SUPPORT_FIRST_REPLY_MINUTES * (plus ? 0.5 : 1) * 60_000), priority: conv.type === "SELLER_SUPPORT" || plus ? "HIGH" : "NORMAL", channel: source === "TELEGRAM" ? "TELEGRAM" : "WEB" } });
   } else if (t && fromCustomer && t.status === "WAITING_CUSTOMER") {
     t = await db.ticket.update({ where: { id: t.id }, data: { status: "IN_PROGRESS" } });
   } else if (t && !fromCustomer && actor.staff) {
@@ -387,7 +389,7 @@ async function updateTicketOnMessage(conversationId: string, actor: Actor, fromC
 }
 
 /** Offline recipients get one notification per unread streak (not one per message). */
-async function notifyRecipients(conversationId: string, senderId: string, m: ChatMessage, senderName: string) {
+async function notifyRecipients(conversationId: string, senderId: string, m: ChatMessage, senderName: string, bridged = false) {
   const members = await db.conversationMember.findMany({ where: { conversationId, userId: { not: senderId } }, include: { user: { select: { lastSeenAt: true } }, conversation: { select: { type: true, shop: { select: { name: true } } } } } });
   for (const r of members) {
     if (r.role === "AGENT") continue;
@@ -395,7 +397,7 @@ async function notifyRecipients(conversationId: string, senderId: string, m: Cha
     if (r.unreadCount > 1 || isOnline(r.user.lastSeenAt)) continue;
     const support = r.conversation.type === "SUPPORT" || r.conversation.type === "SELLER_SUPPORT";
     const title = support ? "ANOR Yordam" : r.role === "SELLER" ? senderName : (r.conversation.shop?.name ?? senderName);
-    await notify({ userId: r.userId, type: "chat.message", title, body: (m.text ?? previewOf(m.kind, null)).slice(0, 140), href: r.role === "SELLER" ? `/seller/chats?c=${conversationId}` : `/chat/${conversationId}`, channels: ["push", "telegram"] });
+    await notify({ userId: r.userId, type: "chat.message", title, body: (m.text ?? previewOf(m.kind, null)).slice(0, 140), href: r.role === "SELLER" ? `/seller/chats?c=${conversationId}` : `/chat/${conversationId}`, channels: bridged ? ["push"] : ["push", "telegram"] });
   }
 }
 

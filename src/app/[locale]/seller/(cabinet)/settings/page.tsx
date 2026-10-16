@@ -3,6 +3,7 @@ import { requireShop } from "@/server/auth/guards";
 import { settingsView } from "@/server/services/seller/settings";
 import { PageHeader } from "@/components/ui/display";
 import { BankForm, DocumentsCard, ProfileForm, WarehousesCard } from "@/components/seller/settings-views";
+import { TelegramLinkCard } from "@/components/telegram/link-card";
 
 export default async function SellerSettingsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -21,6 +22,7 @@ export default async function SellerSettingsPage({ params }: { params: Promise<{
         <div className="space-y-5">
           <BankForm v={v} />
           <DocumentsCard v={v} />
+          <TelegramLinkCard shop linked={v.telegramLinked} />
         </div>
       </div>
     </div>

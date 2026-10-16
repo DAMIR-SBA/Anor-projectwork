@@ -692,6 +692,8 @@ model OtpCode {
 model TelegramLinkToken {
   token     String    @id
   userId    String
+  /// Set when the token links a shop to the seller bot rather than the buyer to the main bot.
+  shopId    String?
   expiresAt DateTime
   usedAt    DateTime?
 

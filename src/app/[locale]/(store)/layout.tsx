@@ -9,6 +9,8 @@ import { db } from "@/server/db";
 import { env } from "@/server/env";
 import { RealtimeProvider } from "@/components/providers/realtime";
 import { PlatformBars } from "@/components/layout/platform-bars";
+import Script from "next/script";
+import { cookies } from "next/headers";
 
 export default async function StoreLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -16,6 +18,8 @@ export default async function StoreLayout({ children, params }: { children: Reac
   const t = await getTranslations("nav");
   const tc = await getTranslations("common");
   const data = await getHeaderData();
+  // Inside the Telegram Mini App: load the WebApp SDK so sharing and back navigation use Telegram.
+  const inTelegram = (await cookies()).get("anor_tg")?.value === "1";
   const user = await getCurrentUser();
   const liked = user ? await db.wishlistItem.findMany({ where: { wishlist: { userId: user.id } }, select: { productId: true }, take: 1000 }) : [];
   const topLinks = [
@@ -33,6 +37,7 @@ export default async function StoreLayout({ children, params }: { children: Reac
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white">
           {tc("skipToContent")}
         </a>
+        {inTelegram && <Script src="https://telegram.org/js/telegram-web-app.js" strategy="afterInteractive" />}
         <PlatformBars locale={locale} />
         <Header user={data.user} counts={data.counts} categories={data.categories} topLinks={topLinks} />
         <main id="main" className="min-h-[60vh]">

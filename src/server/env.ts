@@ -51,6 +51,7 @@ const schema = z.object({
   TELEGRAM_BOT_USERNAME: z.string().optional(),
   TELEGRAM_WEBHOOK_SECRET: z.string().optional(),
   TELEGRAM_SELLER_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_SELLER_BOT_USERNAME: z.string().optional(),
   TELEGRAM_OWNER_CHAT_ID: z.string().optional(),
 
   SUPER_ADMIN_LOGIN: z.string().optional(),

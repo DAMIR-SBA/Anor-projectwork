@@ -70,7 +70,9 @@ export function BuyBox({ product, variants, plans, campaign, alerts, onVariantIm
     const url = window.location.href;
     void trackShareAction({});
     try {
-      if (navigator.share) await navigator.share({ title: product.title, url });
+      const tg = window.Telegram?.WebApp;
+      if (tg?.openTelegramLink) tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(product.title)}`);
+      else if (navigator.share) await navigator.share({ title: product.title, url });
       else {
         await navigator.clipboard.writeText(url);
         toast.success(t("linkCopied"));
