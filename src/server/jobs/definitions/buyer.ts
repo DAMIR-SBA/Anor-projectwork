@@ -18,3 +18,9 @@ defineJob("retention.purge", {
   description: "Delete data past its retention period (privacy policy)",
   handler: async () => (await import("@/server/services/privacy")).retentionPurge(),
 });
+
+defineJob("tradein.daily", {
+  cron: "30 3 * * *",
+  description: "Close trade-in offers nobody answered and devices never handed over",
+  handler: async () => (await import("@/server/services/tradein")).expireTradeIns(),
+});

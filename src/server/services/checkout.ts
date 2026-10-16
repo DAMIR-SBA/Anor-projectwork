@@ -9,6 +9,7 @@ import { quote, buildSchedule, isPlanEligible } from "@/lib/installment";
 import { locText, loc } from "@/lib/localized";
 import { categoryAncestors } from "./cart";
 import { earlyCampaignIds, getPlans, liveCampaignWhere } from "./catalog";
+import { liveTimedPrices } from "./live";
 import { bonusSpend, walletDebit } from "./wallet";
 import { markGroupPlaced, newGroupNumber } from "./orders";
 import { startPayment } from "@/server/payments/service";
@@ -75,6 +76,7 @@ async function loadLines(user: CurrentUser, cartId: string | null | undefined, l
     },
   });
   const ancestors = await categoryAncestors();
+  const live = await liveTimedPrices([...new Set(items.map((it) => it.variant.product.id))]);
   const lines: Line[] = [];
   for (const it of items) {
     const p = it.variant.product;
@@ -82,7 +84,10 @@ async function loadLines(user: CurrentUser, cartId: string | null | undefined, l
     const quoted = quotePriceFor(it.quote, user.id);
     const quantity = quoted != null && it.quote ? it.quote.quantity : it.quantity;
     if (!p.isPreorder && it.variant.stock < quantity) throw new AppError("outOfStock");
-    const sale = quoted != null ? undefined : p.campaignItems[0];
+    const campaign = quoted != null ? undefined : p.campaignItems[0];
+    const livePrice = quoted != null ? undefined : live.get(p.id);
+    // A live-stream price below the campaign price wins, and the sale no longer counts for the campaign.
+    const sale = campaign && (livePrice == null || campaign.salePrice <= livePrice) ? campaign : livePrice != null ? { salePrice: livePrice, campaignId: null } : undefined;
     const price = quoted ?? (sale ? Math.min(sale.salePrice, it.variant.price) : it.variant.price);
     const rule = p.category.commissionRules.find((r) => r.tier === p.shop.tier);
     lines.push({

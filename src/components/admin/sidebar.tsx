@@ -25,6 +25,7 @@ import {
   Package,
   Percent,
   Radio,
+  Repeat,
   Scale,
   ScrollText,
   Settings,
@@ -43,7 +44,7 @@ import { cn } from "@/lib/cn";
 import type { AdminNavGroup } from "./nav";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  Activity, CalendarClock, ChartLine, Fingerprint, Flag, FolderTree, GalleryHorizontal, Gem, Headset, IdCard, KeyRound, LayoutDashboard, LifeBuoy, Megaphone, MessageSquareQuote, MessagesSquare, Package, Percent, Radio, Scale, ScrollText, Settings, ShieldAlert, ShoppingBag, Store, TicketPercent, Truck, Undo2, Users, Wallet,
+  Activity, CalendarClock, ChartLine, Fingerprint, Flag, FolderTree, GalleryHorizontal, Gem, Headset, IdCard, KeyRound, LayoutDashboard, LifeBuoy, Megaphone, MessageSquareQuote, MessagesSquare, Package, Percent, Radio, Repeat, Scale, ScrollText, Settings, ShieldAlert, ShoppingBag, Store, TicketPercent, Truck, Undo2, Users, Wallet,
 };
 
 export function AdminSidebar({ groups, badges }: { groups: AdminNavGroup[]; badges?: Record<string, number> }) {

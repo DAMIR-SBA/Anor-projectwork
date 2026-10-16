@@ -38,6 +38,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     items: [
       { href: "/admin/orders", key: "orders", icon: "ShoppingBag", permission: "orders.view" },
       { href: "/admin/returns", key: "returns", icon: "Undo2", permission: "returns.manage" },
+      { href: "/admin/trade-in", key: "tradeIn", icon: "Repeat", permission: "returns.manage" },
       { href: "/admin/disputes", key: "disputes", icon: "Scale", permission: "disputes.manage" },
       { href: "/admin/logistics", key: "logistics", icon: "Truck", permission: "logistics.manage" },
       { href: "/admin/help", key: "help", icon: "LifeBuoy", permission: "help.manage" },

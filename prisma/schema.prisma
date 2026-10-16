@@ -223,6 +223,8 @@ enum WalletTxType {
   SERVICE_PAYMENT
   GIFT_CARD
   ADJUSTMENT
+  /// Payout for a device handed over through trade-in.
+  TRADE_IN
 }
 
 enum BonusReason {
@@ -2045,11 +2047,15 @@ model ShortVideo {
   captionRu String
   likes     Int      @default(0)
   views     Int      @default(0)
+  /// Hidden by the seller or by moderation.
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
   shop    Shop        @relation(fields: [shopId], references: [id], onDelete: Cascade)
   product Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
   likedBy VideoLike[]
+
+  @@index([isActive, createdAt])
 }
 
 model VideoLike {
@@ -2074,9 +2080,14 @@ model LiveStream {
   streamUrl    String?
   posterUrl    String?
   pinnedProductIds String[]
+  /// The product the host is showing right now (highlighted for viewers).
+  currentProductId String?
   /// [{ productId, price, from, to }] — prices valid only during the stream window.
   timedPrices  Json?
   viewers      Int        @default(0)
+  peakViewers  Int        @default(0)
+  likes        Int        @default(0)
+  startedAt    DateTime?
   createdAt    DateTime   @default(now())
 
   shop     Shop              @relation(fields: [shopId], references: [id], onDelete: Cascade)
@@ -2088,6 +2099,8 @@ model LiveChatMessage {
   streamId  String
   userId    String
   text      String
+  /// Hidden by the host or moderation (kept for the record).
+  hidden    Boolean  @default(false)
   createdAt DateTime @default(now())
 
   stream LiveStream @relation(fields: [streamId], references: [id], onDelete: Cascade)
@@ -2098,16 +2111,31 @@ model LiveChatMessage {
 
 model TradeInRequest {
   id             String        @id @default(cuid())
+  number         String        @unique
   userId         String
   category       String
   deviceModel    String
   conditionGrade String
   answers        Json
+  /// Instant estimate shown to the buyer from the price list and answers.
   estimatedValue Int
+  /// Final offer after the inspector looked at the photos (or the device).
+  offeredValue   Int?
+  photos         String[]
+  imeiLast4      String?
   status         TradeInStatus @default(SUBMITTED)
+  staffNote      String?
+  reviewedById   String?
+  reviewedAt     DateTime?
+  acceptedAt     DateTime?
+  completedAt    DateTime?
   createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @default(now()) @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
 }
 
 model HelpArticle {

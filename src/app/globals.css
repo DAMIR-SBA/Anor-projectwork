@@ -163,3 +163,24 @@
   background-image: radial-gradient(color-mix(in oklab, var(--color-primary) 7%, transparent) 1.2px, transparent 1.2px);
   background-size: 22px 22px;
 }
+
+/* Live stream: hearts float up from the like button. */
+@keyframes live-heart {
+  from {
+    transform: translateY(0) scale(0.8);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-180px) scale(1.2);
+    opacity: 0;
+  }
+}
+.live-heart {
+  animation: live-heart 1.6s ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-heart {
+    animation: none;
+    opacity: 0;
+  }
+}

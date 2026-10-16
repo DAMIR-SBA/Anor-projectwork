@@ -53,3 +53,16 @@ export function parseAmount(raw: string): number | null {
   if (/mln|million|млн|миллион/.test(unit)) return Math.round(num * 1e6);
   return Math.round(num * 1e3);
 }
+
+/**
+ * Short counts for likes/views ("3,1 ming", "12 тыс.", "1,2 mln"). Deterministic on purpose:
+ * Intl compact notation differs between Node and browsers for Uzbek and breaks hydration.
+ */
+export function compactCount(n: number, locale: string): string {
+  const one = (v: number) => (Math.round(v * 10) / 10).toString().replace(".", ",");
+  const ru = locale === "ru";
+  const cyr = locale === "uz-Cyrl";
+  if (n < 1000) return String(n);
+  if (n < 1_000_000) return `${one(n / 1000)} ${ru ? "тыс." : cyr ? "минг" : "ming"}`;
+  return `${one(n / 1_000_000)} ${ru ? "млн" : cyr ? "млн" : "mln"}`;
+}

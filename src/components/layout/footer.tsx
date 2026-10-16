@@ -19,6 +19,8 @@ export async function Footer() {
         ["/help/returns", t("returns")],
         ["/help/payment", t("payment")],
         ["/pvz", "PVZ"],
+        ["/trade-in", t("tradeIn")],
+        ["/live", t("live")],
       ],
     },
     {
@@ -27,7 +29,7 @@ export async function Footer() {
         ["/seller/onboarding", t("sellOnAnor")],
         ["/help/sellers", t("sellerHelp")],
         ["/developers", t("sellerApi")],
-        ["/seller/training", t("training")],
+        ["/seller/academy", t("training")],
       ],
     },
     {

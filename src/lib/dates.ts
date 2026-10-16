@@ -60,3 +60,8 @@ export function addMonths(d: Date, months: number): Date {
   r.setUTCDate(Math.min(day, lastDay));
   return r;
 }
+
+/** "YYYY-MM-DDTHH:mm" in Tashkent time, `minutes` from now (default for datetime-local inputs). */
+export function tashkentInputValue(minutes = 0, now: Date = new Date()): string {
+  return new Date(now.getTime() + minutes * 60_000 + 5 * 3_600_000).toISOString().slice(0, 16);
+}

@@ -10,6 +10,7 @@ import { bestMonthly } from "@/lib/installment";
 import { quotePriceFor } from "@/lib/b2b";
 import { loc, locText } from "@/lib/localized";
 import { earlyCampaignIds, getPlans, liveCampaignWhere } from "./catalog";
+import { liveTimedPrices } from "./live";
 import { GUEST_CART_COOKIE } from "./header-data";
 import type { CurrentUser } from "@/server/auth/session";
 import type { CartItemView, CartView } from "@/lib/types";
@@ -171,11 +172,13 @@ export async function loadCartView(cartId: string, user: CurrentUser | null, loc
   });
   const ancestors = await categoryAncestors();
   const plans = await getPlans();
+  const live = await liveTimedPrices([...new Set(cart.items.map((it) => it.variant.product.id))]);
   const isBusiness = !!user && !!(await db.businessProfile.findUnique({ where: { userId: user.id }, select: { id: true } }));
 
   const views: Array<CartItemView & { shopId: string; shopName: string; shopSlug: string; fulfillment: "FBO" | "FBS" | "DBS"; line: CartLine; available: boolean }> = cart.items.map((it) => {
     const p = it.variant.product;
-    const sale = p.campaignItems[0]?.salePrice;
+    // Campaign and live-stream prices compete; the buyer gets the lower one.
+    const sale = [p.campaignItems[0]?.salePrice, live.get(p.id)].filter((x): x is number => x != null).sort((a, b) => a - b)[0];
     const quoted = quotePriceFor(it.quote, user?.id);
     const price = quoted ?? (sale ? Math.min(sale, it.variant.price) : it.variant.price);
     const oldPrice = quoted ? it.variant.price : sale ? Math.max(it.variant.oldPrice ?? it.variant.price, it.variant.price) : it.variant.oldPrice;
