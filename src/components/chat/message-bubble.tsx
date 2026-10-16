@@ -37,7 +37,8 @@ function SystemNote({ m }: { m: ChatMessage }) {
         </span>
         <div className="max-w-[80%] rounded-[16px] rounded-bl-[6px] bg-surface px-3.5 py-2.5 text-[15px] shadow-[0_1px_1px_rgb(var(--shadow-color)/0.08)] dark:bg-surface-3">
           <p className="text-[12px] font-bold text-muted">{tc("botName")}</p>
-          <p className="whitespace-pre-line">{t.has(key) ? t(key as "support.welcome", { minutes: Number(values.minutes ?? 15), number: Number(values.number ?? 0) }) : key}</p>
+          <p className="whitespace-pre-line">{key === "bot.ai" ? String(values.text ?? "") : t.has(key) ? t(key as "support.welcome", { minutes: Number(values.minutes ?? 15), number: Number(values.number ?? 0) }) : key}</p>
+          {key === "bot.ai" && <p className="mt-1 text-[12px] text-muted">{tc("aiNote")}</p>}
           {articles.length > 0 && (
             <ul className="mt-2 space-y-1">
               {articles.map((a) => (

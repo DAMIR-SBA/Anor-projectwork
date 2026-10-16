@@ -497,8 +497,19 @@ async function maybeBotReply(conversationId: string, text: string) {
     const already = await db.message.count({ where: { conversationId, source: "BOT", kind: "SYSTEM", createdAt: { gte: conv.ticket.createdAt } } });
     if (already) return;
     const slugs = [...new Set(BOT_TOPICS.filter((t) => t.re.test(text)).flatMap((t) => t.slugs))];
-    const articles = slugs.length ? await db.helpArticle.findMany({ where: { slug: { in: slugs }, isPublished: true }, select: { slug: true, titleUz: true, titleRu: true } }) : [];
-    await addSystemMessage(conversationId, articles.length ? "bot.suggest" : "bot.queued", { articles, minutes: SUPPORT_FIRST_REPLY_MINUTES }, "BOT");
+    const articles = slugs.length ? await db.helpArticle.findMany({ where: { slug: { in: slugs }, isPublished: true }, select: { slug: true, titleUz: true, titleRu: true, bodyUz: true, bodyRu: true } }) : [];
+    const links = articles.map(({ slug, titleUz, titleRu }) => ({ slug, titleUz, titleRu }));
+    // With Gemini configured the bot answers from the help center; it never decides refunds or asks for card data.
+    const { aiEnabled, generate } = await import("@/server/ai/gemini");
+    if (aiEnabled() && text.trim().length > 8) {
+      const pool = articles.length ? articles : await db.helpArticle.findMany({ where: { isPublished: true }, select: { slug: true, titleUz: true, titleRu: true, bodyUz: true, bodyRu: true }, take: 12 });
+      const answer = await generate([{ text: `Customer: ${text.slice(0, 800)}\n\nHelp articles:\n${pool.map((a) => `## ${a.titleUz} / ${a.titleRu}\n${a.bodyUz.slice(0, 600)}\n${a.bodyRu.slice(0, 600)}`).join("\n\n")}` }], {
+        system: "You are ANOR marketplace's first-line support assistant. Reply in the customer's language (Uzbek or Russian), 2-4 short sentences, using only the help articles. If they don't cover the question, say an operator will reply soon. Never promise refunds or compensation, never ask for card numbers, codes or passwords.",
+        temperature: 0.2,
+      });
+      if (answer) return void (await addSystemMessage(conversationId, "bot.ai", { text: answer.trim().slice(0, 1200), articles: links, minutes: SUPPORT_FIRST_REPLY_MINUTES }, "BOT"));
+    }
+    await addSystemMessage(conversationId, links.length ? "bot.suggest" : "bot.queued", { articles: links, minutes: SUPPORT_FIRST_REPLY_MINUTES }, "BOT");
   } catch {
     /* the bot is best-effort */
   }
