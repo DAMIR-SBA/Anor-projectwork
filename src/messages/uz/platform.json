@@ -1,0 +1,75 @@
+{
+  "errors": {
+    "emailTaken": "Bu email boshqa akkauntda ishlatilgan",
+    "deletionBlocked": "Hozircha o‘chirib bo‘lmaydi: {what}"
+  },
+  "privacy": {
+    "bannerTitle": "Cookie fayllari",
+    "bannerText": "Sayt ishlashi uchun zarur cookie’lardan foydalanamiz. Analitika va marketing cookie’lari faqat roziligingiz bilan ishlaydi.",
+    "more": "Batafsil",
+    "necessary": "Zarur (har doim yoqilgan)",
+    "analytics": "Analitika (A/B testlar)",
+    "marketing": "Marketing (reklama samaradorligi)",
+    "acceptAll": "Hammasiga roziman",
+    "necessaryOnly": "Faqat zarurlari",
+    "customize": "Sozlash",
+    "saveChoice": "Tanlovni saqlash",
+    "saved": "Sozlamalar saqlandi",
+    "updated": "Yangilangan: {date}",
+    "cookieSettings": "Cookie sozlamalari",
+    "title": "Maxfiylik va ma’lumotlar",
+    "subtitle": "Rozilikalar, ma’lumotlaringiz nusxasi va akkauntni o‘chirish",
+    "documents": "Hujjatlar",
+    "docs": {
+      "privacy": "Maxfiylik siyosati",
+      "terms": "Foydalanish shartlari",
+      "cookies": "Cookie siyosati"
+    },
+    "exportTitle": "Ma’lumotlarim nusxasi",
+    "exportText": "Profil, buyurtmalar, manzillar, sharhlar, xabarlar, hamyon va rozilikalar — bitta JSON faylda.",
+    "exportButton": "Yuklab olish",
+    "consentHistory": "Rozilikalar tarixi",
+    "consentTypes": {
+      "TERMS": "Foydalanish shartlari",
+      "PRIVACY": "Maxfiylik siyosati",
+      "COOKIES_ANALYTICS": "Analitika cookie’lari",
+      "COOKIES_MARKETING": "Marketing cookie’lari",
+      "MARKETING": "Aksiyalar haqida xabarlar"
+    },
+    "granted": "rozi",
+    "declined": "rad etilgan",
+    "deleteTitle": "Akkauntni o‘chirish",
+    "deleteText": "Bu amalni ortga qaytarib bo‘lmaydi.",
+    "deleteWhat1": "Ism, telefon, email, manzillar, saqlangan kartalar va kirish ma’lumotlari o‘chiriladi.",
+    "deleteWhat2": "Buyurtmalar va to‘lovlar qonun talabiga ko‘ra anonim holda saqlanadi; sharhlaringiz anonim ko‘rsatiladi.",
+    "deleteWhat3": "Anor Hamyon balansi va bonus ballar yo‘qoladi — avval ulardan foydalaning.",
+    "deleteBlocked": "Akkauntni hozircha o‘chirib bo‘lmaydi:",
+    "blockers": {
+      "orders": "yakunlanmagan buyurtmalar bor",
+      "nasiya": "yopilmagan nasiya shartnomasi bor",
+      "returns": "ko‘rib chiqilayotgan qaytarishlar bor",
+      "shop": "faol do‘koningiz bor — avval sotuvchi kabinetida yoping"
+    },
+    "password": "Parol",
+    "typeLogin": "Tasdiqlash uchun loginingizni yozing: {login}",
+    "typePhrase": "«O‘CHIRISH» deb yozing",
+    "deleteButton": "Akkauntni o‘chirish",
+    "profileTitle": "Profil",
+    "profileSubtitle": "Ism, email, til va xabarnomalar",
+    "profileSaved": "Profil saqlandi",
+    "avatar": "Rasm",
+    "login": "Login",
+    "loginHint": "Loginni o‘zgartirib bo‘lmaydi",
+    "name": "Ism",
+    "email": "Email",
+    "language": "Til",
+    "marketingConsent": "Aksiyalar va shaxsiy takliflar haqida xabarlar olaman",
+    "alertsTitle": "Narx va mavjudlik xabarlari",
+    "alertsSubtitle": "Narx tushganda yoki mahsulot qayta sotuvga chiqqanda xabar beramiz",
+    "alertsEmpty": "Hali kuzatilayotgan mahsulotlar yo‘q. Mahsulot sahifasida «Narx tushsa xabar berish» tugmasini bosing.",
+    "alertTypes": {
+      "PRICE_DROP": "Narx tushsa",
+      "BACK_IN_STOCK": "Sotuvga chiqsa"
+    }
+  }
+}

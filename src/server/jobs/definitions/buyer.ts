@@ -12,3 +12,9 @@ defineJob("plus.daily", {
   description: "ANOR Plus renewal reminders, auto-renewal charges and expiry",
   handler: async () => (await import("@/server/services/plus")).plusDaily(),
 });
+
+defineJob("retention.purge", {
+  cron: "45 2 * * *",
+  description: "Delete data past its retention period (privacy policy)",
+  handler: async () => (await import("@/server/services/privacy")).retentionPurge(),
+});

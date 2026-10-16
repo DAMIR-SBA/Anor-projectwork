@@ -15,6 +15,7 @@ import { HOME_LAYOUTS } from "@/lib/flags";
 import { holidayOn } from "@/lib/holidays";
 import { tashkentDayKey } from "@/lib/dates";
 import { flagsFor, trackExposures } from "@/server/services/flags";
+import { cookieConsent } from "@/server/services/privacy";
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -26,7 +27,9 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   // A/B: block order comes from the visitor's `home.layout` arm; outside the test it's classic.
   const layout = flags["home.layout"].on ? flags["home.layout"].variant : null;
   const order = HOME_LAYOUTS[layout ?? "classic"] ?? HOME_LAYOUTS.classic;
-  after(() => trackExposures(visitor, [{ key: "home.layout", variant: layout }]));
+  // A/B measurement is analytics: only with consent (the layout itself is still shown).
+  const consent = await cookieConsent();
+  if (consent?.analytics) after(() => trackExposures(visitor, [{ key: "home.layout", variant: layout }]));
 
   const perks = [
     { icon: Truck, text: t("perks.delivery") },

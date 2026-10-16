@@ -36,6 +36,7 @@ function isLetter(ch: string | undefined) {
 const KEEP = new Set([
   "anor", "plus", "telegram", "google", "click", "payme", "uzcard", "humo", "visa", "mastercard",
   "gemini", "excel", "trade-in", "hamyon", "android", "iphone", "apple", "samsung", "xiaomi", "artel", "wi-fi",
+  "cookie", "email", "json", "webhook",
 ]);
 
 function keepLatin(word: string): boolean {
