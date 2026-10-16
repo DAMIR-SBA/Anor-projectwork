@@ -1,16 +1,15 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { db } from "@/server/db";
-import { LIVE_SHOP, cardsByIds, cardInclude, getPlans, recentlyViewedIds, recommendedIds, toCard } from "./catalog";
+import { LIVE_SHOP, cardsByIds, cardInclude, earlyCampaignIds, getPlans, liveCampaignWhere, recentlyViewedIds, recommendedIds, toCard } from "./catalog";
 import { getCurrentUser } from "@/server/auth/session";
 
 export async function anonId(): Promise<string | null> {
   return (await cookies()).get("anor_aid")?.value ?? null;
 }
 
-async function campaignCards(type: "DEAL_OF_DAY" | "FLASH_SALE", locale: string) {
-  const now = new Date();
-  const campaign = await db.campaign.findFirst({ where: { type, status: "ACTIVE", startsAt: { lte: now }, endsAt: { gt: now } }, orderBy: { endsAt: "asc" } });
+async function campaignCards(type: "DEAL_OF_DAY" | "FLASH_SALE", locale: string, early: string[]) {
+  const campaign = await db.campaign.findFirst({ where: { type, ...liveCampaignWhere(early) }, orderBy: { endsAt: "asc" } });
   if (!campaign) return null;
   const items = await db.campaignProduct.findMany({ where: { campaignId: campaign.id, status: "APPROVED" }, select: { productId: true, sold: true, stockLimit: true } });
   const cards = await cardsByIds(items.map((i) => i.productId), locale);
@@ -20,17 +19,17 @@ async function campaignCards(type: "DEAL_OF_DAY" | "FLASH_SALE", locale: string)
 export async function getHomeData(locale: string) {
   const user = await getCurrentUser();
   const aid = await anonId();
-  const plans = await getPlans();
+  const [plans, early] = await Promise.all([getPlans(), earlyCampaignIds()]);
   const now = new Date();
   const [banners, strip, categories, deal, flash, popular, fresh, madeInUz, recIds, recentIds, stories] = await Promise.all([
     db.banner.findMany({ where: { placement: "HOME_HERO", isActive: true, OR: [{ startsAt: null }, { startsAt: { lte: now } }], AND: [{ OR: [{ endsAt: null }, { endsAt: { gt: now } }] }] }, orderBy: { sort: "asc" } }),
     db.banner.findFirst({ where: { placement: "HOME_STRIP", isActive: true }, orderBy: { sort: "asc" } }),
     db.category.findMany({ where: { parentId: null, isActive: true }, orderBy: { sort: "asc" } }),
-    campaignCards("DEAL_OF_DAY", locale),
-    campaignCards("FLASH_SALE", locale),
-    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude(), orderBy: { soldCount: "desc" }, take: 10 }),
-    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude(), orderBy: { publishedAt: "desc" }, take: 10 }),
-    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP, madeInUz: true }, include: cardInclude(), orderBy: [{ rating: "desc" }, { soldCount: "desc" }], take: 10 }),
+    campaignCards("DEAL_OF_DAY", locale, early),
+    campaignCards("FLASH_SALE", locale, early),
+    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude(early), orderBy: { soldCount: "desc" }, take: 10 }),
+    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude(early), orderBy: { publishedAt: "desc" }, take: 10 }),
+    db.product.findMany({ where: { status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP, madeInUz: true }, include: cardInclude(early), orderBy: [{ rating: "desc" }, { soldCount: "desc" }], take: 10 }),
     recommendedIds(user?.id ?? null, aid, 10),
     recentlyViewedIds(user?.id ?? null, aid, undefined, 10),
     db.story.findMany({ where: { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }, include: { shop: { select: { name: true, slug: true, logoUrl: true } } }, orderBy: { createdAt: "desc" }, take: 12 }),

@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/server/db";
@@ -7,6 +8,7 @@ import { bestMonthly, DEFAULT_PLANS, type Plan } from "@/lib/installment";
 import { normalizeSearch } from "@/lib/search-text";
 import { deliveryDays } from "@/lib/delivery";
 import type { ProductCardData } from "@/lib/types";
+import { getCurrentUser } from "@/server/auth/session";
 
 export const getPlans = unstable_cache(
   async (): Promise<Plan[]> => {
@@ -17,14 +19,33 @@ export const getPlans = unstable_cache(
   { revalidate: 600, tags: ["plans"] },
 );
 
+/**
+ * Scheduled campaigns a Plus member can already shop (inside the campaign's `plusEarlyHours`
+ * window before its start). Empty for everyone else. Per request.
+ */
+export const earlyCampaignIds = cache(async (): Promise<string[]> => {
+  const user = await getCurrentUser();
+  if (!user?.isPlus) return [];
+  const now = Date.now();
+  const soon = await db.campaign.findMany({ where: { status: "SCHEDULED", plusEarlyHours: { gt: 0 }, startsAt: { gt: new Date(now), lte: new Date(now + 7 * 86_400_000) } }, select: { id: true, startsAt: true, plusEarlyHours: true } });
+  return soon.filter((c) => c.startsAt.getTime() - c.plusEarlyHours * 3_600_000 <= now).map((c) => c.id);
+});
+
+/** Campaigns whose prices apply right now: live ones, plus early-access ones for Plus members. */
+export function liveCampaignWhere(early: string[] = []): Prisma.CampaignWhereInput {
+  const now = new Date();
+  const live: Prisma.CampaignWhereInput = { status: "ACTIVE", startsAt: { lte: now }, endsAt: { gt: now } };
+  return early.length ? { OR: [live, { id: { in: early } }] } : live;
+}
+
 /** Card relations; a function so the campaign time window is evaluated per request. */
-export const cardInclude = () => ({
+export const cardInclude = (early: string[] = []) => ({
   media: { where: { type: "IMAGE" as const }, orderBy: { sort: "asc" as const }, take: 2 },
   variants: { orderBy: [{ isDefault: "desc" as const }, { price: "asc" as const }], select: { id: true, stock: true, price: true, oldPrice: true } },
   shop: { select: { name: true, slug: true, isOfficial: true } },
   category: { select: { nasiyaEligible: true } },
   campaignItems: {
-    where: { status: "APPROVED" as const, campaign: { status: "ACTIVE" as const, startsAt: { lte: new Date() }, endsAt: { gt: new Date() } } },
+    where: { status: "APPROVED" as const, campaign: liveCampaignWhere(early) },
     select: { salePrice: true, campaign: { select: { endsAt: true, type: true } } },
     take: 1,
   },
@@ -73,7 +94,8 @@ export function toCard(p: CardProduct, locale: string, plans: Plan[]): ProductCa
 
 export async function cardsByIds(ids: string[], locale: string): Promise<ProductCardData[]> {
   if (!ids.length) return [];
-  const [rows, plans] = await Promise.all([db.product.findMany({ where: { id: { in: ids }, status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude() }), getPlans()]);
+  const early = await earlyCampaignIds();
+  const [rows, plans] = await Promise.all([db.product.findMany({ where: { id: { in: ids }, status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude(early) }), getPlans()]);
   const byId = new Map(rows.map((r) => [r.id, r]));
   return ids.flatMap((id) => (byId.has(id) ? [toCard(byId.get(id)!, locale, plans)] : []));
 }
@@ -204,7 +226,8 @@ export async function buildWhere(f: Filters): Promise<{ where: Prisma.ProductWhe
   return { where, searchIds };
 }
 
-export async function listProducts(f: Filters, locale: string) {
+/** `early`: Plus early-access campaign ids — never pass them where the result is cached publicly. */
+export async function listProducts(f: Filters, locale: string, early: string[] = []) {
   const pageSize = Math.min(48, f.pageSize ?? 24);
   const page = Math.max(1, f.page ?? 1);
   const { where, searchIds } = await buildWhere(f);
@@ -219,7 +242,7 @@ export async function listProducts(f: Filters, locale: string) {
     return { items: await cardsByIds(slice, locale), total: ordered.length, page, pageSize };
   }
   const [rows, total] = await Promise.all([
-    db.product.findMany({ where, include: cardInclude(), orderBy: ORDER[f.sort ?? "popular"], skip: (page - 1) * pageSize, take: pageSize }),
+    db.product.findMany({ where, include: cardInclude(early), orderBy: ORDER[f.sort ?? "popular"], skip: (page - 1) * pageSize, take: pageSize }),
     db.product.count({ where }),
   ]);
   return { items: rows.map((r) => toCard(r, locale, plans)), total, page, pageSize };
@@ -244,6 +267,7 @@ export async function facets(f: Filters) {
 }
 
 export async function getProduct(slug: string) {
+  const early = await earlyCampaignIds();
   return db.product.findFirst({
     where: { slug, deletedAt: null, status: { in: ["ACTIVE", "ARCHIVED"] }, shop: LIVE_SHOP },
     include: {
@@ -253,7 +277,7 @@ export async function getProduct(slug: string) {
       brand: true,
       category: true,
       campaignItems: {
-        where: { status: "APPROVED", campaign: { status: "ACTIVE", startsAt: { lte: new Date() }, endsAt: { gt: new Date() } } },
+        where: { status: "APPROVED", campaign: liveCampaignWhere(early) },
         include: { campaign: true },
         take: 1,
       },
@@ -268,9 +292,10 @@ export async function priceHistory(variantId: string) {
 }
 
 export async function similarProducts(p: { id: string; categoryId: string; price: number }, locale: string, take = 12) {
+  const early = await earlyCampaignIds();
   const rows = await db.product.findMany({
     where: { categoryId: p.categoryId, id: { not: p.id }, status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP, price: { gte: Math.round(p.price * 0.4), lte: Math.round(p.price * 2.2) } },
-    include: cardInclude(),
+    include: cardInclude(early),
     orderBy: [{ soldCount: "desc" }],
     take,
   });
@@ -278,7 +303,7 @@ export async function similarProducts(p: { id: string; categoryId: string; price
   if (rows.length < 4) {
     const parent = await db.category.findUnique({ where: { id: p.categoryId }, select: { parentId: true } });
     if (parent?.parentId) {
-      const more = await db.product.findMany({ where: { category: { parentId: parent.parentId }, id: { notIn: [p.id, ...rows.map((r) => r.id)] }, status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude(), orderBy: { soldCount: "desc" }, take: take - rows.length });
+      const more = await db.product.findMany({ where: { category: { parentId: parent.parentId }, id: { notIn: [p.id, ...rows.map((r) => r.id)] }, status: "ACTIVE", deletedAt: null, shop: LIVE_SHOP }, include: cardInclude(early), orderBy: { soldCount: "desc" }, take: take - rows.length });
       rows.push(...more);
     }
   }

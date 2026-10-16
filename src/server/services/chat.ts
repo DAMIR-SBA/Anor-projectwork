@@ -372,7 +372,9 @@ async function updateTicketOnMessage(conversationId: string, actor: Actor, fromC
   const conv = await db.conversation.findUniqueOrThrow({ where: { id: conversationId }, include: { ticket: true, members: { where: { role: "CUSTOMER" } } } });
   let t = conv.ticket;
   if (!t && fromCustomer) {
-    t = await db.ticket.create({ data: { conversationId, customerId: actor.userId, subject: text.slice(0, 80), slaDueAt: new Date(Date.now() + SUPPORT_FIRST_REPLY_MINUTES * 60_000), priority: conv.type === "SELLER_SUPPORT" ? "HIGH" : "NORMAL" } });
+    // Sellers and Plus members get priority support.
+    const plus = await db.subscription.count({ where: { userId: actor.userId, status: "ACTIVE", currentPeriodEnd: { gt: new Date() } } });
+    t = await db.ticket.create({ data: { conversationId, customerId: actor.userId, subject: text.slice(0, 80), slaDueAt: new Date(Date.now() + SUPPORT_FIRST_REPLY_MINUTES * (plus ? 0.5 : 1) * 60_000), priority: conv.type === "SELLER_SUPPORT" || plus ? "HIGH" : "NORMAL" } });
   } else if (t && fromCustomer && t.status === "WAITING_CUSTOMER") {
     t = await db.ticket.update({ where: { id: t.id }, data: { status: "IN_PROGRESS" } });
   } else if (t && !fromCustomer && actor.staff) {

@@ -8,7 +8,7 @@ import { randomToken, randomCode } from "@/server/security/crypto";
 import { computeCart, type CartLine, type Coupon, type Promotion } from "@/lib/pricing";
 import { bestMonthly } from "@/lib/installment";
 import { loc, locText } from "@/lib/localized";
-import { getPlans } from "./catalog";
+import { earlyCampaignIds, getPlans, liveCampaignWhere } from "./catalog";
 import { GUEST_CART_COOKIE } from "./header-data";
 import type { CurrentUser } from "@/server/auth/session";
 import type { CartItemView, CartView } from "@/lib/types";
@@ -139,6 +139,7 @@ async function activePromotions(productIds: string[]): Promise<Promotion[]> {
 
 /** Full cart view with prices recomputed from the database (never trusting the client). */
 export async function loadCartView(cartId: string, user: CurrentUser | null, locale: string): Promise<CartView> {
+  const early = await earlyCampaignIds();
   const cart = await db.cart.findUniqueOrThrow({
     where: { id: cartId },
     include: {
@@ -152,7 +153,7 @@ export async function loadCartView(cartId: string, user: CurrentUser | null, loc
                 include: {
                   shop: { select: { id: true, name: true, slug: true, status: true } },
                   media: { where: { type: "IMAGE" }, orderBy: { sort: "asc" }, take: 1 },
-                  campaignItems: { where: { status: "APPROVED", campaign: { status: "ACTIVE", startsAt: { lte: new Date() }, endsAt: { gt: new Date() } } }, select: { salePrice: true }, take: 1 },
+                  campaignItems: { where: { status: "APPROVED", campaign: liveCampaignWhere(early) }, select: { salePrice: true }, take: 1 },
                   category: { select: { nasiyaEligible: true } },
                 },
               },

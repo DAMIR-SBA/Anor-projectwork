@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { SearchX } from "lucide-react";
 import { after } from "next/server";
-import { categorySubtree, facets as getFacets, listProducts, type Filters, type Sort } from "@/server/services/catalog";
+import { categorySubtree, facets as getFacets, listProducts, type Filters, type Sort, earlyCampaignIds } from "@/server/services/catalog";
 import { recordImpressions, sponsoredCards } from "@/server/services/ads";
 import { applyExperiments, recordExperimentImpressions } from "@/server/services/experiments";
 import { anonId } from "@/server/services/home";
@@ -53,7 +53,8 @@ export async function CatalogListing({ base, searchParams, header, emptyExtra }:
   const filters: Filters = { ...filtersFromParams(searchParams), ...stripUndefined(base) };
   if (one(searchParams.sort)) filters.sort = one(searchParams.sort) as Sort;
   const pageSize = 20;
-  const [data, facets] = await Promise.all([listProducts({ ...filters, page: 1, pageSize }, locale), getFacets(filters)]);
+  // First page is rendered per visitor, so Plus early-access prices apply; later pages come from the cached public API.
+  const [data, facets] = await Promise.all([listProducts({ ...filters, page: 1, pageSize }, locale, await earlyCampaignIds()), getFacets(filters)]);
   // Sponsored slots (first page only): search keywords or the category being browsed. Labelled "Reklama".
   const adContext = filters.q?.trim() ? ({ placement: "SEARCH", query: filters.q } as const) : filters.category ? ({ placement: "CATEGORY", categoryIds: (await categorySubtree(filters.category)) ?? [] } as const) : null;
   const ads = adContext && data.items.length ? await sponsoredCards(adContext, locale, data.items.slice(0, 4).map((p) => p.id)).catch(() => []) : [];

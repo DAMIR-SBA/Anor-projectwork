@@ -3,7 +3,7 @@ import { db } from "@/server/db";
 import { AppError } from "@/server/action";
 import { audit } from "@/server/audit";
 import { hmac, safeEqual } from "@/server/security/crypto";
-import { cardInclude, getPlans, toCard } from "@/server/services/catalog";
+import { cardInclude, earlyCampaignIds, getPlans, toCard } from "@/server/services/catalog";
 import { adCharge, adMetrics, adScore } from "@/lib/seller";
 import { dayKey } from "@/lib/chat";
 import { normalizeForMatch } from "@/lib/review-moderation";
@@ -124,7 +124,7 @@ export async function sponsoredCards(ctx: Context, locale: string, excludeIds: s
   for (const { c } of ranked) {
     if (out.length >= limit) break;
     if (seenShops.has(c.shopId)) continue;
-    const product = await db.product.findFirst({ where: { id: { in: c.productIds.filter((id) => !excludeIds.includes(id)) }, status: "ACTIVE", deletedAt: null, variants: { some: { stock: { gt: 0 } } } }, include: cardInclude(), orderBy: { soldCount: "desc" } });
+    const product = await db.product.findFirst({ where: { id: { in: c.productIds.filter((id) => !excludeIds.includes(id)) }, status: "ACTIVE", deletedAt: null, variants: { some: { stock: { gt: 0 } } } }, include: cardInclude(await earlyCampaignIds()), orderBy: { soldCount: "desc" } });
     if (!product) continue;
     seenShops.add(c.shopId);
     out.push({ ...toCard(product, locale, plans), href: clickUrl(c.id, product.id), sponsored: true, campaignId: c.id });

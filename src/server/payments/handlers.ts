@@ -35,3 +35,8 @@ onPaymentPaid("INSTALLMENT", async (p) => {
   const { settleCardRepayment } = await import("@/server/services/nasiya");
   await settleCardRepayment(p);
 });
+
+onPaymentPaid("SUBSCRIPTION", async (p) => {
+  const { settleSubscriptionPayment } = await import("@/server/services/plus");
+  await settleSubscriptionPayment(p);
+});

@@ -430,6 +430,7 @@
     "passport": "Pasport seriyasi va raqami: AB1234567",
     "pinfl": "JShShIR 14 ta raqamdan iborat",
     "birthDate": "Tug‘ilgan sanani kiriting",
+    "plusActive": "Sizda allaqachon faol ANOR Plus obunasi bor",
     "chatOwnShop": "O‘z do‘koningizga yozib bo‘lmaydi",
     "chatBanned": "Sizga chatda yozish cheklangan",
     "chatBlocked": "Suhbat bloklangan",
@@ -1634,6 +1635,65 @@
       "q3a": "Biz 3 kun va 1 kun oldin eslatamiz. Kechikkan to‘lov yopilmaguncha yangi nasiya xaridlari bloklanadi.",
       "q4": "Ma’lumotlarim xavfsizmi?",
       "q4a": "Pasport raqami yashirilgan, JShShIR esa faqat xesh ko‘rinishida saqlanadi."
+    }
+  },
+  "plus": {
+    "metaTitle": "ANOR Plus — tez va arzon yetkazish, ko‘proq keshbek",
+    "title": "Har bir xaridda ko‘proq foyda",
+    "lead": "Bepul yetkazib berish, +2% keshbek, aksiyalarga erta kirish va navbatsiz qo‘llab-quvvatlash.",
+    "b": {
+      "delivery": "Bepul yetkazish",
+      "deliveryText": "{plus} dan boshlab (oddiy xaridorlar uchun {std} dan).",
+      "cashback": "+2% keshbek",
+      "cashbackText": "Har bir yetkazilgan buyurtmadan qo‘shimcha bonus ballar.",
+      "early": "Aksiyalarga erta kirish",
+      "earlyText": "Flesh-savdo va mavsumiy aksiyalar narxlari Plus a’zolari uchun oldinroq ochiladi.",
+      "support": "Ustuvor qo‘llab-quvvatlash",
+      "supportText": "Murojaatlaringiz navbatsiz, ikki baravar tez ko‘rib chiqiladi."
+    },
+    "plan": "Tarif",
+    "plans": {
+      "PLUS_MONTHLY": "Oylik",
+      "PLUS_ANNUAL": "Yillik"
+    },
+    "perMonth": "har oy",
+    "perMonthEq": "oyiga {amount} ga teng",
+    "method": "To‘lov usuli",
+    "wallet": "Anor Hamyon (balans {amount})",
+    "methods": {
+      "CLICK": "Click",
+      "PAYME": "Payme",
+      "UZCARD": "Uzcard",
+      "HUMO": "Humo",
+      "CARD": "Visa / Mastercard"
+    },
+    "subscribe": "Obuna bo‘lish — {amount}",
+    "terms": "Obuna avtomatik yangilanadi. Istalgan vaqtda bekor qilish mumkin — imtiyozlar to‘langan davr oxirigacha saqlanadi.",
+    "welcome": "ANOR Plus’ga xush kelibsiz!",
+    "youArePlus": "Siz ANOR Plus a’zosisiz",
+    "renewsOn": "Keyingi yangilanish: {date}",
+    "endsOn": "Imtiyozlar {date} gacha amal qiladi",
+    "since": "A’zo: {date} dan beri",
+    "manage": "Obunani boshqarish",
+    "accountSubtitle": "Obuna holati, avtomatik yangilanish va to‘lovlar",
+    "autoRenewOn": "Avtomatik yangilanadi",
+    "autoRenewOff": "Bekor qilingan",
+    "cancel": "Obunani bekor qilish",
+    "cancelConfirm": "Avtomatik yangilanish o‘chiriladi. Imtiyozlar to‘langan davr oxirigacha saqlanadi. Davom etasizmi?",
+    "cancelled": "Avtomatik yangilanish o‘chirildi",
+    "resume": "Obunani davom ettirish",
+    "resumed": "Avtomatik yangilanish yoqildi",
+    "benefits": "Imtiyozlar",
+    "notMember": "Siz hali ANOR Plus a’zosi emassiz.",
+    "payments": "Obuna to‘lovlari",
+    "noPayments": "To‘lovlar hali yo‘q",
+    "faq": {
+      "q1": "Obunani qanday bekor qilaman?",
+      "q1a": "«Mening akkauntim → ANOR Plus» bo‘limida bir tugma bilan. Pul qaytarilmaydi, lekin imtiyozlar to‘langan davr oxirigacha ishlaydi.",
+      "q2": "Yangilanish qanday to‘lanadi?",
+      "q2a": "Avval Anor Hamyon balansidan, yetmasa — saqlangan kartadan. 3 kun oldin eslatamiz.",
+      "q3": "Aksiyalarga erta kirish nima?",
+      "q3a": "Ko‘plab flesh-savdo va mavsumiy aksiyalar Plus a’zolari uchun bir necha soat oldin ochiladi — aksiya narxlari mahsulot kartochkasida ko‘rinadi."
     }
   },
   "home": {

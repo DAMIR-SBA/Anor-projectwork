@@ -8,7 +8,7 @@ import { estimateDelivery, regionZone, type Method } from "@/lib/delivery";
 import { quote, buildSchedule, isPlanEligible } from "@/lib/installment";
 import { locText, loc } from "@/lib/localized";
 import { categoryAncestors } from "./cart";
-import { getPlans } from "./catalog";
+import { earlyCampaignIds, getPlans, liveCampaignWhere } from "./catalog";
 import { bonusSpend, walletDebit } from "./wallet";
 import { markGroupPlaced, newGroupNumber } from "./orders";
 import { startPayment } from "@/server/payments/service";
@@ -53,6 +53,7 @@ type Line = CartLine & {
 async function loadLines(user: CurrentUser, cartId: string | null | undefined, locale: string) {
   const cart = cartId ? await db.cart.findFirst({ where: { id: cartId, kind: "GROUP", ownerId: user.id } }) : await db.cart.findUnique({ where: { userId: user.id } });
   if (!cart) throw new AppError("cartEmpty");
+  const early = await earlyCampaignIds();
   const items = await db.cartItem.findMany({
     where: { cartId: cart.id, selected: true },
     include: {
@@ -63,7 +64,7 @@ async function loadLines(user: CurrentUser, cartId: string | null | undefined, l
               shop: { select: { id: true, tier: true, commissionRate: true, status: true } },
               category: { select: { id: true, commissionRate: true, nasiyaEligible: true, commissionRules: true } },
               media: { where: { type: "IMAGE" }, orderBy: { sort: "asc" }, take: 1 },
-              campaignItems: { where: { status: "APPROVED", campaign: { status: "ACTIVE", startsAt: { lte: new Date() }, endsAt: { gt: new Date() } } }, select: { salePrice: true, campaignId: true }, take: 1 },
+              campaignItems: { where: { status: "APPROVED", campaign: liveCampaignWhere(early) }, select: { salePrice: true, campaignId: true }, take: 1 },
             },
           },
         },
