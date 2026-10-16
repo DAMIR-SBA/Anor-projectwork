@@ -245,6 +245,8 @@ async function afterDelivered(orderId: string) {
     if (allDone) await db.orderGroup.update({ where: { id: order.groupId }, data: { paymentStatus: "PAID" } });
   }
   await trackMission(order.userId, "ORDER").catch(() => {});
+  const { evaluateAchievements } = await import("./gamification");
+  await evaluateAchievements(order.userId).catch(() => {});
   const { recomputeLoyaltyTier } = await import("./loyalty");
   await recomputeLoyaltyTier(order.userId).catch(() => {});
   const { maybeRewardReferral } = await import("./loyalty");

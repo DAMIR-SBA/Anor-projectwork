@@ -6,6 +6,7 @@ import { getFormatter, getTranslations, setRequestLocale } from "next-intl/serve
 import { BadgeCheck, MessageCircle, Package, ShieldCheck, Star, Store, Truck, Zap, MapPin } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { db } from "@/server/db";
+import { trackMission } from "@/server/services/missions";
 import { getCurrentUser } from "@/server/auth/session";
 import { anonId } from "@/server/services/home";
 import { experimentTitle, recordExperimentClick } from "@/server/services/experiments";
@@ -51,7 +52,10 @@ export default async function ProductPage({ params, searchParams }: Props & { se
   const format = await getFormatter();
   const user = await getCurrentUser();
   const aid = await anonId();
-  after(() => recordView(p.id, user?.id ?? null, aid));
+  after(async () => {
+    await recordView(p.id, user?.id ?? null, aid);
+    if (user) await trackMission(user.id, "VIEW_PRODUCTS").catch(() => {});
+  });
   const { ab } = await searchParams;
   if (ab) after(() => recordExperimentClick(p.id, aid, ab));
 

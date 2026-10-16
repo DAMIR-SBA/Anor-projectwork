@@ -9,7 +9,12 @@
     "passport": "Pasport seriyasi va raqami: AB1234567",
     "pinfl": "JShShIR 14 ta raqamdan iborat",
     "birthDate": "Tug‘ilgan sanani kiriting",
-    "plusActive": "Sizda allaqachon faol ANOR Plus obunasi bor"
+    "plusActive": "Sizda allaqachon faol ANOR Plus obunasi bor",
+    "alreadyCheckedIn": "Bugun allaqachon belgilangansiz",
+    "spinClosed": "Omad g‘ildiragi faqat aksiya kunlari ochiq",
+    "alreadySpun": "Bugun g‘ildirakni aylantirgansiz — ertaga qaytib keling",
+    "missionNotDone": "Vazifa hali bajarilmagan",
+    "missionClaimed": "Mukofot allaqachon olingan"
   },
   "checkout": {
     "contractView": "Shartnomani ko‘rish",
@@ -224,6 +229,68 @@
       "q2a": "Avval Anor Hamyon balansidan, yetmasa — saqlangan kartadan. 3 kun oldin eslatamiz.",
       "q3": "Aksiyalarga erta kirish nima?",
       "q3a": "Ko‘plab flesh-savdo va mavsumiy aksiyalar Plus a’zolari uchun bir necha soat oldin ochiladi — aksiya narxlari mahsulot kartochkasida ko‘rinadi."
+    }
+  },
+  "rewards": {
+    "title": "Mukofotlar",
+    "subtitle": "Bonus balans: {points}. Har kuni kiring, vazifalarni bajaring va yutuqlarni yig‘ing.",
+    "checkin": {
+      "title": "Kunlik kirish",
+      "streak": "Ketma-ket: {n} kun",
+      "button": "Belgilanish: +{points}",
+      "doneToday": "Bugun belgilandingiz ✓",
+      "done": "+{points} bonus!",
+      "week": "So‘nggi 7 kun",
+      "rule": "Har kuni 100 ball, har ketma-ket kun uchun +50, har 7-kun — 1 000 ball. Bir kun o‘tkazib yuborilsa, seriya qaytadan boshlanadi."
+    },
+    "spin": {
+      "title": "Omad g‘ildiragi",
+      "subtitle": "{campaign} kunlarida har kuni bir marta aylantiring.",
+      "button": "Aylantirish",
+      "code": "Promokod:",
+      "tomorrow": "Ertaga yana urinib ko‘ring!",
+      "closed": "G‘ildirak aksiya kunlari ochiladi. Yaqinlashib kelayotgan aksiyalarni kuzatib boring."
+    },
+    "prizes": {
+      "points500": "500 bonus ball",
+      "points1000": "1 000 bonus ball",
+      "points5000": "5 000 bonus ball!",
+      "coupon5": "5% chegirma promokodi",
+      "coupon10": "10% chegirma promokodi",
+      "delivery": "Bepul yetkazish promokodi",
+      "none": "Bu safar omad kulib boqmadi"
+    },
+    "prizesShort": {
+      "points500": "500",
+      "points1000": "1 000",
+      "points5000": "5 000",
+      "coupon5": "−5%",
+      "coupon10": "−10%",
+      "delivery": "🚚",
+      "none": "🙂"
+    },
+    "missions": {
+      "title": "Vazifalar",
+      "period": {
+        "DAILY": "Bugun",
+        "WEEKLY": "Shu hafta",
+        "CAMPAIGN": "Aksiya"
+      },
+      "claim": "Olish +{points}",
+      "claimed": "+{points} bonus olindi",
+      "done": "Bajarildi",
+      "none": "Hozircha vazifalar yo‘q"
+    },
+    "achievements": {
+      "title": "Yutuqlar",
+      "earned": "Qo‘lga kiritildi"
+    },
+    "leaderboard": {
+      "title": "Eng faol sharhlovchilar",
+      "you": "Siz shu oy {rank}-o‘rindasiz",
+      "join": "Sharh yozing va reytingga kiring",
+      "reviews": "{n} sharh",
+      "empty": "Shu oy hali sharhlar yo‘q"
     }
   }
 }

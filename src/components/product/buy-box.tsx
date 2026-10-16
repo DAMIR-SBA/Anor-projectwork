@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/toast";
 import { Countdown } from "@/components/ui/interactive";
 import { Button } from "@/components/ui/button";
 import { addToCartAction, subscribeAlertAction } from "@/server/actions/cart";
+import { trackShareAction } from "@/server/actions/rewards";
 import { formatUZS } from "@/lib/money";
 import { fmtDay } from "@/lib/format-date";
 import { cn } from "@/lib/cn";
@@ -67,6 +68,7 @@ export function BuyBox({ product, variants, plans, campaign, alerts, onVariantIm
 
   const share = async () => {
     const url = window.location.href;
+    void trackShareAction({});
     try {
       if (navigator.share) await navigator.share({ title: product.title, url });
       else {

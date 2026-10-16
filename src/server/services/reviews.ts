@@ -268,6 +268,10 @@ export async function moderateReviews(staff: StaffContext, reviewIds: string[], 
         break;
     }
     if (Object.keys(data).length) await db.review.update({ where: { id }, data });
+    if (act === "APPROVE" || act === "RESTORE") {
+      const { evaluateAchievements } = await import("./gamification");
+      await evaluateAchievements(before.userId).catch(() => {});
+    }
     if (act === "REMOVAL_APPROVED" || act === "REMOVAL_REJECTED") {
       await db.reviewReport.updateMany({ where: { reviewId: id, source: "SELLER", status: "OPEN" }, data: { status: act === "REMOVAL_APPROVED" ? "RESOLVED" : "DISMISSED", decidedById: staff.user.id, decidedAt: new Date(), decisionNote: reason } });
     } else if (["APPROVE", "REJECT", "HIDE", "BAN_REVIEWER", "DISMISS_REPORTS", "RESTORE"].includes(act)) {

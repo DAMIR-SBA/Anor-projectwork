@@ -20,6 +20,8 @@ async function main() {
     await seedSellerCabinet(people);
     const { seedAdmin } = await import("./seed/admin");
     await seedAdmin(people);
+    const { seedBuyerPhase8 } = await import("./seed/buyer");
+    await seedBuyerPhase8(people);
   }
   console.log("Done.");
 }
