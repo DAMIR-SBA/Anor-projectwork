@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { redirect } from "@/i18n/navigation";
 import { requireUser } from "@/server/auth/guards";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { openShopChat } from "@/server/services/chat";
 
 /** /chat/new?shop=…&product=…&order=… opens (or creates) the buyer↔shop thread and posts the context card. */

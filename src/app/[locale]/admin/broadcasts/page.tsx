@@ -15,7 +15,7 @@ export default async function BroadcastsPage({ params }: { params: Promise<{ loc
   return (
     <div className="space-y-6">
       <PageHeader title={t("title")} description={t("subtitle")} />
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,560px)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,560px)_minmax(0,1fr)]">
         <BroadcastForm initialSize={size} />
         <Card className="p-2 md:p-3">
           <h2 className="px-2 pb-2 pt-1 font-bold">{t("history")}</h2>

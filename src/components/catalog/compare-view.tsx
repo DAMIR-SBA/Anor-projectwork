@@ -35,7 +35,7 @@ export function CompareView() {
   if (!data) return <div className="skeleton h-96" />;
   const cols = data.cards.length;
   return (
-    <div className="card overflow-x-auto p-3">
+    <div tabIndex={0} className="card overflow-x-auto p-3">
       <div className="mb-2 flex justify-end">
         <button type="button" onClick={clearCompare} className="text-sm font-semibold text-brand-ink">
           {t("clear")}

@@ -55,7 +55,7 @@ export function ReviewBrowser({ productId, stats, initial, signedIn, summary, ct
   return (
     <div>
       {stats.count > 0 ? (
-        <div className="grid gap-6 md:grid-cols-[240px_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-[240px_minmax(0,1fr)]">
           <div>
             <div className="flex items-end gap-3">
               <span className="text-5xl font-extrabold leading-none tracking-tight">{stats.rating.toFixed(1)}</span>

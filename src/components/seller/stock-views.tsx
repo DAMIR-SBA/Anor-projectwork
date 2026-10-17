@@ -53,7 +53,7 @@ export function StockTable({ data }: { data: Overview }) {
   const own = data.warehouses.filter((w) => w.type === "SELLER");
   const platform = data.warehouses.filter((w) => w.type === "PLATFORM");
   return (
-    <div className="card overflow-x-auto p-0">
+    <div tabIndex={0} className="card overflow-x-auto p-0">
       <table className="w-full min-w-[760px] text-sm">
         <thead>
           <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">

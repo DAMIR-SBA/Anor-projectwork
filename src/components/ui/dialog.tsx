@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -19,6 +19,7 @@ type DialogProps = {
 /** Native <dialog>: focus trap, Esc and inert background come from the platform. */
 export function Dialog({ open, onClose, title, children, footer, variant = "center", className, closeLabel = "Close" }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     const el = ref.current;
@@ -45,6 +46,7 @@ export function Dialog({ open, onClose, title, children, footer, variant = "cent
   return (
     <dialog
       ref={ref}
+      aria-labelledby={title ? titleId : undefined}
       className={cn(
         "bg-surface p-0 text-fg shadow-[var(--shadow-lift)] backdrop:bg-[var(--overlay)] backdrop:backdrop-blur-[2px] open:animate-[slide-up_0.2s_ease-out]",
         position,
@@ -56,7 +58,9 @@ export function Dialog({ open, onClose, title, children, footer, variant = "cent
     >
       <div className="flex max-h-[85vh] flex-col">
         <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
-          <h2 className="text-lg font-bold">{title}</h2>
+          <h2 id={titleId} className="text-lg font-bold">
+            {title}
+          </h2>
           <button type="button" onClick={onClose} className="rounded-full p-1.5 text-muted hover:bg-surface-3 hover:text-fg" aria-label={closeLabel}>
             <X className="h-5 w-5" />
           </button>

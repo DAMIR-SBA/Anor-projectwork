@@ -56,7 +56,7 @@ export default async function RewardsPage({ params }: { params: Promise<{ locale
                 </div>
                 <Badge tone="neutral">{t(`missions.period.${m.period}`)}</Badge>
               </div>
-              <ProgressBar className="mt-3" value={Math.min(m.progress, m.target)} max={m.target} tone={m.completedAt ? "success" : "primary"} />
+              <ProgressBar className="mt-3" value={Math.min(m.progress, m.target)} max={m.target} label={loc(m, "title", locale)} tone={m.completedAt ? "success" : "primary"} />
               <div className="mt-2 flex items-center justify-between gap-2 text-sm">
                 <span className="tabular text-muted">
                   {Math.min(m.progress, m.target)} / {m.target}
@@ -83,7 +83,7 @@ export default async function RewardsPage({ params }: { params: Promise<{ locale
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold">{loc(a, "name", locale)}</p>
                   <p className="text-xs text-muted">{loc(a, "desc", locale)}</p>
-                  {!a.earnedAt && <ProgressBar className="mt-2 h-1.5" value={Math.round(a.progress * 100)} />}
+                  {!a.earnedAt && <ProgressBar className="mt-2 h-1.5" value={Math.round(a.progress * 100)} label={loc(a, "name", locale)} />}
                   <p className="mt-1 text-xs font-semibold">{a.earnedAt ? t("achievements.earned") : `+${groupDigits(a.points)}`}</p>
                 </div>
               </li>

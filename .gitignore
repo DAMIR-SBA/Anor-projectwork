@@ -48,3 +48,6 @@ next-env.d.ts
 /e2e/.auth
 .env
 !.env.example
+
+# release archives
+/anor-*.zip

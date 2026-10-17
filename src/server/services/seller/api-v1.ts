@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { syncProductPrice } from "@/server/services/products";
 import { scanAdjust } from "./stock";
 import { advanceOrder } from "./orders";

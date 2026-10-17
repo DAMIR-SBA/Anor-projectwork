@@ -39,7 +39,7 @@ export default async function AdminCouponsPage({ params, searchParams }: { param
       <FilterForm submitLabel={t("search")}>
         <input name="q" defaultValue={sp.q} placeholder={t("searchPlaceholder")} aria-label={t("search")} className={`${inputCls} w-full max-w-xs font-mono uppercase`} />
       </FilterForm>
-      <div className="card overflow-x-auto p-0">
+      <div tabIndex={0} className="card overflow-x-auto p-0">
         <table className="w-full min-w-[860px] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">

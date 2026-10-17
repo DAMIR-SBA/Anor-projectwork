@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { audit } from "@/server/audit";
 import { hmac, safeEqual } from "@/server/security/crypto";
 import { cardInclude, earlyCampaignIds, getPlans, toCard } from "@/server/services/catalog";

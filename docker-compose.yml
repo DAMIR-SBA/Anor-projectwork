@@ -1,0 +1,122 @@
+# Local infrastructure for ANOR.
+#
+#   docker compose up -d                       Postgres, Redis (+ Upstash-compatible REST), Mailpit
+#                                              for `npm run dev` on the host
+#   docker compose --profile app up --build    the whole stack in containers: migrations and seed,
+#                                              the web app on :3000 and the pg-boss worker
+#
+# Values come from `.env` (copy .env.example). POSTGRES_PASSWORD and REDIS_REST_TOKEN are required;
+# the app profile also needs the SESSION_SECRET and SUPER_ADMIN_* values, because the production
+# server refuses to start with placeholders. Ports bind to 127.0.0.1 only.
+
+name: anor
+
+x-app-env: &app-env
+  DATABASE_URL: postgresql://anor:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/anor
+  DIRECT_URL: postgresql://anor:${POSTGRES_PASSWORD}@postgres:5432/anor
+  APP_URL: ${APP_URL:-http://localhost:3000}
+  UPSTASH_REDIS_REST_URL: http://redis-http:80
+  UPSTASH_REDIS_REST_TOKEN: ${REDIS_REST_TOKEN:?set REDIS_REST_TOKEN in .env}
+  EMAIL_DRIVER: smtp
+  EMAIL_SMTP_HOST: mailpit
+  EMAIL_SMTP_PORT: "1025"
+  JOBS_DRIVER: pgboss
+  REALTIME_DRIVER: sse
+  STORAGE_DRIVER: local
+  STORAGE_LOCAL_DIR: /app/storage/uploads
+
+x-app-build: &app-build
+  context: .
+  args:
+    NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    NEXT_PUBLIC_DEMO_MODE: ${NEXT_PUBLIC_DEMO_MODE:-false}
+    NEXT_PUBLIC_ENABLE_SW: ${NEXT_PUBLIC_ENABLE_SW:-}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: anor
+      POSTGRES_DB: anor
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anor -d anor"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Speaks the Upstash REST protocol on top of the redis container (rate limits).
+  redis-http:
+    image: hiett/serverless-redis-http:0.0.10
+    restart: unless-stopped
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: ${REDIS_REST_TOKEN:?set REDIS_REST_TOKEN in .env}
+      SRH_CONNECTION_STRING: redis://redis:6379
+    ports: ["127.0.0.1:8079:80"]
+    depends_on:
+      redis: { condition: service_healthy }
+
+  # Catches every outgoing email: SMTP on :1025, web UI on http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.31
+    restart: unless-stopped
+    ports: ["127.0.0.1:1025:1025", "127.0.0.1:8025:8025"]
+
+  # One-shot: apply migrations, then the idempotent seed (demo data only when DEMO_MODE=true).
+  migrate:
+    profiles: [app]
+    build: { <<: *app-build, target: tools }
+    image: anor-tools
+    command: ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed"]
+    env_file: [{ path: .env, required: false }]
+    environment:
+      <<: *app-env
+      NODE_ENV: production
+    volumes: [uploads:/app/storage/uploads]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  app:
+    profiles: [app]
+    build: { <<: *app-build, target: runner }
+    image: anor-web
+    restart: unless-stopped
+    env_file: [{ path: .env, required: false }]
+    environment: *app-env
+    ports: ["127.0.0.1:3000:3000"]
+    volumes: [uploads:/app/storage/uploads]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis-http: { condition: service_started }
+      mailpit: { condition: service_started }
+
+  # Background jobs and cron schedules (Asia/Tashkent) through pg-boss.
+  worker:
+    profiles: [app]
+    image: anor-tools
+    restart: unless-stopped
+    env_file: [{ path: .env, required: false }]
+    environment:
+      <<: *app-env
+      NODE_ENV: production
+    volumes: [uploads:/app/storage/uploads]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+volumes:
+  pgdata:
+  uploads:

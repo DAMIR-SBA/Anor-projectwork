@@ -10,7 +10,7 @@ type BuyProps = Omit<Parameters<typeof BuyBox>[0], "onVariantImage">;
 export function ProductHero({ gallery, buy, title, meta, aside }: { gallery: GalleryItem[]; buy: BuyProps; title: ReactNode; meta: ReactNode; aside: ReactNode }) {
   const [activeUrl, setActiveUrl] = useState<string | null>(null);
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.75fr)_320px]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.75fr)_320px]">
       <Gallery items={gallery} activeUrl={activeUrl} />
       <div className="space-y-4">
         {title}

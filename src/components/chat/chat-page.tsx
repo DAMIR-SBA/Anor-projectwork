@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { listConversations, markRead, openThread } from "@/server/services/chat";
 import { ChatApp } from "./chat-app";
 

@@ -1,7 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { audit } from "@/server/audit";
 import { verifySecret } from "@/server/security/crypto";
 import { requestMeta } from "@/server/security/request";

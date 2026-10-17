@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { isOwnStorageUrl } from "@/server/storage";
 import { cardsByIds } from "./catalog";
 import { locText } from "@/lib/localized";

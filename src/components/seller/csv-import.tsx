@@ -75,7 +75,7 @@ export function CsvImport() {
             </ul>
           )}
           {preview.sample.length > 0 && (
-            <div className="overflow-x-auto">
+            <div tabIndex={0} className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-sm">
                 <thead>
                   <tr className="text-left text-xs text-muted">

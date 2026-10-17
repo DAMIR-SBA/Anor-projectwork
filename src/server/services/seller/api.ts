@@ -1,7 +1,7 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { audit } from "@/server/audit";
 import { encrypt, sha256 } from "@/server/security/crypto";
 import { enqueue } from "@/server/jobs/enqueue";

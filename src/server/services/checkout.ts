@@ -1,6 +1,6 @@
 import "server-only";
 import { db, type Tx } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { randomDigits } from "@/server/security/crypto";
 import { cashbackRates, loyaltySettings } from "./loyalty";
 import { computeCart, effectiveCommissionRate, commissionFor, logisticsFee, allocate, cashbackRate, type CartLine, type Coupon, type Promotion } from "@/lib/pricing";

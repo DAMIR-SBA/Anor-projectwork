@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { mergePlatform, type PlatformSettings } from "@/lib/platform";
 
 /** Platform settings (cached one minute; /admin/settings invalidates tag "settings"). */

@@ -1,7 +1,7 @@
 import "server-only";
 import { updateTag } from "next/cache";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { audit } from "@/server/audit";
 import { slugify } from "@/lib/seller";
 import type { Staff } from "./shops";

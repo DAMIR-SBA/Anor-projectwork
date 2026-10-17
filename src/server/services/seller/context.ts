@@ -1,7 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { ACTIVE_SHOP_COOKIE } from "@/server/auth/guards";
 
 /** The caller's active shop inside server actions and route handlers (same rule as the cabinet layout). */

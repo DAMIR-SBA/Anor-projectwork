@@ -1,5 +1,5 @@
 import { requireStaff } from "@/server/auth/guards";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { listCanned, listTickets, supportAgents, ticketCounts, ticketDetailView } from "@/server/services/support";
 import { openThread } from "@/server/services/chat";
 import { db } from "@/server/db";

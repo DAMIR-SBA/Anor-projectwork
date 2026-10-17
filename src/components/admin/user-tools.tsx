@@ -88,7 +88,7 @@ export function NasiyaForm({ settings, plans }: { settings: Nasiya; plans: Plan[
     >
       <section className="card space-y-3 p-5">
         <h2 className="font-bold">{t("plans")}</h2>
-        <div className="overflow-x-auto">
+        <div tabIndex={0} className="overflow-x-auto">
           <table className="w-full min-w-[560px] text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-muted">

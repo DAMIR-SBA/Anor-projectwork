@@ -75,7 +75,7 @@ export default async function DesignPage({ params }: { params: Promise<{ locale:
           </Select>
           <Checkbox label="Halal" />
           <Switch label="Dark mode" />
-          <ProgressBar value={64} />
+          <ProgressBar value={64} label="ProgressBar" />
           <div className="flex gap-2">
             <Avatar name="Aziza Karimova" online />
             <Avatar name="Bekzod T" />

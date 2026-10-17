@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { unstable_cache } from "next/cache";
 import { db } from "@/server/db";
 import { env } from "@/server/env";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { randomToken, randomCode } from "@/server/security/crypto";
 import { computeCart, type CartLine, type Coupon, type Promotion } from "@/lib/pricing";
 import { bestMonthly } from "@/lib/installment";

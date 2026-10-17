@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
   // Classic dynamic rendering model: nearly every page depends on the session,
   // cart and locale cookies, so Cache Components would add little here.
   poweredByHeader: false,
+  // The Docker image runs the self-contained server from .next/standalone (see Dockerfile).
+  output: process.env.BUILD_STANDALONE === "1" ? "standalone" : undefined,
   // Fonts read at runtime by the PDF receipt route must ship with the serverless bundle.
   outputFileTracingIncludes: { "/api/orders/[id]/receipt": ["./assets/fonts/**"], "/api/invoices/[id]": ["./assets/fonts/**"], "/api/og": ["./assets/fonts/**"], "/api/og/p/[slug]": ["./assets/fonts/**"] },
   serverExternalPackages: ["@node-rs/argon2", "pg-boss", "exceljs", "pdf-lib", "nodemailer", "web-push"],

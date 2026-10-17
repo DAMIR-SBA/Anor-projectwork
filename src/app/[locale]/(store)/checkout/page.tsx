@@ -3,7 +3,7 @@ import { redirect } from "@/i18n/navigation";
 import { requireUser } from "@/server/auth/guards";
 import { db } from "@/server/db";
 import { quoteCheckout } from "@/server/services/checkout";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { CheckoutView } from "@/components/checkout/checkout-view";
 import { PageHeader } from "@/components/ui/display";
 import { FormError } from "@/components/ui/form";

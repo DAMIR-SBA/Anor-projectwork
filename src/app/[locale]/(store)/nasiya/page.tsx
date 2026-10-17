@@ -58,8 +58,8 @@ export default async function NasiyaLanding({ params }: { params: Promise<{ loca
       </section>
 
       <section>
-        <h2 className="mb-4 text-xl font-extrabold">{t("landing.plans")}</h2>
-        <div className="overflow-x-auto">
+        <h2 id="nasiya-plans" className="mb-4 text-xl font-extrabold">{t("landing.plans")}</h2>
+        <div tabIndex={0} role="region" aria-labelledby="nasiya-plans" className="overflow-x-auto">
           <table className="w-full min-w-[480px] text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">

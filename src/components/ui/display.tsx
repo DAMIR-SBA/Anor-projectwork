@@ -139,11 +139,12 @@ export function Table({ head, children, className, empty }: { head: ReactNode[];
   );
 }
 
-export function ProgressBar({ value, max = 100, className, tone = "primary" }: { value: number; max?: number; className?: string; tone?: "primary" | "accent" | "success" }) {
+/** `label` names the bar for screen readers (what is filling up), e.g. the mission title. */
+export function ProgressBar({ value, max = 100, label, className, tone = "primary" }: { value: number; max?: number; label: string; className?: string; tone?: "primary" | "accent" | "success" }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   const color = tone === "accent" ? "bg-accent" : tone === "success" ? "bg-success" : "bg-primary";
   return (
-    <div className={cn("h-2 w-full overflow-hidden rounded-full bg-surface-3", className)} role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+    <div className={cn("h-2 w-full overflow-hidden rounded-full bg-surface-3", className)} role="progressbar" aria-label={label} aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
       <div className={cn("h-full rounded-full transition-[width]", color)} style={{ width: `${pct}%` }} />
     </div>
   );

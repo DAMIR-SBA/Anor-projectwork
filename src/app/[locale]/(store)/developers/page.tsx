@@ -88,7 +88,7 @@ export default async function DevelopersPage({ params }: { params: Promise<{ loc
                 </div>
                 <p className="text-sm">{t(`ep.${e.id}`)}</p>
                 {e.query && (
-                  <div className="overflow-x-auto">
+                  <div tabIndex={0} role="region" aria-label={`${e.method} ${e.path}: ${t("param")}`} className="overflow-x-auto">
                     <table className="w-full min-w-[480px] text-sm">
                       <thead>
                         <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
@@ -130,7 +130,7 @@ export default async function DevelopersPage({ params }: { params: Promise<{ loc
         </h2>
         <p className="text-sm text-muted">{t("errorsText")}</p>
         <Code>{`{ "error": { "code": "validation_failed", "message": "Request validation failed", "details": [{ "path": "quantity", "message": "…" }] } }`}</Code>
-        <div className="card overflow-x-auto p-0">
+        <div tabIndex={0} role="region" aria-labelledby="dev-errors" className="card overflow-x-auto p-0">
           <table className="w-full min-w-[520px] text-sm">
             <tbody className="divide-y divide-border">
               {ERROR_CODES.map(([status, code, text]) => (

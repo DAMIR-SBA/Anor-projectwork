@@ -109,7 +109,7 @@ async function Payouts({ t, fmt, locale, status, page }: { t: T; fmt: (v: number
           </Link>
         ))}
       </div>
-      <div className="card overflow-x-auto p-0">
+      <div tabIndex={0} className="card overflow-x-auto p-0">
         <table className="w-full min-w-[900px] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
@@ -156,7 +156,7 @@ async function Refunds({ t, fmt, locale, page }: { t: T; fmt: (v: number) => str
   const data = await refundsList(page);
   return (
     <div>
-      <div className="card overflow-x-auto p-0">
+      <div tabIndex={0} className="card overflow-x-auto p-0">
         <table className="w-full min-w-[760px] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
@@ -253,7 +253,7 @@ async function Installments({ t, fmt, locale }: { t: T; fmt: (v: number) => stri
       </div>
       <Card className="p-0">
         <h2 className="border-b border-border p-4 font-bold">{t("overdueReport")}</h2>
-        <div className="overflow-x-auto">
+        <div tabIndex={0} className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
@@ -318,7 +318,7 @@ async function Invoices({ t, fmt, locale, page, status, canManage }: { t: T; fmt
           </Link>
         ))}
       </div>
-      <div className="card overflow-x-auto p-0">
+      <div tabIndex={0} className="card overflow-x-auto p-0">
         <table className="w-full min-w-[880px] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">

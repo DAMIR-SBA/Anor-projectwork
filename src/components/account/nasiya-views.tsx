@@ -99,7 +99,7 @@ export function RepayButton({ contractId, mode, amount, label, variant = "second
 
   return (
     <>
-      <Button size="sm" variant={variant} onClick={() => setOpen(true)}>
+      <Button size="sm" variant={variant} className="h-auto min-h-9 max-w-full whitespace-normal py-1.5 text-center" onClick={() => setOpen(true)}>
         {label}
       </Button>
       {open && (

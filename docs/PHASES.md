@@ -184,3 +184,96 @@ Each phase lists what was built and what is mocked / degraded when no provider i
 - Without `GEMINI_API_KEY` the assistant and the support first line use keywords; answers are template-based.
 - Lunar holidays (Ramazon and Qurbon hayiti) are not computed; they come from seasonal campaigns that admins schedule.
 - Later pages of infinite-scroll listings come from the publicly cached products API and show regular prices during a Plus early-access window; the first page and product pages show Plus prices.
+
+## Phase 9 — B2B, live shopping, trade-in, polish, tests, deploy
+**Built**
+- Privacy and compliance:
+  - Consent: a cookie banner with per-category settings (analytics, marketing) and a stored consent record.
+  - Legal pages: Uzbek and Russian privacy policy, terms and cookie policy.
+  - Your data: profile editing; a personal data export (JSON) from `/account/privacy`; account deletion by anonymization. Deletion is blocked while orders, returns, Nasiya contracts or an owned shop are still active.
+  - A daily retention job deletes data past its retention period.
+- B2B:
+  - Business accounts (`/account/business`) with a taxpayer-registry check of the 9-digit taxpayer ID, bank account and MFO validation, and a "verified business" badge.
+  - Wholesale price tiers on product pages.
+  - Quote requests from 5 units with a target price. Sellers answer in `/seller/quotes` with a price and a validity of 3, 7 or 14 days. An accepted quote goes to the cart at the negotiated price; tiers, promotions and coupons don't stack on it.
+  - Bank-transfer checkout creates an invoice: an A4 PDF with the platform's requisites, VAT included, a payment QR and a 3-bank-day due date. Finance marks it paid in **Admin → Finance → Invoices**, which confirms the orders. Cancelling an order voids the invoice.
+  - An hourly job expires lapsed quotes and overdue invoices.
+- Short videos:
+  - `/videos`: a vertical feed with autoplay and likes; view counts; and a linked product with add to cart.
+  - Sellers upload, hide and show clips in `/seller/videos`. Only clips from approved shops are shown.
+- Live shopping:
+  - `/live` lists streams on air, upcoming and recorded. `/live/<id>` has a player, chat over a public SSE event stream (no user ids on the channel) with polling fallback, a viewer count, likes, pinned products and a "now showing" product.
+  - Timed live prices: below the list price and no lower than 30 % of it. While the stream is on air they apply in the cart and at checkout.
+  - Sellers schedule streams, go live and end them in `/seller/live`.
+- Trade-in:
+  - `/trade-in`: pick a model and answer the condition questions to get an instant graded estimate (A–D).
+  - Requests take photos and the last four IMEI digits, with at most 3 open per buyer.
+  - Staff review them in `/admin/trade-in` and make an offer, valid 7 days. The buyer accepts, then hands the device over within 14 days. The payout goes to Anor Hamyon.
+  - A daily job expires stale offers and handovers.
+- Developer docs:
+  - `/developers` and `/api/v1/openapi.json` are generated from one OpenAPI 3.1 description. It covers the public catalog API, the seller API (scopes, errors, rate limits) and webhooks.
+- SEO:
+  - `sitemap.xml` with hreflang alternates for uz / oz / ru, built at request time and cached for an hour.
+  - `robots.txt`, with `NOINDEX` for previews.
+  - Canonical URLs.
+  - OG and Twitter cards for the site and every product, at `/api/og` and `/api/og/p/<slug>`.
+  - Organization, WebSite and Product structured data.
+- PWA:
+  - A manifest with icons and shortcuts.
+  - A service worker: offline cache for the catalog and static assets, never for account or checkout pages, cleared on sign-out. It also shows an offline page and handles push.
+  - An install prompt, plus an iOS hint.
+  - A Web Push opt-in on the notifications page.
+  - Deep links: `web+anor:` and `/open?to=`.
+  - Android `assetlinks.json` and the iOS `apple-app-site-association` file, served when configured.
+- Accessibility (WCAG 2.1 AA):
+  - Contrast-safe status and accent tokens in both themes.
+  - Accessible names for dialogs, icon buttons, carousels and menus.
+  - A skip link and visible focus.
+  - Results: axe-core reports no violations on key pages in light and dark themes; ESLint, including the React Compiler rules, reports 0 problems.
+- Observability:
+  - `/health` and `/api/health` report the database, jobs and storage. They answer 503 when the database is down.
+  - Structured JSON logs that redact credential fields.
+  - Errors go to the `ErrorEvent` table and to Sentry (envelope API) when a DSN is set.
+- Tests:
+  - 99 Vitest unit tests.
+  - A Playwright suite:
+    - guest search, then sign-in at checkout, then card payment;
+    - cash on delivery from the product page, on desktop and on a phone viewport;
+    - buyer–seller chat with the seller's reply;
+    - the staff invite flow: invite, claim, staff sign-in and revoke;
+    - B2B: quote, accept, bank transfer, invoice marked paid;
+    - videos, live chat and a live price in the cart;
+    - trade-in from estimate to wallet payout;
+    - SEO and PWA endpoints, with the offline page on production builds;
+    - axe scans in both themes.
+- CI and deploy:
+  - GitHub Actions: lint, typecheck and unit tests, then a production build and the e2e suite against a Postgres service with per-run secrets.
+  - `vercel.json` cron schedules, converted to UTC.
+  - A multi-stage `Dockerfile`: a standalone server running as non-root with a health check, plus a tools image for migrations, the seed and the worker.
+  - `docker-compose.yml`: Postgres, Redis with an Upstash-compatible REST proxy, and Mailpit; the `app` profile adds migrate + seed, the web app and the pg-boss worker.
+  - README covering setup, environment, scripts, Docker and Vercel + Supabase deploy; `docs/BACKUP.md` for backup and restore.
+  - `npm run job -- <name>` runs a job once from the command line. CI loads every job module in plain Node.
+  - Fix: the pg-boss worker crashed on start because services imported `AppError` through `server/action.ts`, which loads `next/navigation`. `AppError` and `normalizePhone` now live in `server/errors.ts`, and all scheduled jobs were checked against a fresh database.
+- Fixes found by running the suite against production builds (host and Docker) on a phone viewport:
+  - Checkout scrolled sideways on phones: the row of delivery slots widened the page to 1024 px. Two-pane layouts now use an explicit single mobile column.
+  - The Nasiya early-payoff button overflowed on small screens.
+  - Wide tables in scroll containers are keyboard-focusable.
+  - Checkout no longer re-quotes while it navigates to the success page; that had logged "Failed to find Server Action".
+  - The offline test now really cuts the service worker's network, because `setOffline` does not apply to worker fetches.
+  - The a11y spec also fails on any sideways scrolling (WCAG 1.4.10 reflow).
+- Seed:
+  - "Yusupov Savdo" MChJ (demo) as a verified business buyer, with an open quote and an answered one.
+  - Demo payee requisites.
+  - Six short videos, rendered locally by `scripts/demo-videos.sh` (MP4 + WebM).
+  - Three live streams: one on air, one scheduled and one ended.
+  - Trade-in requests at three stages.
+  - A home address for the demo buyer.
+
+**Mocked / degraded**
+- The taxpayer registry is a mock. Any valid 9-digit ID is found, except IDs ending in `000` (not found) and `999` (inactive). Invoice requisites are demo values until finance sets real ones in **Admin → Settings**.
+- No bank-statement import: finance marks invoices paid by hand.
+- No streaming ingest (RTMP/WebRTC). A stream plays a seller-provided HTTPS video URL (MP4/WebM, or HLS where the browser plays it natively), and the seeded "live" stream loops a recorded clip. Viewer counts come from open event-stream connections per server instance.
+- Videos are stored as uploaded. There is no transcoding, no adaptive bitrate and no pre-publication review queue. The demo clips are short procedural animations.
+- Trade-in inspection is manual. There is no courier pickup booking or IMEI blacklist check, and the price table is static.
+- Push needs VAPID keys. Deep-link association files need the native app identifiers, and no native app exists.
+- In the e2e suite, the offline service-worker test runs only against a production build (`CI` or `E2E_PROD=1`).

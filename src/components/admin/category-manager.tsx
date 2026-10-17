@@ -177,7 +177,7 @@ export function CategoryManager({ rows, canEdit }: { rows: Row[]; canEdit: boole
           {t("add")}
         </Button>
       )}
-      <div className="card overflow-x-auto p-0">
+      <div tabIndex={0} className="card overflow-x-auto p-0">
         <table className="w-full min-w-[760px] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
@@ -243,7 +243,7 @@ export function CommissionTable({ rows, canEdit }: { rows: Row[]; canEdit: boole
   const changed = Object.keys(edits);
   return (
     <div>
-      <div className="card overflow-x-auto p-0">
+      <div tabIndex={0} className="card overflow-x-auto p-0">
         <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">

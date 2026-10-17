@@ -7,6 +7,7 @@ import { getCurrentUser, getStaffSession, type CurrentUser, type StaffContext } 
 import { isSameOrigin, requestMeta, type RequestMeta } from "@/server/security/request";
 import { rateLimit } from "@/server/security/rate-limit";
 import { log } from "@/server/log";
+import { AppError, normalizePhone } from "@/server/errors";
 import type { Permission } from "@/lib/rbac";
 
 export type ActionResult<T = unknown> =
@@ -26,15 +27,7 @@ function echoValues(raw: unknown): Record<string, string> | undefined {
 }
 
 /** Throw from services; `code` is a key of the "errors" message namespace. */
-export class AppError extends Error {
-  constructor(
-    public code: string,
-    public values?: Record<string, string | number>,
-    public field?: string,
-  ) {
-    super(code);
-  }
-}
+export { AppError, normalizePhone };
 
 type AuthMode = "public" | "user" | "staff";
 
@@ -184,9 +177,3 @@ export const zBool = z.preprocess((v) => v === true || v === "true" || v === "on
 export const zInt = (min = 0, max = Number.MAX_SAFE_INTEGER) => z.coerce.number().int().min(min).max(max);
 export const zId = z.string().min(10).max(40);
 
-export function normalizePhone(raw: string): string | null {
-  const digits = raw.replace(/\D/g, "");
-  if (digits.length === 9) return `+998${digits}`;
-  if (digits.length === 12 && digits.startsWith("998")) return `+${digits}`;
-  return null;
-}

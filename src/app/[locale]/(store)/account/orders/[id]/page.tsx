@@ -87,7 +87,7 @@ export default async function OrderPage({ params }: { params: Promise<{ locale: 
         </Card>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <Card className="p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-bold">{t("items")}</h2>

@@ -4,7 +4,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { db } from "@/server/db";
 import { env } from "@/server/env";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { audit } from "@/server/audit";
 import { log } from "@/server/log";
 import { listJobs } from "@/server/jobs/registry";

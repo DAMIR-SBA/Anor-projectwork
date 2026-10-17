@@ -211,7 +211,7 @@ export function ParticipantsTable({ campaignId, rows, minDiscount }: { campaignI
           </>
         )}
       </div>
-      <div className="overflow-x-auto">
+      <div tabIndex={0} className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">

@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "@/server/db";
 import { log } from "@/server/log";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { randomToken } from "@/server/security/crypto";
 import { PROVIDERS, cardBrand } from "./providers";
 import { walletCredit } from "@/server/services/wallet";

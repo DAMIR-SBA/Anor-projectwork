@@ -24,7 +24,7 @@ export default async function StaffPage() {
   return (
     <div className="space-y-6">
       <PageHeader title={t("staffList")} description={t("staffSubtitle")} actions={<Link href="/admin/staff/roles" className="text-sm font-semibold text-brand-ink">{t("rolesTitle")} →</Link>} />
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <Card className="p-2 md:p-3">
           <Table head={[t("member"), t("role"), "", t("lastLogin"), ""]}>
             {staff.map((s) => (

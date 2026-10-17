@@ -1,7 +1,7 @@
 import "server-only";
 import { randomInt } from "node:crypto";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { notify } from "@/server/notify";
 import { randomCode } from "@/server/security/crypto";
 import { bonusEarn } from "./wallet";

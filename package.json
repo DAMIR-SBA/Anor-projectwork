@@ -18,6 +18,7 @@
     "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset --force",
     "worker": "tsx --conditions=react-server --tsconfig tsconfig.json src/worker.ts",
+    "job": "tsx --conditions=react-server --tsconfig tsconfig.json scripts/run-job.ts",
     "postinstall": "prisma generate",
     "telegram:setup": "tsx scripts/telegram-setup.ts"
   },

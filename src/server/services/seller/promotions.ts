@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { audit } from "@/server/audit";
 import { loc } from "@/lib/localized";
 import type { PromotionType } from "@/generated/prisma/enums";

@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { audit } from "@/server/audit";
 import { compareRates, KNOWN_FLAGS, normalizeVariants, type FlagVariant } from "@/lib/flags";
 import { mergePlatform, type PlatformSettings } from "@/lib/platform";

@@ -242,7 +242,7 @@ export function ProductEditor({ initial, categories, brands, tier, shopApproved 
             </Button>
           </div>
           {err("variants") && <p className="text-sm text-danger">{err("variants")}</p>}
-          <div className="overflow-x-auto">
+          <div tabIndex={0} className="overflow-x-auto">
             <table className="w-full min-w-[920px] text-sm">
               <thead>
                 <tr className="text-left text-xs text-muted">

@@ -36,7 +36,7 @@ export default async function AdminOrdersPage({ params, searchParams }: { params
           ))}
         </select>
       </FilterForm>
-      <div className="card overflow-x-auto p-0">
+      <div tabIndex={0} className="card overflow-x-auto p-0">
         <table className="w-full min-w-[880px] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">

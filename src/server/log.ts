@@ -7,10 +7,13 @@ function threshold(): number {
   return ORDER[(process.env.LOG_LEVEL as Level) || "info"] ?? 20;
 }
 
+// Context keys whose values never reach the log output (credentials, codes, card numbers).
+const SECRET_KEYS = /pass(word)?|secret|token|authorization|cookie|otp|access_?code|^pin$|^pan$|card_?number/i;
+
 function write(level: Level, msg: string, ctx?: Record<string, unknown>) {
   if (ORDER[level] < threshold()) return;
   const line = { level, time: new Date().toISOString(), msg, ...ctx };
-  const text = JSON.stringify(line, (_k, v) => (v instanceof Error ? { name: v.name, message: v.message, stack: v.stack } : v));
+  const text = JSON.stringify(line, (k, v) => (k && SECRET_KEYS.test(k) ? "[redacted]" : v instanceof Error ? { name: v.name, message: v.message, stack: v.stack } : v));
   if (level === "error") console.error(text);
   else if (level === "warn") console.warn(text);
   else console.log(text);

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/api/cron/campaigns.tick",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/fraud.scan",
+      "schedule": "30 22 * * *"
+    },
+    {
+      "path": "/api/cron/b2b.hourly",
+      "schedule": "20 * * * *"
+    },
+    {
+      "path": "/api/cron/nasiya.daily",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/plus.daily",
+      "schedule": "20 3 * * *"
+    },
+    {
+      "path": "/api/cron/retention.purge",
+      "schedule": "45 21 * * *"
+    },
+    {
+      "path": "/api/cron/tradein.daily",
+      "schedule": "30 22 * * *"
+    },
+    {
+      "path": "/api/cron/orders.expire-unpaid",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/orders.pickup-reminders",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/orders.fbs-sla",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/bonus.expire",
+      "schedule": "30 19 * * *"
+    },
+    {
+      "path": "/api/cron/alerts.price-stock",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/prices.scheduled",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/reviews.summary-refresh",
+      "schedule": "20 21 * * *"
+    },
+    {
+      "path": "/api/cron/payouts.generate",
+      "schedule": "15 20 * * 0"
+    },
+    {
+      "path": "/api/cron/payouts.settle",
+      "schedule": "0 0 * * 3"
+    },
+    {
+      "path": "/api/cron/returns.auto-approve",
+      "schedule": "40 * * * *"
+    },
+    {
+      "path": "/api/cron/stock.low-alerts",
+      "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/cron/support.sla",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/support.autoclose",
+      "schedule": "10 22 * * *"
+    }
+  ]
+}

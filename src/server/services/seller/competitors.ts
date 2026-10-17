@@ -1,7 +1,7 @@
 import "server-only";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { syncProductPrice } from "@/server/services/products";
 import { pricePosition } from "@/lib/seller";
 import { locText } from "@/lib/localized";

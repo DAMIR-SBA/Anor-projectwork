@@ -2,7 +2,7 @@ import "server-only";
 import { agingBucket } from "@/lib/admin";
 import { DEFAULT_NASIYA, type NasiyaSettings } from "@/lib/nasiya";
 import { db } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { audit } from "@/server/audit";
 import { notify } from "@/server/notify";
 import { walletCredit, walletDebit } from "@/server/services/wallet";

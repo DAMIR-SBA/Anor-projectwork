@@ -1,6 +1,6 @@
 import "server-only";
 import { db, type Tx } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { audit } from "@/server/audit";
 import { notify } from "@/server/notify";
 import { sendSellerTelegram, escapeHtml } from "@/server/notify/telegram";

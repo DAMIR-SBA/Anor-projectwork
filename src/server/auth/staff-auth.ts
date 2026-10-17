@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "@/server/db";
 import { env } from "@/server/env";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { audit } from "@/server/audit";
 import { decrypt, encrypt, hashSecret, randomCode, randomDigits, sha256, normalizeCode, totpVerify, verifySecret } from "@/server/security/crypto";
 import { rateLimit, LIMITS } from "@/server/security/rate-limit";

@@ -41,7 +41,7 @@ export default async function AccountNasiyaPage({ params }: { params: Promise<{ 
             </div>
             <p className="text-sm text-muted">{t("account.limitOf", { used: fmt(o.used), limit: fmt(o.limit) })}</p>
           </div>
-          <ProgressBar className="mt-3" value={o.used} max={o.limit} tone="accent" />
+          <ProgressBar className="mt-3" value={o.used} max={o.limit} label={t("account.limitOf", { used: fmt(o.used), limit: fmt(o.limit) })} tone="accent" />
           <p className="mt-3 text-sm text-muted">{t("account.howToUse")}</p>
         </Card>
       ) : app?.status === "PENDING" ? (

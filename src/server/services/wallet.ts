@@ -1,6 +1,6 @@
 import "server-only";
 import { db, type Tx } from "@/server/db";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import type { WalletTxType, BonusReason } from "@/generated/prisma/enums";
 
 /** Credit a wallet atomically and append a ledger row. */

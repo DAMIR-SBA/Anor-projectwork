@@ -90,7 +90,7 @@ export default async function SellerRatingPage({ params }: { params: Promise<{ l
               <p className="tabular mt-1 text-2xl font-extrabold">{c.value}</p>
               <p className="text-[13px] text-muted">{c.detail}</p>
               <div className="mt-3 flex items-center gap-2">
-                <ProgressBar value={part} tone={part >= 80 ? "success" : part >= 65 ? "accent" : "primary"} />
+                <ProgressBar value={part} label={t(`components.${c.key}`)} tone={part >= 80 ? "success" : part >= 65 ? "accent" : "primary"} />
                 <span className="tabular w-10 text-right text-[13px] font-semibold">{Math.round(part)}</span>
               </div>
               <p className="mt-1 text-[12px] text-muted">{t("weight", { n: Math.round(r.weights[c.key] * 100) })}</p>

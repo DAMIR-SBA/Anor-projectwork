@@ -78,10 +78,14 @@ export function CheckoutView(props: Props) {
   const [quoting, startQuote] = useTransition();
   const [placing, startPlace] = useTransition();
   const seq = useRef(0);
+  /** Set while the order is being placed: no more quotes (the cart is about to be emptied). */
+  const placed = useRef(false);
 
   useEffect(() => {
+    if (placed.current) return;
     const id = ++seq.current;
     const handle = setTimeout(() => {
+      if (placed.current) return;
       startQuote(async () => {
         const r = await quoteCheckoutAction({ cartId: props.cartId, deliveryMethod: method, addressId: method === "PICKUP" ? null : addressId, pickupPointId: method === "PICKUP" ? (pvz?.id ?? null) : null, bonus });
         if (id !== seq.current) return;
@@ -101,6 +105,8 @@ export function CheckoutView(props: Props) {
 
   const place = () =>
     startPlace(async () => {
+      placed.current = true;
+      seq.current++;
       const r = await placeOrderAction({
         cartId: props.cartId,
         deliveryMethod: method,
@@ -119,7 +125,10 @@ export function CheckoutView(props: Props) {
         useWallet: useWallet || payment === "WALLET",
         acceptContract: payment === "INSTALLMENT" && accepted,
       });
-      if (!r.ok) return void toast.error(r.error);
+      if (!r.ok) {
+        placed.current = false;
+        return void toast.error(r.error);
+      }
       const d = r.data as { groupId: string; redirectUrl: string | null };
       router.push(d.redirectUrl ?? `/checkout/success/${d.groupId}`);
     });
@@ -161,8 +170,8 @@ export function CheckoutView(props: Props) {
   };
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-      <div className="space-y-5">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="min-w-0 space-y-5">
         <section className="card space-y-4 p-4 md:p-5">
           <h2 className="text-lg font-extrabold">{t("delivery")}</h2>
           <div className="flex flex-col gap-2 sm:flex-row">

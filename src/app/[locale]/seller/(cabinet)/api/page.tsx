@@ -82,7 +82,7 @@ export default async function SellerApiPage({ params }: { params: Promise<{ loca
             <code className="font-mono text-[13px]">{`{ "error": { "code": "not_found", "message": "…" } }`}</code> · 401, 403, 404, 409, 422, 429
           </dd>
         </dl>
-        <div className="overflow-x-auto">
+        <div tabIndex={0} className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">

@@ -1,7 +1,7 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
-import { AppError } from "@/server/action";
+import { AppError } from "@/server/errors";
 import { LIMITS, rateLimit } from "@/server/security/rate-limit";
 import { reportError } from "@/server/observability";
 import { resolveApiKey } from "@/server/services/seller/api";
