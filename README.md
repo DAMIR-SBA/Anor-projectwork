@@ -173,12 +173,14 @@ To run one job by hand: `docker compose --profile app run --rm worker npm run jo
    - Under *Project settings → Database*, copy the **Transaction pooler** URL (port 6543) into `DATABASE_URL` and add `?pgbouncer=true&connection_limit=1`.
    - Copy the **direct** or **Session** URL (port 5432) into `DIRECT_URL`.
    - Create a public Storage bucket named `anor` (or set `STORAGE_SUPABASE_BUCKET`).
-2. **Schema and seed.** Run these once from your machine, with `.env` pointing at Supabase:
-   ```bash
-   npx prisma migrate deploy
-   npm run db:seed        # DEMO_MODE=false for a clean production database
-   ```
-   Re-run `npx prisma migrate deploy` before each deploy that adds a migration. Doing that in CI or locally keeps migrations out of the build.
+2. **Schema and seed.** Either way works, and both are safe to repeat:
+   - **From GitHub, no local setup:** add the repository secrets `DATABASE_URL`, `DIRECT_URL`, `SUPER_ADMIN_LOGIN`, `SUPER_ADMIN_PASSWORD` and `SUPER_ADMIN_ACCESS_CODE` (*Settings → Secrets and variables → Actions*). Then open *Actions → Database setup → Run workflow*. Untick "demo" for a clean production database.
+   - **From your machine,** with `.env` pointing at Supabase:
+     ```bash
+     npx prisma migrate deploy
+     npm run db:seed        # DEMO_MODE=false for a clean production database
+     ```
+   Repeat the migration step before each deploy that adds a migration. Doing it outside the build keeps preview deployments from changing the production schema.
 3. **Vercel.** Import the repository; the framework preset and `npm run build` work as they are. Then set the environment variables:
    - core: `APP_URL` and `NEXT_PUBLIC_APP_URL` (the production domain), `SESSION_SECRET`, `SUPER_ADMIN_*`, `CRON_SECRET`;
    - database: `DATABASE_URL`, `DIRECT_URL`;
@@ -186,9 +188,9 @@ To run one job by hand: `docker compose --profile app run --rm worker npm run jo
    - drivers: `JOBS_DRIVER=inline`, `REALTIME_DRIVER=poll`;
    - email and SMS providers, `UPSTASH_REDIS_REST_*` (rate limits shared across instances), and any optional integrations.
    - Set `NOINDEX=1` on preview deployments.
-4. **Cron.** `vercel.json` schedules every job at `/api/cron/<job>`. Vercel sends `Authorization: Bearer $CRON_SECRET`, which the route checks.
-   - Schedules are in UTC. They match the Asia/Tashkent times the worker uses, which are 5 hours ahead.
-   - Some jobs run every 5–15 minutes, which needs a Vercel plan that allows sub-daily crons. On other plans, run `npm run worker` on any always-on host, or call the cron URLs from an external scheduler.
+4. **Cron.** Scheduled jobs run at `/api/cron/<job>`, and the route checks `Authorization: Bearer $CRON_SECRET`.
+   - `vercel.json` holds the 12 daily and weekly jobs. Vercel's free Hobby plan accepts only daily crons, and runs them within the scheduled hour. Schedules are in UTC and match the Asia/Tashkent times the worker uses, which are 5 hours ahead.
+   - The 8 jobs that run every 5–60 minutes are called by the GitHub workflow `.github/workflows/scheduled-jobs.yml`. Add the repository secrets `APP_URL` (your site's address) and `CRON_SECRET` (same value as on Vercel) to turn it on. Alternatively, run `npm run worker` on any always-on host, which runs every job on its own schedule.
 5. **Integrations.**
    - Google OAuth redirect: `https://<domain>/api/auth/google/callback`.
    - Telegram: run `npm run telegram:setup` with the bot tokens and a public `APP_URL`.

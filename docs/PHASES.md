@@ -248,7 +248,7 @@ Each phase lists what was built and what is mocked / degraded when no provider i
     - axe scans in both themes.
 - CI and deploy:
   - GitHub Actions: lint, typecheck and unit tests, then a production build and the e2e suite against a Postgres service with per-run secrets.
-  - `vercel.json` cron schedules, converted to UTC.
+  - `vercel.json` holds the 12 daily and weekly cron schedules, converted to UTC, because Vercel's Hobby plan rejects more frequent crons. A GitHub Actions workflow calls the 8 frequent jobs, and a manual "Database setup" workflow applies migrations and runs the seed without local tools.
   - A multi-stage `Dockerfile`: a standalone server running as non-root with a health check, plus a tools image for migrations, the seed and the worker.
   - `docker-compose.yml`: Postgres, Redis with an Upstash-compatible REST proxy, and Mailpit; the `app` profile adds migrate + seed, the web app and the pg-boss worker.
   - README covering setup, environment, scripts, Docker and Vercel + Supabase deploy; `docs/BACKUP.md` for backup and restore.

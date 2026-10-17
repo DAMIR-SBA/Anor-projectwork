@@ -1,0 +1,59 @@
+name: Database setup
+
+# Run by hand: Actions → Database setup → Run workflow. Do it once after creating the database,
+# and again before deploying a version that adds a migration. It applies the migrations and,
+# if chosen, runs the seed (permissions, roles, the owner account and optional demo data).
+# Repository secrets: DATABASE_URL and DIRECT_URL (Supabase pooler URLs), plus
+# SUPER_ADMIN_LOGIN, SUPER_ADMIN_PASSWORD and SUPER_ADMIN_ACCESS_CODE for the seed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: "Run the seed (safe to repeat)"
+        type: boolean
+        default: true
+      demo:
+        description: "Include demo shops, products, orders and one-click demo accounts"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: database
+  cancel-in-progress: false
+
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+    steps:
+      - name: Check secrets
+        run: |
+          if [ -z "$DIRECT_URL" ]; then
+            echo "::error::Add the DIRECT_URL repository secret (Supabase session pooler URL, port 5432)."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+      - name: Seed
+        if: inputs.seed
+        env:
+          # Production mode makes the seed refuse a missing or placeholder owner account.
+          NODE_ENV: production
+          DEMO_MODE: ${{ inputs.demo && 'true' || 'false' }}
+          SUPER_ADMIN_LOGIN: ${{ secrets.SUPER_ADMIN_LOGIN }}
+          SUPER_ADMIN_PASSWORD: ${{ secrets.SUPER_ADMIN_PASSWORD }}
+          SUPER_ADMIN_ACCESS_CODE: ${{ secrets.SUPER_ADMIN_ACCESS_CODE }}
+        run: npx prisma db seed

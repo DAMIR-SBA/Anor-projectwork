@@ -1,0 +1,57 @@
+name: Scheduled jobs
+
+# Jobs that must run more often than once a day. Vercel's Hobby plan only allows daily cron
+# jobs (vercel.json keeps those), so GitHub calls the app's /api/cron/<job> endpoints instead.
+# Needs two repository secrets: APP_URL (https://your-site.vercel.app) and CRON_SECRET (the
+# same value as on Vercel). Without them every run exits quietly. GitHub may start scheduled
+# runs a few minutes late, and pauses them after 60 days without commits to the repository.
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+    - cron: "*/15 * * * *"
+    - cron: "20 * * * *"
+  workflow_dispatch:
+    inputs:
+      jobs:
+        description: "Job names to run now, separated by spaces"
+        required: true
+        default: "campaigns.tick orders.expire-unpaid support.sla prices.scheduled"
+
+permissions: {}
+
+concurrency:
+  group: scheduled-jobs-${{ github.event.schedule || 'manual' }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Call the cron endpoints
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SCHEDULE: ${{ github.event.schedule }}
+          MANUAL_JOBS: ${{ inputs.jobs }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::notice::Add the APP_URL and CRON_SECRET repository secrets to run scheduled jobs."
+            exit 0
+          fi
+          case "$SCHEDULE" in
+            "*/5 * * * *")  jobs="campaigns.tick orders.expire-unpaid support.sla prices.scheduled" ;;
+            "*/15 * * * *") jobs="orders.fbs-sla" ;;
+            "20 * * * *")   jobs="b2b.hourly alerts.price-stock returns.auto-approve" ;;
+            *)              jobs="$MANUAL_JOBS" ;;
+          esac
+          failed=0
+          for job in $jobs; do
+            if ! [[ "$job" =~ ^[a-z0-9.-]+$ ]]; then echo "::error::Invalid job name: $job"; failed=1; continue; fi
+            code=$(curl -sS -o response.json -w '%{http_code}' -X POST --max-time 300 \
+              -H "Authorization: Bearer $CRON_SECRET" "${APP_URL%/}/api/cron/$job" || echo 000)
+            echo "$job → HTTP $code $(head -c 300 response.json 2>/dev/null)"
+            [ "$code" = "200" ] || failed=1
+          done
+          exit $failed
